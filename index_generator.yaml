@@ -1,0 +1,16 @@
+index_generator:
+  exclude:
+    - '**.g.dart'
+  # Define the paths of the folders in which to generate the index files
+  indexes:
+    - path: lib
+      disclaimer: false
+      comments: |
+        Copyright 2023 The MobiPkg Authors. All rights reserved.
+        Use of this source code is governed by a Apache 2.0 license that can be
+        found in the LICENSE file.
+      exports:
+        - package: package:args/args.dart
+        - package: dart:async
+        - package: dart:collection
+        - package: dart:io

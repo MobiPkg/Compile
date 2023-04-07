@@ -1,5 +1,17 @@
-import 'package:compile/compile.dart' as compile;
+import 'package:compile/compile.dart';
 
-void main(List<String> arguments) {
-  print('Hello world: ${compile.calculate()}!');
+Future<void> main(List<String> arguments) async {
+  final Commander commander = Commander();
+  if (arguments.length == 1) {
+    arguments = convertArgs(arguments.first);
+  }
+  await commander.run(arguments);
+}
+
+List<String> convertArgs(String arg) {
+  arg = arg.trim();
+  while (arg.contains('  ')) {
+    arg = arg.replaceAll('  ', ' ');
+  }
+  return arg.split(' ');
 }

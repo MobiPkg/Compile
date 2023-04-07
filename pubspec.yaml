@@ -4,11 +4,13 @@ version: 0.0.1-dev.1
 repository: https://github.com/MobiPkg/Compile
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
-
-# dependencies:
-#   path: ^1.8.0
+  sdk: ">=2.17.0 <3.0.0"
 
 dev_dependencies:
   lints: ^2.0.0
   test: ^1.21.0
+  
+dependencies:
+  args: ^2.4.0
+  path: ^1.8.3
+  process_run: ^0.12.5+3
