@@ -10,8 +10,13 @@
             "type": "dart",
             "program": "bin/compile.dart",
             "args": [
-                "c a -h -C example"
-            ]
+                "c autotools -h",
+            ],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "ANDROID_NDK_HOME": "$NDK_HOME",
+                "GITLAB_TOKEN": "$GITLAB_TOKEN",
+            }
         }
     ]
 }

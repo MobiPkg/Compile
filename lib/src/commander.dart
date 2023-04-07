@@ -17,10 +17,9 @@ class Commander {
 
   Future<void> run(List<String> args) async {
     try {
-      checkEnv();
-
       _commanders.forEach(runner.addCommand);
       globalOption(args);
+      checkEnv();
 
       await runner.run(args);
     } on UsageException catch (e, st) {
@@ -30,7 +29,6 @@ class Commander {
       print('Happen error when run command');
       print(e);
       print(st);
-      _runner.usageException(e.toString());
     }
   }
 
@@ -54,6 +52,12 @@ class Commander {
       defaultsTo: true,
       help: 'Print this usage information.',
     );
+    argParser.addFlag(
+      'upload',
+      abbr: 'u',
+      defaultsTo: false,
+      help: 'Upload to gitlab.',
+    );
     argParser.addOption(
       'project-path',
       abbr: 'C',
@@ -67,6 +71,7 @@ class Commander {
     compileOptions.android = result['android'] as bool;
     compileOptions.ios = result['ios'] as bool;
     compileOptions.projectPath = result['project-path'] as String;
+    compileOptions.upload = result['upload'] as bool;
   }
 
   void checkEnv() {
@@ -74,11 +79,19 @@ class Commander {
       'ANDROID_NDK_HOME',
     ];
 
-    for (final envKey in needCheck) {
-      final env = Platform.environment[envKey];
+    void check(String key) {
+      final env = Platform.environment[key];
       if (env == null || env.isEmpty) {
-        throw Exception('Please set $envKey');
+        throw Exception('Please set $key');
       }
+    }
+
+    for (final envKey in needCheck) {
+      check(envKey);
+    }
+
+    if (compileOptions.upload) {
+      check('GITLAB_TOKEN');
     }
   }
 }

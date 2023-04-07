@@ -8,4 +8,6 @@ class CompileOptions {
   bool ios = true;
 
   String projectPath = '.';
+
+  bool upload = false;
 }

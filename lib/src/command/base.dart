@@ -1,5 +1,6 @@
 import 'package:args/command_runner.dart';
 import 'package:compile/compile.dart';
+import 'package:path/path.dart';
 
 abstract class BaseCommand<T> extends Command<T> {
   BaseCommand() {
@@ -63,4 +64,26 @@ abstract class BaseListCommand extends BaseVoidCommand {
 
   @override
   void runCommand() {}
+}
+
+mixin CompilerCommandMixin on BaseVoidCommand {
+  @override
+  Future<void> runCommand() async {
+    final projectDir = normalize(absolute(compileOptions.projectPath));
+
+    print('Change working directory to $projectDir');
+    Directory.current = projectDir;
+
+    final libFilePath = join(projectDir, 'lib.yaml');
+    final libFile = File(libFilePath);
+    if (!libFile.existsSync()) {
+      throw Exception('Not found lib.yaml in $projectDir');
+    }
+    final lib = Lib.fromFile(libFile);
+    await lib.download(projectDir);
+    // download
+    await compile();
+  }
+
+  FutureOr<void> compile();
 }

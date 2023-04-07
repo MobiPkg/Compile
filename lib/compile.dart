@@ -18,3 +18,4 @@ export 'src/compiler/base_compiler.dart';
 export 'src/compiler/c/autotools/autotools.dart';
 export 'src/compiler/c/compiler.dart';
 export 'src/options.dart';
+export 'src/source/lib.dart';

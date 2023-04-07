@@ -6,4 +6,6 @@ class AutoTools extends BaseCCompiler {
 
   @override
   FutureOr<void> compileIOS() {}
+
+  Future<void> _compile() async {}
 }

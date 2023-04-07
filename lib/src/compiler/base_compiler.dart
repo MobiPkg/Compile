@@ -20,6 +20,10 @@ mixin CompileMixin {
     print(cmd);
     await run(cmd);
   }
+
+  String get ndkPath {
+    return Platform.environment['ANDROID_NDK_HOME']!;
+  }
 }
 
 abstract class BaseCompiler with CompileMixin {
