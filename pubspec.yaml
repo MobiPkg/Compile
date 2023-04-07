@@ -1,5 +1,5 @@
 name: compile
-description: A sample command-line application.
+description: The MobiPkg Compile package, a tool for compiling code to dynamic/static libraries.
 version: 0.0.1-dev.1
 repository: https://github.com/MobiPkg/Compile
 
