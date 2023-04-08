@@ -22,3 +22,14 @@ If you want to compile c
 ```bash
 compile -h
 ```
+
+## Supported
+
+- Tools:
+  - [x] Autotools
+  - [x] CMake
+
+- Source type
+  - [x] Git
+  - [x] File
+  - [ ] Http
