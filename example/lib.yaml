@@ -1,6 +1,5 @@
 name: libffi
 source:
   git: https://github.com/libffi/libffi.git
-  tags:
-    - v3.4.4
+  ref: v3.4.4
 license: LICENSE

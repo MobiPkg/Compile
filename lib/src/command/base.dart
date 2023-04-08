@@ -73,17 +73,45 @@ mixin CompilerCommandMixin on BaseVoidCommand {
 
     print('Change working directory to $projectDir');
     Directory.current = projectDir;
+    final lib = Lib.fromDir(Directory.current);
+    lib.analyze();
+    await lib.download();
 
-    final libFilePath = join(projectDir, 'lib.yaml');
-    final libFile = File(libFilePath);
-    if (!libFile.existsSync()) {
-      throw Exception('Not found lib.yaml in $projectDir');
-    }
-    final lib = Lib.fromFile(libFile);
-    await lib.download(projectDir);
     // download
-    await compile();
+    await compile(lib);
   }
 
-  FutureOr<void> compile();
+  FutureOr<void> compile(Lib lib) async {
+    if (compileOptions.android) {
+      await compileAndroid(lib);
+    }
+    if (compileOptions.ios) {
+      await compileIOS(lib);
+    }
+  }
+
+  FutureOr<void> compileAndroid(Lib lib) async {
+    for (final type in AndroidCpuType.values) {
+      final androidUtils = AndroidUtils(targetCpuType: type);
+      final env = androidUtils.getEnvMap();
+      final installRoot = lib.installPath;
+      final prefix = join(installRoot, 'android', type.installPath());
+      await doCompileAndroid(lib, env, prefix);
+    }
+  }
+
+  FutureOr<void> compileIOS(Lib lib) async {
+    for (final type in IOSCpuType.values) {
+      final iosUtils = IOSUtils(cpuType: type);
+      final env = iosUtils.getEnvMap();
+      final installRoot = lib.installPath;
+      final prefix = join(installRoot, 'ios', type.installPath());
+      await doCompileIOS(lib, env, prefix);
+    }
+  }
+
+  FutureOr<void> doCompileAndroid(
+      Lib lib, Map<String, String> env, String prefix);
+
+  FutureOr<void> doCompileIOS(Lib lib, Map<String, String> env, String prefix);
 }

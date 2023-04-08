@@ -10,4 +10,5 @@ class CompileOptions {
   String projectPath = '.';
 
   bool upload = false;
+
 }
