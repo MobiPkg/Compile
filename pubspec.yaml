@@ -1,6 +1,6 @@
 name: compile
 description: The MobiPkg Compile package, a tool for compiling code to dynamic/static libraries.
-version: 0.0.1-dev.1
+version: 0.0.1
 repository: https://github.com/MobiPkg/Compile
 
 environment:
@@ -16,3 +16,6 @@ dependencies:
   path: ^1.8.3
   process_run: ^0.12.5+3
   yaml: ^3.1.1
+
+executables:
+  compile: bin/compile.dart
