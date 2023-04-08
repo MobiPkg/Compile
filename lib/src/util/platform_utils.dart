@@ -194,11 +194,9 @@ enum IOSCpuType {
 class IOSUtils with _PlatformUtils {
   IOSUtils({
     required this.cpuType,
-    this.minSdk = 7,
   });
 
   final IOSCpuType cpuType;
-  final int minSdk;
 
   String xcrun(
     String binName, {
@@ -219,7 +217,13 @@ class IOSUtils with _PlatformUtils {
   }
 
   String get _target {
-    return 'target ${cpuType.xcrunTarget()} -miphoneos-version-min=$minSdk';
+    final min = '';
+    var target = ' -target ${cpuType.xcrunTarget()}';
+    if (min.isNotEmpty) {
+      return '$target $min';
+    } else {
+      return target;
+    }
   }
 
   @override
@@ -254,6 +258,11 @@ class IOSUtils with _PlatformUtils {
 
   @override
   String host() {
-    return 'aarch64-apple-darwin';
+    switch (cpuType) {
+      case IOSCpuType.arm64:
+        return 'aarch64-apple-darwin';
+      case IOSCpuType.x86_64:
+        return 'x86_64-apple-darwin';
+    }
   }
 }

@@ -54,7 +54,22 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
       return;
     }
 
+    final makeFile = File(join(sourceDir, 'Makefile'));
+    if (makeFile.existsSync()) {
+      try {
+        await shell.run(
+          'make clean',
+          workingDirectory: sourceDir,
+          environment: env,
+        );
+      } catch (e) {
+        // ignore
+      }
+    }
+
     // configure
+    // print('configure --prefix=$prefix --host $host');
+    // print('env: $env');
     await shell.run(
       './configure --prefix=$prefix --host $host',
       workingDirectory: sourceDir,
