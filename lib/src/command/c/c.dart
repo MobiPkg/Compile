@@ -11,5 +11,6 @@ class CCommand extends BaseListCommand {
   @override
   List<Command<void>> get subCommands => [
         AutoToolsCommand(),
+        CMakeCommand(),
       ];
 }

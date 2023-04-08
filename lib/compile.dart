@@ -11,8 +11,8 @@ export 'package:args/args.dart';
 
 export 'src/command/base.dart';
 export 'src/command/c/autotools.dart';
-export 'src/command/c/base.dart';
 export 'src/command/c/c.dart';
+export 'src/command/c/cmake.dart';
 export 'src/commander.dart';
 export 'src/consts/consts.dart';
 export 'src/options.dart';
