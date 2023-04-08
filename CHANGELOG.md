@@ -4,3 +4,4 @@
 
 - Initial version.
 - Support for autotools.
+- Support for CMake.
