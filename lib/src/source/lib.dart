@@ -9,7 +9,7 @@ enum LibType {
   cCmake,
 }
 
-class Lib {
+class Lib with LogMixin {
   final Map map;
   final Directory projectDir;
 
@@ -111,7 +111,7 @@ class Lib {
       await shell.run('cp -r $sourcePath $targetDirPath');
     } else if (source.containsKey('http')) {
       final String httpUrl = source['http'];
-      await _downloadHttp(httpUrl);
+      await _downloadHttp(httpUrl, targetDirPath);
     } else {
       throw Exception('Not support source type');
     }
@@ -124,10 +124,17 @@ class Lib {
     }
   }
 
-  Future<void> _downloadHttp(String url) async {
+  Future<void> _downloadHttp(String url, String targetDirPath) async {
+    final uri = Uri.parse(url);
+    final filename = uri.pathSegments.last;
+
+    final tmp = Directory.systemTemp;
+    final targetFile = join(tmp.path, filename);
+
     final dio = Dio();
-    final response = await dio.getUri(Uri.parse(url));
-    //
+    await dio.downloadUri(uri, targetFile);
+
+    d('target dir path: $targetDirPath');
   }
 
   Future<void> _handleGit({
