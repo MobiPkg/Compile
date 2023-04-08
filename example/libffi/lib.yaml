@@ -1,4 +1,5 @@
 name: libffi
+type: autotools
 source:
   git: https://github.com/libffi/libffi.git
   ref: v3.4.4

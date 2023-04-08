@@ -5,6 +5,11 @@ import 'package:path/path.dart';
 import 'package:process_run/shell.dart';
 import 'package:yaml/yaml.dart';
 
+enum LibType {
+  cAutotools,
+  cCmake,
+}
+
 class Lib {
   final Map map;
   final Directory projectDir;
@@ -16,6 +21,16 @@ class Lib {
   late String licensePath = join(sourcePath, map['license']);
   late String installPath = join(projectDirPath, 'install');
   late String buildPath = join(projectDirPath, 'build', name);
+
+  LibType get type {
+    final type = map['type'];
+    if (type == 'autotools') {
+      return LibType.cAutotools;
+    } else if (type == 'cmake') {
+      return LibType.cCmake;
+    }
+    throw Exception('Not support type: $type');
+  }
 
   Lib.fromMap(this.map, this.projectDir) {
     analyze();

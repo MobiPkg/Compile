@@ -1,0 +1,6 @@
+name: zlib
+type: cmake
+source:
+  git: https://github.com/libffi/libffi.git
+  ref: v1.2.13
+license: LICENSE

@@ -13,6 +13,12 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
   List<String> get aliases => ['at', 'a'];
 
   @override
+  LibType get libType => LibType.cAutotools;
+
+  @override
+  FutureOr<void> doCheckProject(Lib lib) {}
+
+  @override
   Future<FutureOr<void>> doCompileAndroid(
     Lib lib,
     Map<String, String> env,

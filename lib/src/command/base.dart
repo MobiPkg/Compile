@@ -67,6 +67,23 @@ abstract class BaseListCommand extends BaseVoidCommand {
 }
 
 mixin CompilerCommandMixin on BaseVoidCommand {
+  LibType get libType;
+
+  /// Check project
+  FutureOr<void> checkProject(Lib lib) async {
+    if (lib.type != libType) {
+      throw Exception(
+        'Project type not match'
+        'project type is ${lib.type}, '
+        'But compiler type is $libType',
+      );
+    }
+
+    await doCheckProject(lib);
+  }
+
+  FutureOr<void> doCheckProject(Lib lib);
+
   @override
   Future<void> runCommand() async {
     final projectDir = normalize(absolute(compileOptions.projectPath));
@@ -74,6 +91,7 @@ mixin CompilerCommandMixin on BaseVoidCommand {
     print('Change working directory to $projectDir');
     Directory.current = projectDir;
     final lib = Lib.fromDir(Directory.current);
+    await checkProject(lib);
     lib.analyze();
     await lib.download();
 
