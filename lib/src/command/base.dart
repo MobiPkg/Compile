@@ -2,7 +2,7 @@ import 'package:args/command_runner.dart';
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
 
-abstract class BaseCommand<T> extends Command<T> {
+abstract class BaseCommand<T> extends Command<T> with LogMixin {
   BaseCommand() {
     init(argParser);
   }
@@ -92,6 +92,11 @@ mixin CompilerCommandMixin on BaseVoidCommand {
     Directory.current = projectDir;
     final lib = Lib.fromDir(Directory.current);
     await checkProject(lib);
+
+    if (compileOptions.removeOldSource) {
+      await lib.removeOldSource();
+    }
+
     lib.analyze();
     await lib.download();
 
@@ -113,8 +118,10 @@ mixin CompilerCommandMixin on BaseVoidCommand {
       final androidUtils = AndroidUtils(targetCpuType: type);
       final env = androidUtils.getEnvMap();
       final installRoot = lib.installPath;
-      final prefix = join(installRoot, 'android', type.installPath());
-      await doCompileAndroid(lib, env, prefix);
+      final prefix = join(installRoot, 'android', type.installName());
+
+      _printEnv(env);
+      await doCompileAndroid(lib, env, prefix, type);
     }
   }
 
@@ -124,12 +131,21 @@ mixin CompilerCommandMixin on BaseVoidCommand {
       final env = iosUtils.getEnvMap();
       final installRoot = lib.installPath;
       final prefix = join(installRoot, 'ios', type.installPath());
-      await doCompileIOS(lib, env, prefix);
+
+      _printEnv(env);
+      await doCompileIOS(lib, env, prefix, type);
+    }
+  }
+
+  void _printEnv(Map<String, String> env) {
+    if (compileOptions.verbose) {
+      i('Env:\n${env.debugString()}');
     }
   }
 
   FutureOr<void> doCompileAndroid(
-      Lib lib, Map<String, String> env, String prefix);
+      Lib lib, Map<String, String> env, String prefix, AndroidCpuType type);
 
-  FutureOr<void> doCompileIOS(Lib lib, Map<String, String> env, String prefix);
+  FutureOr<void> doCompileIOS(
+      Lib lib, Map<String, String> env, String prefix, IOSCpuType type);
 }

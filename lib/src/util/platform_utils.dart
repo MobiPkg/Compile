@@ -1,5 +1,6 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
+import 'package:process_run/shell.dart' as shell;
 
 mixin _PlatformUtils {
   String cc();
@@ -21,7 +22,9 @@ mixin _PlatformUtils {
   String host();
 
   Map<String, String> getEnvMap() {
+    final systemEnv = Map<String, String>.from(Platform.environment);
     return {
+      ...systemEnv,
       'CC': cc(),
       'CXX': cxx(),
       'AR': ar(),
@@ -54,7 +57,7 @@ enum AndroidCpuType {
     }
   }
 
-  String installPath() {
+  String installName() {
     switch (this) {
       case AndroidCpuType.arm:
         return 'armeabi-v7a';
@@ -173,6 +176,10 @@ enum IOSCpuType {
   }
 
   String installPath() {
+    return arch();
+  }
+
+  String arch() {
     switch (this) {
       case IOSCpuType.arm64:
         return 'arm64';
@@ -254,6 +261,13 @@ class IOSUtils with _PlatformUtils {
   @override
   String strip() {
     return xcrun('strip');
+  }
+
+  Future<String> getSdkPath() async {
+    final sdkName = cpuType.sdkName();
+    final cmd = 'xcrun --sdk $sdkName --show-sdk-path';
+    final result = await shell.run(cmd);
+    return result.map((e) => e.stdout.toString()).join(' ').trim();
   }
 
   @override

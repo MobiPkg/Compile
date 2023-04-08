@@ -1,8 +1,7 @@
-import 'dart:io';
-
+import 'package:compile/compile.dart';
 import 'package:dio/dio.dart';
 import 'package:path/path.dart';
-import 'package:process_run/shell.dart';
+import 'package:process_run/shell.dart' as shell;
 import 'package:yaml/yaml.dart';
 
 enum LibType {
@@ -20,7 +19,7 @@ class Lib {
   late String sourcePath = join(projectDirPath, 'source', name);
   late String licensePath = join(sourcePath, map['license']);
   late String installPath = join(projectDirPath, 'install');
-  late String buildPath = join(projectDirPath, 'build', name);
+  late String buildPath = join(projectDirPath, 'build');
 
   LibType get type {
     final type = map['type'];
@@ -109,12 +108,19 @@ class Lib {
         throw Exception('Not found source directory $sourcePath');
       }
       print('copy $sourcePath to $targetDirPath');
-      await run('cp -r $sourcePath $targetDirPath');
+      await shell.run('cp -r $sourcePath $targetDirPath');
     } else if (source.containsKey('http')) {
       final String httpUrl = source['http'];
       await _downloadHttp(httpUrl);
     } else {
       throw Exception('Not support source type');
+    }
+  }
+
+  Future<void> removeOldSource() async {
+    final dir = sourcePath.directory();
+    if (dir.existsSync()) {
+      dir.deleteSync(recursive: true);
     }
   }
 
@@ -131,10 +137,10 @@ class Lib {
   }) async {
     final dir = Directory(targetDir);
     if (!dir.existsSync()) {
-      await run('git clone $gitUrl $targetDir');
+      await shell.run('git clone $gitUrl $targetDir');
     }
     if (ref != null) {
-      await run('git checkout $ref', workingDirectory: targetDir);
+      await shell.run('git checkout $ref', workingDirectory: targetDir);
     }
   }
 }

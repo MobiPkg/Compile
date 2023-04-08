@@ -23,6 +23,7 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
     Lib lib,
     Map<String, String> env,
     String prefix,
+    AndroidCpuType type,
   ) async {
     await _compile(lib, env, prefix);
   }
@@ -32,6 +33,7 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
     Lib lib,
     Map<String, String> env,
     String prefix,
+    IOSCpuType type,
   ) async {
     await _compile(lib, env, prefix);
   }

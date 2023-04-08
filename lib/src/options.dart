@@ -11,4 +11,5 @@ class CompileOptions {
 
   bool upload = false;
 
+  bool removeOldSource = false;
 }

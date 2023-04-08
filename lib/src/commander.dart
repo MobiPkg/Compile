@@ -64,6 +64,12 @@ class Commander {
       defaultsTo: '.',
       help: 'Set project path.',
     );
+    argParser.addFlag(
+      'remove-old-source',
+      abbr: 'R',
+      defaultsTo: false,
+      help: 'Remove old build files before compile.',
+    );
 
     final result = argParser.parse(args);
 
@@ -72,6 +78,7 @@ class Commander {
     compileOptions.ios = result['ios'] as bool;
     compileOptions.projectPath = result['project-path'] as String;
     compileOptions.upload = result['upload'] as bool;
+    compileOptions.removeOldSource = result['remove-old-source'] as bool;
   }
 
   void checkEnv() {
