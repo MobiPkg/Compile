@@ -2,7 +2,9 @@
 
 (Do not use this package, it is not ready yet.)
 
-It just support autotools now.
+This package is part of mobipkg.
+
+The goal is to compile an available iOS/android library by configuration file.
 
 ## Requirements
 
