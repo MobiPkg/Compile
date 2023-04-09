@@ -35,3 +35,7 @@ compile -h
   - [x] Git
   - [x] File
   - [ ] Http
+
+## LICENSE
+
+[Apache-2.0 License](LICENSE)
