@@ -16,7 +16,11 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
   LibType get libType => LibType.cAutotools;
 
   @override
-  FutureOr<void> doCheckProject(Lib lib) {}
+  void doCheckEnvAndCommand() {
+    super.doCheckEnvAndCommand();
+    checkWhich('autoreconf');
+    checkWhich('make');
+  }
 
   @override
   Future<FutureOr<void>> doCompileAndroid(

@@ -16,7 +16,11 @@ class CMakeCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
   List<String> get aliases => ['cm'];
 
   @override
-  FutureOr<void> doCheckProject(Lib lib) {}
+  void doCheckEnvAndCommand() {
+    super.doCheckEnvAndCommand();
+    checkWhich('autoreconf');
+    checkWhich('make');
+  }
 
   @override
   FutureOr<void> doCompileAndroid(

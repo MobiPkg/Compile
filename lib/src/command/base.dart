@@ -82,10 +82,13 @@ mixin CompilerCommandMixin on BaseVoidCommand {
     await doCheckProject(lib);
   }
 
-  FutureOr<void> doCheckProject(Lib lib);
+  FutureOr<void> doCheckProject(Lib lib) {}
+
+  void doCheckEnvAndCommand() {}
 
   @override
   Future<void> runCommand() async {
+    doCheckEnvAndCommand();
     final projectDir = normalize(absolute(compileOptions.projectPath));
 
     print('Change working directory to $projectDir');
