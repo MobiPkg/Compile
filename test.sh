@@ -18,9 +18,12 @@ cmake | cm)
     ## Compile cmake example (zlib)
     C c cmake -C example/zlib-git $@
     ;;
-http) 
+http)
     C c cmake -C example/zlib-http $@
-;;
+    ;;
+subpath)
+    C c cmake -C example/libexpat-subpath $@
+    ;;
 *)
     echo "Usage: $0 [autotools|cmake]"
     exit 1

@@ -16,6 +16,10 @@ class Lib with LogMixin, LibSourceMixin, LibCheckMixin, LibDownloadMixin {
 
   late String projectDirPath = normalize(absolute(projectDir.path));
   late String sourcePath = join(projectDirPath, 'source', name);
+  late String? subpath = sourceMap['subpath'];
+  late String workingPath =
+      subpath == null ? sourcePath : join(sourcePath, subpath!);
+
   late String licensePath = join(sourcePath, map['license']);
   late String installPath = join(projectDirPath, 'install');
   late String buildPath = join(projectDirPath, 'build');
@@ -51,6 +55,11 @@ class Lib with LogMixin, LibSourceMixin, LibCheckMixin, LibDownloadMixin {
   Future<void> download() async {
     final Map source = map['source'];
     final targetDirPath = sourcePath;
+
+    if (targetDirPath.directory().existsSync()) {
+      return;
+    }
+
     if (source.containsKey('git')) {
       await downloadGit(targetDirPath, gitSource);
     } else if (source.containsKey('path')) {

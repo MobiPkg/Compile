@@ -96,14 +96,15 @@ mixin CompilerCommandMixin on BaseVoidCommand {
     final lib = Lib.fromDir(Directory.current);
     await checkProject(lib);
 
-    if (compileOptions.removeOldSource) {
-      await lib.removeOldSource();
-    }
-
     lib.analyze();
-    await lib.download();
 
     // download
+    if (compileOptions.removeOldSource) {
+      await lib.removeOldSource();
+    } else {
+      await lib.download();
+    }
+
     await compile(lib);
   }
 

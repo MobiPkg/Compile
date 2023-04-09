@@ -47,7 +47,7 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
     Map<String, String> env,
     String prefix,
   ) async {
-    final sourceDir = lib.sourcePath;
+    final sourceDir = lib.workingPath;
     // check configure exists
     if (!File(join(sourceDir, 'configure')).existsSync()) {
       print('configure not found');

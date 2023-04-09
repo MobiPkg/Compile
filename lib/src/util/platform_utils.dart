@@ -196,6 +196,10 @@ enum IOSCpuType {
         return 'iphonesimulator';
     }
   }
+
+  Future<String> getSDKPath() {
+    return IOSUtils(cpuType: this).getSdkPath();
+  }
 }
 
 class IOSUtils with _PlatformUtils {
