@@ -25,3 +25,4 @@ export 'src/util/file_utils.dart';
 export 'src/util/log.dart';
 export 'src/util/map_utils.dart';
 export 'src/util/platform_utils.dart';
+export 'src/util/shell_utils.dart';

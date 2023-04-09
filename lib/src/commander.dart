@@ -19,7 +19,7 @@ class Commander {
     try {
       _commanders.forEach(runner.addCommand);
       globalOption(args);
-      checkEnv();
+      _checkEnv();
 
       await runner.run(args);
     } on UsageException catch (e, st) {
@@ -81,24 +81,12 @@ class Commander {
     compileOptions.removeOldSource = result['remove-old-source'] as bool;
   }
 
-  void checkEnv() {
-    final needCheck = <String>[
-      'ANDROID_NDK_HOME',
-    ];
-
-    void check(String key) {
-      final env = Platform.environment[key];
-      if (env == null || env.isEmpty) {
-        throw Exception('Please set $key');
-      }
+  void _checkEnv() {
+    if (compileOptions.android) {
+      checkEnv(Consts.ndkKey, throwMessage: 'Please set ndk path first.');
     }
-
-    for (final envKey in needCheck) {
-      check(envKey);
-    }
-
-    if (compileOptions.upload) {
-      check('GITLAB_TOKEN');
+    if (compileOptions.ios) {
+      checkWhich('xcrun', throwMessage: 'Please install xcode first.');
     }
   }
 }

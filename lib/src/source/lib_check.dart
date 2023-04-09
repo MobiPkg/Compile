@@ -11,7 +11,29 @@ enum LibHttpSourceType {
   tar,
   tarGz,
   tarBz2,
-  sevenZ,
+  sevenZ;
+
+  void checkCommand() {
+    switch (this) {
+      case LibHttpSourceType.zip:
+        checkWhich('unzip');
+        break;
+      case LibHttpSourceType.tar:
+        checkWhich('tar');
+        break;
+      case LibHttpSourceType.tarGz:
+        checkWhich('tar');
+        checkWhich('gzip');
+        break;
+      case LibHttpSourceType.tarBz2:
+        checkWhich('tar');
+        checkWhich('bzip2');
+        break;
+      case LibHttpSourceType.sevenZ:
+        checkWhich('7z');
+        break;
+    }
+  }
 }
 
 mixin LibCheckMixin on LibSourceMixin {
@@ -45,6 +67,8 @@ mixin LibCheckMixin on LibSourceMixin {
     final url = git['url'];
     final ref = git['ref'];
 
+    checkWhich('git');
+
     if (url == null || url is! String) {
       _throwError('url is must be string.');
     }
@@ -54,6 +78,7 @@ mixin LibCheckMixin on LibSourceMixin {
   }
 
   void _checkPath(path) {
+    checkWhich('cp');
     if (path is! String) {
       _throwError('path is must be string.');
     }
@@ -63,6 +88,8 @@ mixin LibCheckMixin on LibSourceMixin {
   }
 
   void _checkHttp(Map http) {
+    checkWhich('wget');
+
     final url = http['url'];
     final type = http['type'];
 
@@ -78,6 +105,8 @@ mixin LibCheckMixin on LibSourceMixin {
     if (type != null && type is! String) {
       _throwError('type is must be string.');
     }
+
+    httpSourceType.checkCommand();
   }
 
   LibHttpSourceType get httpSourceType {
