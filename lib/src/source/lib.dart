@@ -1,7 +1,5 @@
 import 'package:compile/compile.dart';
-import 'package:dio/dio.dart';
 import 'package:path/path.dart';
-import 'package:process_run/shell.dart' as shell;
 import 'package:yaml/yaml.dart';
 
 enum LibType {
@@ -9,7 +7,8 @@ enum LibType {
   cCmake,
 }
 
-class Lib with LogMixin {
+class Lib with LogMixin, LibSourceMixin, LibCheckMixin, LibDownloadMixin {
+  @override
   final Map map;
   final Directory projectDir;
 
@@ -35,46 +34,6 @@ class Lib with LogMixin {
     analyze();
   }
 
-  void _throwError(String message) {
-    throw Exception(message);
-  }
-
-  void analyze() {
-    final source = map['source'];
-    if (source == null) {
-      throw Exception('Not found source in lib.yaml');
-    }
-    if (source['git'] != null) {
-      final git = source['git'];
-      if (git is! String) {
-        _throwError('git is must be string.');
-      }
-      final ref = source['ref'];
-      if (ref != null && ref is! String) {
-        _throwError('ref is must be string.');
-      }
-    } else if (source['path'] != null) {
-      final path = source['path'];
-      if (path is! String) {
-        _throwError('path is must be string.');
-      }
-      if (!FileSystemEntity.isDirectorySync(path)) {
-        _throwError('path is must be directory.');
-      }
-    } else if (source['http'] != null) {
-      final http = source['http'];
-      if (http is! String) {
-        _throwError('http is must be string.');
-      }
-      final uri = Uri.parse(http);
-      if (uri.scheme != 'http' && uri.scheme != 'https') {
-        _throwError('http is must be http or https.');
-      }
-    } else {
-      throw Exception('Not support source type');
-    }
-  }
-
   factory Lib.fromYaml(String yaml, Directory projectDir) {
     final map = loadYaml(yaml);
     return Lib.fromMap(map, projectDir);
@@ -93,13 +52,7 @@ class Lib with LogMixin {
     final Map source = map['source'];
     final targetDirPath = sourcePath;
     if (source.containsKey('git')) {
-      final String gitUrl = source['git'];
-      final ref = source['ref'];
-      await _handleGit(
-        targetDir: targetDirPath,
-        gitUrl: gitUrl,
-        ref: ref,
-      );
+      await downloadGit(targetDirPath, gitSource);
     } else if (source.containsKey('path')) {
       final String path = source['path'];
       final sourcePath = normalize(absolute(path));
@@ -107,11 +60,9 @@ class Lib with LogMixin {
       if (!sourceDir.existsSync()) {
         throw Exception('Not found source directory $sourcePath');
       }
-      print('copy $sourcePath to $targetDirPath');
-      await shell.run('cp -r $sourcePath $targetDirPath');
+      await copyPath(targetDirPath, pathSource);
     } else if (source.containsKey('http')) {
-      final String httpUrl = source['http'];
-      await _downloadHttp(httpUrl, targetDirPath);
+      await downloadAndExtractHttp(targetDirPath, httpSource);
     } else {
       throw Exception('Not support source type');
     }
@@ -121,33 +72,6 @@ class Lib with LogMixin {
     final dir = sourcePath.directory();
     if (dir.existsSync()) {
       dir.deleteSync(recursive: true);
-    }
-  }
-
-  Future<void> _downloadHttp(String url, String targetDirPath) async {
-    final uri = Uri.parse(url);
-    final filename = uri.pathSegments.last;
-
-    final tmp = Directory.systemTemp;
-    final targetFile = join(tmp.path, filename);
-
-    final dio = Dio();
-    await dio.downloadUri(uri, targetFile);
-
-    d('target dir path: $targetDirPath');
-  }
-
-  Future<void> _handleGit({
-    required String targetDir,
-    required String gitUrl,
-    String? ref,
-  }) async {
-    final dir = Directory(targetDir);
-    if (!dir.existsSync()) {
-      await shell.run('git clone $gitUrl $targetDir');
-    }
-    if (ref != null) {
-      await shell.run('git checkout $ref', workingDirectory: targetDir);
     }
   }
 }

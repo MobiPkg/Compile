@@ -1,0 +1,7 @@
+name: zlib
+type: cmake
+source:
+  git: 
+    url: https://github.com/madler/zlib.git
+    ref: v1.2.13
+license: LICENSE

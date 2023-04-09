@@ -36,4 +36,13 @@ extension StringFileExtensions on String {
     }
     return dir;
   }
+
+  /// Create parent directories if not exists.
+  void createParentDirectories() {
+    final dir = Directory(this);
+    final parent = dir.parent;
+    if (!parent.existsSync()) {
+      parent.createSync(recursive: true);
+    }
+  }
 }

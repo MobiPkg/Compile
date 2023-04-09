@@ -10,14 +10,17 @@ TYPE=$1
 shift 1
 
 case $TYPE in
-autotools)
+autotools | at)
     ## Compile autotools example (libffi)
-    C c autotools -C example/libffi $@
+    C c autotools -C example/libffi-git $@
     ;;
-cmake)
+cmake | cm)
     ## Compile cmake example (zlib)
-    C c cmake -C example/zlib $@
+    C c cmake -C example/zlib-git $@
     ;;
+http) 
+    C c cmake -C example/zlib-http $@
+;;
 *)
     echo "Usage: $0 [autotools|cmake]"
     exit 1
