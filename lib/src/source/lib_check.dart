@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:compile/compile.dart';
 
 enum LibSourceType {
@@ -17,8 +15,6 @@ enum LibHttpSourceType {
 }
 
 mixin LibCheckMixin on LibSourceMixin {
-  
-
   void _throwError(String message) {
     throw Exception(message);
   }
