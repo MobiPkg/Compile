@@ -108,7 +108,7 @@ mixin CompilerCommandMixin on BaseVoidCommand {
     if (compileOptions.android) {
       await compileAndroid(lib);
     }
-    if (compileOptions.ios) {
+    if (compileOptions.ios && Platform.isMacOS) {
       await compileIOS(lib);
     }
   }
