@@ -110,7 +110,7 @@ mixin LibCheckMixin on LibSourceMixin {
   }
 
   LibHttpSourceType get httpSourceType {
-    final type = map['source']['type'];
+    final type = sourceMap['http']['type'];
     if (type == 'zip') {
       return LibHttpSourceType.zip;
     } else if (type == 'tar') {

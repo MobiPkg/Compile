@@ -24,8 +24,14 @@ http)
 subpath)
     C c cmake -C example/libexpat-subpath $@
     ;;
+all)
+    C c autotools -C example/libffi-git $@
+    C c cmake -C example/zlib-git $@
+    C c cmake -C example/zlib-http $@
+    C c cmake -C example/libexpat-subpath $@
+    ;;
 *)
-    echo "Usage: $0 [autotools|cmake]"
+    echo "Usage: $0 {autotools|cmake|http|subpath|all}"
     exit 1
     ;;
 esac

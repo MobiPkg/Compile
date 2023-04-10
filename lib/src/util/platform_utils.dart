@@ -172,6 +172,7 @@ enum IOSCpuType {
         return 'arm64-apple-ios';
       case IOSCpuType.x86_64:
         return 'x86_64-apple-ios';
+      // return 'x86-64';
     }
   }
 
@@ -194,6 +195,15 @@ enum IOSCpuType {
         return 'iphoneos';
       case IOSCpuType.x86_64:
         return 'iphonesimulator';
+    }
+  }
+
+  String clangTarget() {
+    switch (this) {
+      case IOSCpuType.arm64:
+        return 'arm64-apple-ios';
+      case IOSCpuType.x86_64:
+        return '';
     }
   }
 
@@ -228,13 +238,11 @@ class IOSUtils with _PlatformUtils {
   }
 
   String get _target {
-    final min = '';
-    var target = ' -target ${cpuType.xcrunTarget()}';
-    if (min.isNotEmpty) {
-      return '$target $min';
-    } else {
-      return target;
+    final target = cpuType.clangTarget();
+    if (target.isEmpty) {
+      return '';
     }
+    return '-target $target';
   }
 
   @override

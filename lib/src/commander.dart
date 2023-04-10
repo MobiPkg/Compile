@@ -1,7 +1,7 @@
 import 'package:args/command_runner.dart';
 import 'package:compile/compile.dart';
 
-class Commander {
+class Commander with LogMixin {
   Commander();
 
   final CommandRunner<void> _runner = CommandRunner<void>(
@@ -26,9 +26,7 @@ class Commander {
       print(e);
       print(st);
     } catch (e, st) {
-      print('Happen error when run command');
-      print(e);
-      print(st);
+      logger.e('Happen error:', e, st);
     }
   }
 
