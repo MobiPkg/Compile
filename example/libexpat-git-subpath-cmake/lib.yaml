@@ -7,3 +7,9 @@ source:
     ref: R_2_5_0
   subpath: expat
 license: LICENSE
+
+flags:
+  c: -fPIC -O2 -Wall -s
+  cxx: -fPIC -O3 -std=c++17 -s
+  cpp: 
+  ld: -s

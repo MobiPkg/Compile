@@ -5,3 +5,9 @@ source:
     url: https://github.com/libffi/libffi.git
     ref: v3.4.4
 license: LICENSE
+
+flags:
+  c: -fPIC -O2 -Wall -s
+  cxx: -fPIC -O3 -std=c++17 -s
+  cpp: 
+  ld: -s

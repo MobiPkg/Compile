@@ -1,6 +1,5 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
-import 'package:process_run/shell.dart' as shell;
 
 mixin _PlatformUtils {
   String cc();

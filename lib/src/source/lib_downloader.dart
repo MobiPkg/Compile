@@ -1,6 +1,5 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
-import 'package:process_run/shell.dart' as shell;
 
 mixin LibDownloadMixin on LibSourceMixin, LogMixin {
   Future<void> downloadGit(String targetPath, GitSource git) async {

@@ -22,13 +22,13 @@ http)
     C c cmake -C example/zlib-http-cmake $@
     ;;
 subpath)
-    C c cmake -C example/libexpat-subpath-cmake $@
+    C c cmake -C example/libexpat-git-subpath-cmake $@
     ;;
 all)
     C c autotools -C example/libffi-git-at $@
     C c cmake -C example/zlib-git-cmake $@
     C c cmake -C example/zlib-http-cmake $@
-    C c cmake -C example/libexpat-subpath-cmake $@
+    C c cmake -C example/libexpat-git-subpath-cmake $@
     ;;
 *)
     echo "Usage: $0 {autotools|cmake|http|subpath|all}"

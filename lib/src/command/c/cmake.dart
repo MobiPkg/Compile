@@ -1,6 +1,5 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
-import 'package:process_run/shell.dart' as shell;
 
 class CMakeCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
   @override
@@ -87,10 +86,10 @@ set(CMAKE_OSX_SYSROOT $sdkPath)
 set(CMAKE_OSX_ARCHITECTURES $arch)
 
 # Set the compiler paths and flags
-set(CMAKE_C_COMPILER $cc)
-set(CMAKE_CXX_COMPILER $cxx)
-set(CMAKE_C_FLAGS "-arch $arch")
-set(CMAKE_CXX_FLAGS "-arch $arch")
+# set(CMAKE_C_COMPILER $cc)
+# set(CMAKE_CXX_COMPILER $cxx)
+# set(CMAKE_C_FLAGS "\${CMAKE_C_FLAGS} -arch $arch")
+# set(CMAKE_CXX_FLAGS "\${CMAKE_CXX_FLAGS} -arch $arch")
 ''';
 
     toolchainPath.writeAsStringSync(toolchainContent);
@@ -104,14 +103,27 @@ set(CMAKE_CXX_FLAGS "-arch $arch")
     String toolchainPath,
     Map<String, String> params,
   ) async {
+    lib.addFlagsToEnv(env);
+
     final sourceDir = lib.workingPath;
     final host = env['HOST'];
-    final buildDir = join(lib.buildPath, host)
-        .directory(createWhenNotExists: true)
-        .absolute
-        .path;
-    logger.i('sourceDir: $sourceDir');
-    logger.i('buildDir: $buildDir');
+    final buildDir = join(lib.buildPath, host).directory();
+
+    StringBuffer log = StringBuffer();
+
+    final buildPath = buildDir.absolute.path;
+    log.writeln('sourceDir: $sourceDir');
+
+    if (buildDir.existsSync()) {
+      log.writeln('remove old buildDir: $buildPath');
+      buildDir.deleteSync(recursive: true);
+    }
+    buildDir.createSync(recursive: true);
+    log.writeln('buildPath: $buildPath');
+    log.writeln('toolchainPath: $toolchainPath');
+    log.writeln('prefix: $prefix');
+
+    logger.i(log.toString().trim());
 
     final paramMap = {
       ...params,
@@ -120,20 +132,26 @@ set(CMAKE_CXX_FLAGS "-arch $arch")
       'CMAKE_BUILD_TYPE': 'Release',
     };
 
-    final args = paramMap.entries.map((e) => '-D${e.key}=${e.value}').join(' ');
+    lib.addFlagsToCmakeArgs(paramMap);
 
-    final cmd = 'cmake $args -S $sourceDir -B $buildDir';
+    final args = paramMap.entries
+        .map(
+          (e) => '-D${e.key}="${e.value}"',
+        )
+        .join(' ');
+
+    final cmd = 'cmake $args -S $sourceDir -B $buildPath';
     // i('cmd: $cmd');
     await shell.run(cmd, environment: env, workingDirectory: sourceDir);
     await shell.run(
       'make -j8',
       environment: env,
-      workingDirectory: buildDir,
+      workingDirectory: buildPath,
     );
     await shell.run(
       'make install',
       environment: env,
-      workingDirectory: buildDir,
+      workingDirectory: buildPath,
     );
   }
 }

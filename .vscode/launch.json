@@ -10,12 +10,11 @@
             "type": "dart",
             "program": "bin/compile.dart",
             "args": [
-                "c autotools -h",
+                "c cmake -C example/libexpat-git-subpath-cmake --no-ios",
             ],
             "cwd": "${workspaceFolder}",
             "env": {
-                "ANDROID_NDK_HOME": "$NDK_HOME",
-                "GITLAB_TOKEN": "$GITLAB_TOKEN",
+                "ANDROID_NDK_HOME": "/Users/jinglongcai/sdk/ndk/25.0.8775105",
             }
         }
     ]

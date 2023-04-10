@@ -1,6 +1,7 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
-import 'package:process_run/shell.dart' as shell;
+import 'package:process_run/shell_run.dart' as sr;
+
 
 class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
   @override
@@ -47,6 +48,7 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
     Map<String, String> env,
     String prefix,
   ) async {
+    lib.addFlagsToEnv(env);
     final sourceDir = lib.workingPath;
     // check configure exists
     if (!File(join(sourceDir, 'configure')).existsSync()) {
@@ -79,11 +81,9 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
       }
     }
 
-    // configure
-    // print('configure --prefix=$prefix --host $host');
-    // print('env: $env');
+    final cmd = './configure --prefix=$prefix --host $host';
     await shell.run(
-      './configure --prefix=$prefix --host $host',
+      cmd,
       workingDirectory: sourceDir,
       environment: env,
     );

@@ -28,7 +28,13 @@ enum LibType with ConfigType {
   }
 }
 
-class Lib with LogMixin, LibSourceMixin, LibCheckMixin, LibDownloadMixin {
+class Lib
+    with
+        LogMixin,
+        LibSourceMixin,
+        LibCheckMixin,
+        LibDownloadMixin,
+        LibFlagsMixin {
   @override
   final Map map;
   final Directory projectDir;
@@ -101,4 +107,14 @@ class Lib with LogMixin, LibSourceMixin, LibCheckMixin, LibDownloadMixin {
       dir.deleteSync(recursive: true);
     }
   }
+
+  Future<void> removeOldBuild() async {
+    final dir = buildPath.directory();
+    if (dir.existsSync()) {
+      logger.i('Remove old build: ${dir.absolute.path}');
+      dir.deleteSync(recursive: true);
+    }
+  }
+
+ 
 }

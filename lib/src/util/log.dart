@@ -24,3 +24,4 @@ final logger = Logger(
   // filter: DevelopmentFilter(),
   output: ConsoleOutput(),
 );
+

@@ -21,6 +21,7 @@ export 'src/options.dart';
 export 'src/source/lib.dart';
 export 'src/source/lib_check.dart';
 export 'src/source/lib_downloader.dart';
+export 'src/source/lib_flags.dart';
 export 'src/source/lib_source_mixin.dart';
 export 'src/util/file_utils.dart';
 export 'src/util/log.dart';
