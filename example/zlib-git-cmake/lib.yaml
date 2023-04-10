@@ -5,3 +5,9 @@ source:
     url: https://github.com/madler/zlib.git
     ref: v1.2.13
 license: LICENSE
+
+flags:
+  c: -fPIC -O2 -Wall 
+  cxx: -fPIC -O3 -std=c++17
+  cpp:
+  ld: -s

@@ -19,9 +19,8 @@ class Commander with LogMixin {
   Future<void> run(List<String> args) async {
     try {
       _commanders.forEach(runner.addCommand);
-      globalOption(args);
+      await compileOptions.handleGlobalOptions(runner, args);
       _checkEnv();
-
       await runner.run(args);
     } on UsageException catch (e, st) {
       print(e);

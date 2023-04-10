@@ -106,6 +106,8 @@ mixin CompilerCommandMixin on BaseVoidCommand {
     await lib.download();
 
     await compile(lib);
+
+    print('Compile done');
   }
 
   FutureOr<void> compile(Lib lib) async {
@@ -126,6 +128,10 @@ mixin CompilerCommandMixin on BaseVoidCommand {
 
       _printEnv(env);
       await doCompileAndroid(lib, env, prefix, type);
+
+      if (compileOptions.strip) {
+        await androidUtils.stripDynamicLib(prefix);
+      }
     }
   }
 
@@ -138,6 +144,10 @@ mixin CompilerCommandMixin on BaseVoidCommand {
 
       _printEnv(env);
       await doCompileIOS(lib, env, prefix, type);
+
+      if (compileOptions.strip) {
+        await iosUtils.stripDynamicLib(prefix);
+      }
     }
   }
 

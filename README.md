@@ -8,6 +8,8 @@ The goal is to compile an available iOS/android library by configuration file.
 
 ## Requirements
 
+Because this is the environment used by developers, please test other environments by yourself
+
 - Platform
   - macOS (If you want to compile iOS)
   - linux (No tested)

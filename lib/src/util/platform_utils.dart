@@ -1,7 +1,7 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
 
-mixin _PlatformUtils {
+mixin PlatformUtils {
   String cc();
 
   String cxx();
@@ -35,6 +35,21 @@ mixin _PlatformUtils {
       'HOST': host(),
     };
   }
+
+  Future<void> stripDynamicLib(String prefix) async {
+    final dir = Directory(prefix);
+    final files = dir.listSync(recursive: true);
+    for (final file in files) {
+      if (file is File) {
+        final name = basename(file.path);
+        if (name.endsWith('.dylib') || name.endsWith('.so')) {
+          await stripFile(file);
+        }
+      }
+    }
+  }
+
+  Future<void> stripFile(File file);
 }
 
 enum AndroidCpuType {
@@ -83,7 +98,7 @@ enum AndroidCpuType {
   }
 }
 
-class AndroidUtils with _PlatformUtils {
+class AndroidUtils with PlatformUtils {
   final int minSdk;
   final AndroidCpuType targetCpuType;
 
@@ -159,6 +174,13 @@ class AndroidUtils with _PlatformUtils {
   String host() {
     return targetCpuType.host();
   }
+
+  @override
+  Future<void> stripFile(File file) async {
+    final strip = this.strip();
+    final path = file.absolute.path;
+    await shell.run('$strip $path');
+  }
 }
 
 enum IOSCpuType {
@@ -211,7 +233,7 @@ enum IOSCpuType {
   }
 }
 
-class IOSUtils with _PlatformUtils {
+class IOSUtils with PlatformUtils {
   IOSUtils({
     required this.cpuType,
   });
@@ -289,5 +311,12 @@ class IOSUtils with _PlatformUtils {
       case IOSCpuType.x86_64:
         return 'x86_64-apple-darwin';
     }
+  }
+  
+  @override
+  Future<void> stripFile(File file) async {
+    final strip = this.strip();
+    final path = file.absolute.path;
+    await shell.run('$strip -x -S $path');
   }
 }

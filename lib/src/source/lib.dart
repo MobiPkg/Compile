@@ -48,8 +48,9 @@ class Lib
       subpath == null ? sourcePath : join(sourcePath, subpath!);
 
   late String licensePath = join(sourcePath, map['license']);
-  late String installPath = join(projectDirPath, 'install');
   late String buildPath = join(projectDirPath, 'build');
+
+  late String installPath = join(projectDirPath, 'install');
 
   LibType get type {
     final type = map['type'];
@@ -115,6 +116,4 @@ class Lib
       dir.deleteSync(recursive: true);
     }
   }
-
- 
 }
