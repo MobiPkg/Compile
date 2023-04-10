@@ -1,7 +1,7 @@
 mixin LibFlagsMixin {
   Map get map;
 
-  Map get flagsMap => map['flags'];
+  Map get flagsMap => map['flags'] ?? {};
 
   String get cFlags => flagsMap['c'] ?? '';
   String get cppFlags => flagsMap['cpp'] ?? '';
