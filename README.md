@@ -34,7 +34,7 @@ compile -h
 - Source type
   - [x] Git
   - [x] File
-  - [ ] Http
+  - [x] Http
 
 ## LICENSE
 

@@ -2,7 +2,7 @@ import 'package:compile/compile.dart';
 import 'package:path/path.dart';
 import 'package:process_run/shell.dart' as shell;
 
-mixin LibDownloadMixin on LibSourceMixin {
+mixin LibDownloadMixin on LibSourceMixin, LogMixin {
   Future<void> downloadGit(String targetPath, GitSource git) async {
     final gitUrl = git.url;
     final ref = git.ref;
@@ -40,7 +40,8 @@ mixin LibDownloadMixin on LibSourceMixin {
       time.toString(),
     );
 
-    targetPath.directory(createParents: true);
+    targetPath.directory(createWhenNotExists: true);
+    i('Download and extract http source to $targetPath');
 
     switch (type) {
       case LibHttpSourceType.zip:
