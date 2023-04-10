@@ -73,6 +73,7 @@ class Lib with LogMixin, LibSourceMixin, LibCheckMixin, LibDownloadMixin {
     final targetDirPath = sourcePath;
 
     if (targetDirPath.directory().existsSync()) {
+      logger.i('Already downloaded $name in $targetDirPath');
       return;
     }
 
@@ -96,6 +97,7 @@ class Lib with LogMixin, LibSourceMixin, LibCheckMixin, LibDownloadMixin {
   Future<void> removeOldSource() async {
     final dir = sourcePath.directory();
     if (dir.existsSync()) {
+      logger.i('Remove old source: ${dir.absolute.path}');
       dir.deleteSync(recursive: true);
     }
   }

@@ -101,9 +101,8 @@ mixin CompilerCommandMixin on BaseVoidCommand {
     // download
     if (compileOptions.removeOldSource) {
       await lib.removeOldSource();
-    } else {
-      await lib.download();
     }
+    await lib.download();
 
     await compile(lib);
   }
