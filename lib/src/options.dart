@@ -1,4 +1,5 @@
 import 'package:args/command_runner.dart';
+import 'package:compile/compile.dart';
 
 final compileOptions = CompileOptions();
 
@@ -74,5 +75,15 @@ class CompileOptions {
     upload = result['upload'] as bool;
     removeOldSource = result['remove-old-source'] as bool;
     strip = result['strip'] as bool;
+  }
+}
+
+final envs = Envs();
+
+class Envs {
+  var cpuCount = 8;
+
+  Future<void> init() async {
+    cpuCount = (await shell.exec('sysctl -n hw.ncpu')).toInt();
   }
 }

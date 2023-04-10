@@ -18,6 +18,7 @@ class Commander with LogMixin {
 
   Future<void> run(List<String> args) async {
     try {
+      await envs.init();
       _commanders.forEach(runner.addCommand);
       await compileOptions.handleGlobalOptions(runner, args);
       _checkEnv();

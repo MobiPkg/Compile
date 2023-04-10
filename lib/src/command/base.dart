@@ -43,6 +43,8 @@ abstract class BaseCommand<T> extends Command<T> with LogMixin {
   FutureOr<T>? runCommand();
 
   FutureOr<T>? onError(Object exception, StackTrace st);
+
+  late int cpuCount = envs.cpuCount;
 }
 
 abstract class BaseVoidCommand extends BaseCommand<void> {

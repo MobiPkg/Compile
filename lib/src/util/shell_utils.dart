@@ -101,6 +101,11 @@ class Shell with LogMixin {
       includeParentEnvironment: includeParentEnvironment,
     );
   }
+
+  Future<String> exec(String script) async {
+    final result = await run(script);
+    return result.join(' ').trim();
+  }
 }
 
 extension StringBufferExtForCmd on StringBuffer {

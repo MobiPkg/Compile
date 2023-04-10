@@ -140,16 +140,45 @@ set(CMAKE_OSX_ARCHITECTURES $arch)
         )
         .join(' ');
 
+    if (checkWhich('ninja', throwOnError: false)) {
+      await compileWithNinja(args, sourceDir, buildPath, env);
+    } else {
+      await compileWithMake(args, sourceDir, buildPath, env);
+    }
+  }
+
+  Future<void> compileWithMake(String args, String sourceDir, String buildPath,
+      Map<String, String> env) async {
     final cmd = 'cmake $args -S $sourceDir -B $buildPath';
     // i('cmd: $cmd');
     await shell.run(cmd, environment: env, workingDirectory: sourceDir);
     await shell.run(
-      'make -j8',
+      'make -j$cpuCount',
       environment: env,
       workingDirectory: buildPath,
     );
     await shell.run(
       'make install',
+      environment: env,
+      workingDirectory: buildPath,
+    );
+  }
+
+  Future<void> compileWithNinja(
+    String args,
+    String sourceDir,
+    String buildPath,
+    Map<String, String> env,
+  ) async {
+    final cmd = 'cmake $args -S $sourceDir -B $buildPath -G Ninja';
+    await shell.run(cmd, environment: env, workingDirectory: sourceDir);
+    await shell.run(
+      'ninja -j$cpuCount',
+      environment: env,
+      workingDirectory: buildPath,
+    );
+    await shell.run(
+      'ninja install',
       environment: env,
       workingDirectory: buildPath,
     );
