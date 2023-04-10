@@ -42,40 +42,46 @@ mixin LibDownloadMixin on LibSourceMixin, LogMixin {
 
     targetPath.directory(createWhenNotExists: true);
     i('Download and extract http source to $targetPath');
+    cmd = 'wget $httpUrl -O $tmpPath';
+    await shell.run(cmd);
 
     switch (type) {
       case LibHttpSourceType.zip:
-        cmd = 'wget $httpUrl -O $tmpPath';
-        await shell.run(cmd);
         cmd = 'unzip $tmpPath -d $targetPath';
         await shell.run(cmd);
         break;
       case LibHttpSourceType.tar:
-        cmd = 'wget $httpUrl -O $tmpPath';
-        await shell.run(cmd);
         cmd = 'tar -xvf $tmpPath -C $targetPath';
         await shell.run(cmd);
         break;
       case LibHttpSourceType.tarGz:
-        cmd = 'wget $httpUrl -O $tmpPath';
-        await shell.run(cmd);
         cmd = 'tar -zxvf $tmpPath -C $targetPath';
         await shell.run(cmd);
         break;
       case LibHttpSourceType.tarBz2:
-        cmd = 'wget $httpUrl -O $tmpPath';
-        await shell.run(cmd);
         cmd = 'tar -jxvf $tmpPath -C $targetPath';
         await shell.run(cmd);
         break;
       case LibHttpSourceType.sevenZ:
-        cmd = 'wget $httpUrl -O $tmpPath';
-        await shell.run(cmd);
         cmd = '7z x $tmpPath -o$targetPath';
         await shell.run(cmd);
         break;
-      default:
-        throw Exception('Not support http source type');
+      case LibHttpSourceType.tarXz:
+        cmd = 'tar -Jxvf $tmpPath -C $targetPath';
+        await shell.run(cmd);
+        break;
+      case LibHttpSourceType.xz:
+        cmd = 'xz -d $tmpPath -C $targetPath';
+        await shell.run(cmd);
+        break;
+      case LibHttpSourceType.lzma:
+        cmd = 'lzma -d $tmpPath -C $targetPath';
+        await shell.run(cmd);
+        break;
+      case LibHttpSourceType.tarLzma:
+        cmd = 'tar --lzma -xvf $tmpPath -C $targetPath';
+        await shell.run(cmd);
+        break;
     }
   }
 }

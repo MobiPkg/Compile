@@ -2,9 +2,30 @@ import 'package:compile/compile.dart';
 import 'package:path/path.dart';
 import 'package:yaml/yaml.dart';
 
-enum LibType {
-  cAutotools,
-  cCmake,
+mixin ConfigType {
+  String get value;
+}
+
+enum LibType with ConfigType {
+  cAutotools('autotools'),
+  cCmake('cmake'),
+  ;
+
+  const LibType(
+    this.value,
+  );
+
+  @override
+  final String value;
+
+  static LibType fromValue(String value) {
+    for (final type in values) {
+      if (type.value == value) {
+        return type;
+      }
+    }
+    throw Exception('Not support type: $value');
+  }
 }
 
 class Lib with LogMixin, LibSourceMixin, LibCheckMixin, LibDownloadMixin {
@@ -26,12 +47,7 @@ class Lib with LogMixin, LibSourceMixin, LibCheckMixin, LibDownloadMixin {
 
   LibType get type {
     final type = map['type'];
-    if (type == 'autotools') {
-      return LibType.cAutotools;
-    } else if (type == 'cmake') {
-      return LibType.cCmake;
-    }
-    throw Exception('Not support type: $type');
+    return LibType.fromValue(type);
   }
 
   Lib.fromMap(this.map, this.projectDir) {

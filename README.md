@@ -8,10 +8,21 @@ The goal is to compile an available iOS/android library by configuration file.
 
 ## Requirements
 
-- linux or macOS
-- Android NDK 25
-- XCode 14.x
-- Git
+- Platform
+  - macOS (If you want to compile iOS)
+  - linux (No tested)
+- Android NDK 25 (If you want to compile android)
+- XCode 14.x (If you want to compile iOS)
+- Git (If your source url is git)
+- wget (If your source url is http/https)
+  - tar (If your source is tar)
+    - gzip (If your source is gzip/tar.gz/tgz)
+    - bzip2 (If your source is bzip2/tar.bz2/tbz2)
+    - xz (If your source is xz/tar.xz)
+    - lamz (If your source is lamz/tar.lamz)
+  - unzip (If your source is zip)
+  - 7zip (If your source is 7zip)
+- cp (If your source is path), the cp command is IEEE Std 1003.2 (“POSIX.2”) compliant.
 
 If you want to compile c
 
@@ -19,7 +30,7 @@ If you want to compile c
 
 - `ANDROID_NDK_HOME` - Android NDK 25
 
-## Usage
+## Usage for command
 
 ```bash
 compile -h
@@ -35,6 +46,35 @@ compile -h
   - [x] Git
   - [x] File
   - [x] Http
+
+## Example usage
+
+The [example](https://github.com/mobipkg/compile/tree/main/example) directory contains some example libraries.
+
+### Define your library
+
+Like the example, in general, you need to define a file: `lib.yaml`, which is conventional and its name cannot be changed.
+
+```yaml
+name: libffi
+type: autotools # or other types, you can run `compile support type` to see all types
+source:
+  git: 
+    url: https://github.com/libffi/libffi.git
+    ref: v3.4.4
+license: LICENSE
+```
+
+### Defind your .gitignore
+
+In general, it is also recommended that you include a .gitignore file
+It is defined as follows:
+
+```gitignore
+build/
+source/
+install/
+```
 
 ## LICENSE
 

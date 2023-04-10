@@ -65,8 +65,10 @@ class HttpSource {
       return LibHttpSourceType.tar;
     } else if (type == 'tar.gz' || type == 'tgz') {
       return LibHttpSourceType.tarGz;
-    } else if (type == 'tar.bz2' || type == 'tbz2') {
+    } else if (type == 'tar.bz2' || type == 'tbz2' || type == 'bzip2') {
       return LibHttpSourceType.tarBz2;
+    } else if (type == 'tar.xz' || type == 'txz') {
+      return LibHttpSourceType.tarXz;
     } else if (type == '7z') {
       return LibHttpSourceType.sevenZ;
     }

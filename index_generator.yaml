@@ -14,4 +14,4 @@ index_generator:
         - package: dart:async
         - package: dart:collection
         - package: dart:io
-        - package: process_run/process_run
+        - package: package:process_run/process_run.dart

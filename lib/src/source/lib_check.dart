@@ -11,6 +11,10 @@ enum LibHttpSourceType {
   tar,
   tarGz,
   tarBz2,
+  tarXz,
+  xz,
+  lzma,
+  tarLzma,
   sevenZ;
 
   void checkCommand() {
@@ -29,8 +33,22 @@ enum LibHttpSourceType {
         checkWhich('tar');
         checkWhich('bzip2');
         break;
+      case LibHttpSourceType.tarXz:
+        checkWhich('tar');
+        checkWhich('xz');
+        break;
       case LibHttpSourceType.sevenZ:
         checkWhich('7z');
+        break;
+      case LibHttpSourceType.xz:
+        checkWhich('xz');
+        break;
+      case LibHttpSourceType.lzma:
+        checkWhich('lzma');
+        break;
+      case LibHttpSourceType.tarLzma:
+        checkWhich('tar');
+        checkWhich('lzma');
         break;
     }
   }
