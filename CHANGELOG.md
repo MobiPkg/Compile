@@ -1,5 +1,9 @@
 # CHANGLOG
 
+## Unreleased
+
+- Support for `strip` option.
+
 ## 0.0.2
 
 - Support for CMake.
