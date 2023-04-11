@@ -3,6 +3,6 @@
 .dart_tool/
 pubspec.lock
 
-.vscode/settings.json
+.vscode
 .idea/
 logs/
