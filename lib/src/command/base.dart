@@ -93,7 +93,7 @@ mixin CompilerCommandMixin on BaseVoidCommand {
     doCheckEnvAndCommand();
     final projectDir = normalize(absolute(compileOptions.projectPath));
 
-    print('Change working directory to $projectDir');
+    logger.info('Change working directory to $projectDir');
     Directory.current = projectDir;
     final lib = Lib.fromDir(Directory.current);
     await checkProject(lib);
@@ -109,7 +109,7 @@ mixin CompilerCommandMixin on BaseVoidCommand {
 
     await compile(lib);
 
-    print('Compile done');
+    logger.info('Compile done');
   }
 
   FutureOr<void> compile(Lib lib) async {

@@ -25,3 +25,13 @@ final logger = Logger(
   output: ConsoleOutput(),
 );
 
+typedef CCLoggerFunction = void Function(dynamic message,
+    [dynamic error, StackTrace? stackTrace]);
+
+extension CCLoggerExt on Logger {
+  CCLoggerFunction get verbose => v;
+  CCLoggerFunction get debug => d;
+  CCLoggerFunction get info => i;
+  CCLoggerFunction get waring => w;
+  CCLoggerFunction get error => e;
+}

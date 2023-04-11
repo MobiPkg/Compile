@@ -37,6 +37,7 @@ mixin PlatformUtils {
   }
 
   Future<void> stripDynamicLib(String prefix) async {
+    final sb = StringBuffer();
     final dir = Directory(prefix);
     final files = dir.listSync(recursive: true);
     for (final file in files) {
@@ -44,9 +45,11 @@ mixin PlatformUtils {
         final name = basename(file.path);
         if (name.endsWith('.dylib') || name.endsWith('.so')) {
           await stripFile(file);
+          sb.writeln('strip ${file.path} success');
         }
       }
     }
+    logger.info(sb.toString().trim());
   }
 
   Future<void> stripFile(File file);
@@ -312,7 +315,7 @@ class IOSUtils with PlatformUtils {
         return 'x86_64-apple-darwin';
     }
   }
-  
+
   @override
   Future<void> stripFile(File file) async {
     final strip = this.strip();
