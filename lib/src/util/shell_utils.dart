@@ -104,7 +104,7 @@ class Shell with LogMixin {
 
   Future<String> exec(String script) async {
     final result = await run(script);
-    return result.join(' ').trim();
+    return result.map((e) => e.stdout).join(' ').trim();
   }
 }
 
