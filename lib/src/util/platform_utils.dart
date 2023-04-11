@@ -20,6 +20,8 @@ mixin PlatformUtils {
 
   String host();
 
+  String sysroot();
+
   Map<String, String> getEnvMap() {
     final systemEnv = Map<String, String>.from(Platform.environment);
     return {
@@ -110,7 +112,7 @@ class AndroidUtils with PlatformUtils {
     this.minSdk = 21,
   });
 
-  String get bins {
+  String get toolchainPath {
     final ndk = Platform.environment[Consts.ndkKey];
     if (ndk == null) {
       throw Exception('Not found $ndk');
@@ -127,7 +129,11 @@ class AndroidUtils with PlatformUtils {
       '$platform-x86_64',
     );
 
-    final bins = join(toolchain, 'bin');
+    return toolchain;
+  }
+
+  String get bins {
+    final bins = join(toolchainPath, 'bin');
     return bins;
   }
 
@@ -184,6 +190,11 @@ class AndroidUtils with PlatformUtils {
     final path = file.absolute.path;
     await shell.run('$strip $path');
   }
+
+  @override
+  String sysroot() {
+    return join(toolchainPath, 'sysroot');
+  }
 }
 
 enum IOSCpuType {
@@ -229,10 +240,6 @@ enum IOSCpuType {
       case IOSCpuType.x86_64:
         return '';
     }
-  }
-
-  Future<String> getSDKPath() {
-    return IOSUtils(cpuType: this).getSdkPath();
   }
 }
 
@@ -299,11 +306,11 @@ class IOSUtils with PlatformUtils {
     return xcrun('strip');
   }
 
-  Future<String> getSdkPath() async {
+  String getSdkPath() {
     final sdkName = cpuType.sdkName();
     final cmd = 'xcrun --sdk $sdkName --show-sdk-path';
-    final result = await shell.run(cmd);
-    return result.map((e) => e.stdout.toString()).join(' ').trim();
+    final result = shell.runSync(cmd);
+    return result.trim();
   }
 
   @override
@@ -321,5 +328,10 @@ class IOSUtils with PlatformUtils {
     final strip = this.strip();
     final path = file.absolute.path;
     await shell.run('$strip -x -S $path');
+  }
+
+  @override
+  String sysroot() {
+    return getSdkPath();
   }
 }

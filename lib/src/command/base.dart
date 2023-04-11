@@ -134,6 +134,8 @@ mixin CompilerCommandMixin on BaseVoidCommand {
       if (compileOptions.strip) {
         await androidUtils.stripDynamicLib(prefix);
       }
+
+      _copyLicense(lib, prefix);
     }
   }
 
@@ -149,6 +151,26 @@ mixin CompilerCommandMixin on BaseVoidCommand {
 
       if (compileOptions.strip) {
         await iosUtils.stripDynamicLib(prefix);
+      }
+
+      _copyLicense(lib, prefix);
+    }
+  }
+
+  void _copyLicense(Lib lib, String installPath) {
+    final licensePath = lib.licensePath;
+
+    if (licensePath != null) {
+      final srcLicenseFile = File(licensePath);
+      if (srcLicenseFile.existsSync()) {
+        final dstLicenseFile = File(join(installPath, 'LICENSE'));
+        dstLicenseFile.createSync(recursive: true);
+        dstLicenseFile.writeAsStringSync(
+          srcLicenseFile.readAsStringSync(),
+        );
+        logger.info('Copy $licensePath file to $installPath');
+      } else {
+        logger.w('The license file is not exist: $licensePath');
       }
     }
   }

@@ -57,7 +57,7 @@ class Shell with LogMixin {
     // Default to true if verbose is true
     bool? commentVerbose,
     void Function(Process process)? onProcess,
-  }) {
+  }) async {
     final log = StringBuffer();
     log.writeLineWithIndent('Running script:');
     log.writeLineWithIndent(script, 2);
@@ -71,23 +71,86 @@ class Shell with LogMixin {
 
     logger.d(log.toString().trim());
 
-    return sr.run(
-      script,
-      commandVerbose: commandVerbose,
-      commentVerbose: commentVerbose,
+    try {
+      final result = await sr.run(
+        script,
+        commandVerbose: commandVerbose,
+        commentVerbose: commentVerbose,
+        environment: environment,
+        includeParentEnvironment: includeParentEnvironment,
+        onProcess: onProcess,
+        runInShell: runInShell,
+        stderr: stderr,
+        stderrEncoding: stderrEncoding,
+        stdin: stdin,
+        stdout: stdout,
+        stdoutEncoding: stdoutEncoding,
+        throwOnError: throwOnError,
+        verbose: verbose,
+        workingDirectory: workingDirectory,
+      );
+
+      return result;
+    } catch (e, st) {
+      final log = StringBuffer();
+      final env = environment ?? {};
+      log.writeln('env:');
+      log.writeLineWithIndent(env.debugString(), 2);
+      log.writeln('script:');
+      log.writeLineWithIndent(script, 2);
+      simpleLogger.error(log.toString().trim());
+      return Future.error(e, st);
+    }
+  }
+
+  String runSync(
+    String script, {
+    bool throwOnError = true,
+    String? workingDirectory,
+    Map<String, String>? environment,
+    bool includeParentEnvironment = true,
+    bool? runInShell,
+    Encoding stdoutEncoding = systemEncoding,
+    Encoding stderrEncoding = systemEncoding,
+    bool verbose = true,
+
+    // Default to true
+    bool? commandVerbose,
+    // Default to true if verbose is true
+    bool? commentVerbose,
+    void Function(Process process)? onProcess,
+  }) {
+    final log = StringBuffer();
+    log.writeLineWithIndent('Running script:');
+    log.writeLineWithIndent(script, 2);
+    log.writeLineWithIndent('Working directory: $workingDirectory');
+    log.writeLineWithIndent('Environment:');
+    if (environment != null) {
+      log.writeLineWithIndent(environment.debugString(), 2);
+    }
+    log.writeLineWithIndent(
+        'Include parent environment: $includeParentEnvironment');
+
+    logger.d(log.toString().trim());
+    final r = Process.runSync(
+      'sh',
+      ['-c', script],
       environment: environment,
       includeParentEnvironment: includeParentEnvironment,
-      onProcess: onProcess,
-      runInShell: runInShell,
-      stderr: stderr,
+      runInShell: runInShell ?? false,
       stderrEncoding: stderrEncoding,
-      stdin: stdin,
-      stdout: stdout,
       stdoutEncoding: stdoutEncoding,
-      throwOnError: throwOnError,
-      verbose: verbose,
       workingDirectory: workingDirectory,
     );
+
+    if (r.exitCode != 0) {
+      if (throwOnError) {
+        throw Exception(r.stderr);
+      } else {
+        logger.e(r.stderr);
+      }
+    }
+    return r.stdout;
   }
 
   String? whichSync(

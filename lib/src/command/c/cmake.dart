@@ -48,7 +48,7 @@ class CMakeCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     IOSCpuType type,
   ) async {
     final toolchain = await createiOSToolchainFile(lib, type, env);
-    final sdkPath = await IOSUtils(cpuType: type).getSdkPath();
+    final sdkPath = IOSUtils(cpuType: type).getSdkPath();
     await _compile(lib, env, prefix, toolchain, {
       'CMAKE_OSX_SYSROOT': sdkPath,
     });
@@ -67,7 +67,7 @@ class CMakeCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     ).file(createWhenNotExists: true);
     final IOSUtils iosUtils = IOSUtils(cpuType: type);
 
-    final sdkPath = await iosUtils.getSdkPath();
+    final sdkPath = iosUtils.getSdkPath();
     final arch = type.arch();
 
     final cc = env['CC'];

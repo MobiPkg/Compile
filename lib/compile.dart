@@ -14,6 +14,7 @@ export 'src/command/base.dart';
 export 'src/command/c/autotools.dart';
 export 'src/command/c/c.dart';
 export 'src/command/c/cmake.dart';
+export 'src/command/c/meson.dart';
 export 'src/command/support.dart';
 export 'src/commander.dart';
 export 'src/consts/consts.dart';

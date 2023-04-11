@@ -81,9 +81,7 @@ class CompileOptions {
 final envs = Envs();
 
 class Envs {
-  var cpuCount = 8;
+  late int cpuCount = Platform.numberOfProcessors;
 
-  Future<void> init() async {
-    cpuCount = (await shell.exec('sysctl -n hw.ncpu')).toInt();
-  }
+  Future<void> init() async {}
 }

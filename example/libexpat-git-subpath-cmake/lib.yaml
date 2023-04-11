@@ -6,7 +6,7 @@ source:
     url: https://github.com/libexpat/libexpat.git
     ref: R_2_5_0
   subpath: expat
-license: LICENSE
+license: COPYING
 
 flags:
   c: -fPIC -O2 -Wall 

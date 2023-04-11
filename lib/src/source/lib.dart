@@ -9,6 +9,7 @@ mixin ConfigType {
 enum LibType with ConfigType {
   cAutotools('autotools'),
   cCmake('cmake'),
+  cMeson('meson'),
   ;
 
   const LibType(
@@ -45,9 +46,13 @@ class Lib
   late String sourcePath = join(projectDirPath, 'source', name);
   late String? subpath = sourceMap['subpath'];
   late String workingPath =
-      subpath == null ? sourcePath : join(sourcePath, subpath!);
+      subpath == null ? sourcePath : normalize(join(sourcePath, subpath!));
 
-  late String licensePath = join(sourcePath, map['license']);
+  late final String? _licensePath = map['license'];
+
+  late String? licensePath = _licensePath == null
+      ? null
+      : normalize(absolute(join(sourcePath, _licensePath!)));
   late String buildPath = join(projectDirPath, 'build');
 
   late String installPath = join(projectDirPath, 'install');
@@ -67,11 +72,14 @@ class Lib
   }
 
   factory Lib.fromDir(Directory projectDir) {
-    final lib = File(join(projectDir.path, 'lib.yaml'));
-    if (!lib.existsSync()) {
-      throw Exception('Not found lib.yaml in ${projectDir.path}');
+    final fileNames = [
+      'lib.yaml',
+      'lib.yml',
+    ];
+    final file = projectDir.getFirstMatchFile(fileNames);
+    if (file == null) {
+      throw Exception('Not found ${fileNames.join('|')} in ${projectDir.path}');
     }
-    final file = File(lib.path);
     return Lib.fromYaml(file.readAsStringSync(), projectDir);
   }
 

@@ -25,6 +25,14 @@ final logger = Logger(
   output: ConsoleOutput(),
 );
 
+final simpleLogger = Logger(
+  level: compileOptions.verbose ? Level.verbose : Level.info,
+  printer: SimplePrinter(),
+  filter: ProductionFilter(),
+  // filter: DevelopmentFilter(),
+  output: ConsoleOutput(),
+);
+
 typedef CCLoggerFunction = void Function(dynamic message,
     [dynamic error, StackTrace? stackTrace]);
 

@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:path/path.dart';
+
 extension StringFileExtensions on String {
   /// Returns the file extension of this path.
   /// If [createWhenNotExists] is true, the directory will be created.
@@ -44,5 +46,38 @@ extension StringFileExtensions on String {
     if (!parent.existsSync()) {
       parent.createSync(recursive: true);
     }
+  }
+}
+
+extension CCDirExt on Directory {
+  File? getFirstMatchFile(
+    List<String> names, {
+    bool matchCase = false,
+    bool exactMatch = true,
+    bool recursive = false,
+  }) {
+    bool compare(String listItem, String fileName) {
+      if (matchCase) {
+        return exactMatch ? listItem == fileName : listItem.contains(fileName);
+      } else {
+        return exactMatch
+            ? listItem.toLowerCase() == fileName.toLowerCase()
+            : fileName.toLowerCase().contains(listItem.toLowerCase());
+      }
+    }
+
+    final dir = this;
+    final files = dir.listSync(recursive: recursive);
+    for (final file in files) {
+      if (file is File) {
+        final name = basename(file.path);
+        for (final fileName in names) {
+          if (compare(name, fileName)) {
+            return file;
+          }
+        }
+      }
+    }
+    return null;
   }
 }

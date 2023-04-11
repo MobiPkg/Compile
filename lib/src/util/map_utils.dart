@@ -4,10 +4,10 @@ extension StringMapExt on Map<String, String> {
   }
 
   String debugString() {
-    return entries.map((e) => '${e.key}=${e.value}').join('\n');
+    return entries.map((e) => '${e.key}="${e.value}"').join('\n');
   }
 
   String toEnvString() {
-    return entries.map((e) => '${e.key}=${e.value}').join(' ');
+    return entries.map((e) => '${e.key}="${e.value}"').join(' ');
   }
 }

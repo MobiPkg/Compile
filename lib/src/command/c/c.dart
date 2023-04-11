@@ -12,5 +12,6 @@ class CCommand extends BaseListCommand {
   List<Command<void>> get subCommands => [
         AutoToolsCommand(),
         CMakeCommand(),
+        MesonCommand(),
       ];
 }
