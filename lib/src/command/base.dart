@@ -179,7 +179,7 @@ mixin CompilerCommandMixin on BaseVoidCommand {
   }
 
   void _printEnv(Map<String, String> env) {
-    if (compileOptions.verbose) {
+    if (commandOption.verbose) {
       i('Env:\n${env.debugString()}');
     }
   }
