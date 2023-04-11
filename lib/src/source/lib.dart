@@ -40,6 +40,11 @@ class Lib
   final Map map;
   final Directory projectDir;
 
+  late final YamlList? _precompile = map['precompile'];
+
+  late List<String> precompile =
+      _precompile == null ? [] : _precompile!.whereType<String>().toList();
+
   late String name = map['name'];
 
   late String projectDirPath = normalize(absolute(projectDir.path));

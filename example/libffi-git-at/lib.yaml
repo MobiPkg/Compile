@@ -11,3 +11,6 @@ flags:
   cxx: -fPIC -O3 -std=c++17 -s
   cpp: 
   ld: -s
+
+precompile:
+  - ./autogen.sh

@@ -107,6 +107,9 @@ mixin CompilerCommandMixin on BaseVoidCommand {
     }
     await lib.download();
 
+    // pre compile
+    await precompile(lib);
+
     await compile(lib);
 
     logger.info('Compile done');
@@ -186,4 +189,19 @@ mixin CompilerCommandMixin on BaseVoidCommand {
 
   FutureOr<void> doCompileIOS(
       Lib lib, Map<String, String> env, String prefix, IOSCpuType type);
+
+  FutureOr<void> precompile(Lib lib) async {
+    final preCompile = lib.precompile;
+    if (preCompile.isNotEmpty) {
+      for (final script in preCompile) {
+        await shell.run(script, workingDirectory: lib.workingPath);
+      }
+    } else {
+      logger.i('No precompile script');
+    }
+
+    await doPrecompile(lib);
+  }
+
+  FutureOr<void> doPrecompile(Lib lib) async {}
 }

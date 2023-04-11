@@ -2,7 +2,6 @@ import 'package:compile/compile.dart';
 import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart' as sr;
 
-
 class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
   @override
   String get commandDescription => 'AutoTools compile';
@@ -43,13 +42,11 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
     await _compile(lib, env, prefix);
   }
 
-  Future<void> _compile(
-    Lib lib,
-    Map<String, String> env,
-    String prefix,
-  ) async {
-    lib.addFlagsToEnv(env);
+  @override
+  FutureOr<void> doPrecompile(Lib lib) async {
+    await super.doPrecompile(lib);
     final sourceDir = lib.workingPath;
+    
     // check configure exists
     if (!File(join(sourceDir, 'configure')).existsSync()) {
       print('configure not found');
@@ -61,6 +58,15 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
       print('configure not found');
       return;
     }
+  }
+
+  Future<void> _compile(
+    Lib lib,
+    Map<String, String> env,
+    String prefix,
+  ) async {
+    lib.addFlagsToEnv(env);
+    final sourceDir = lib.workingPath;
 
     final host = env['HOST'];
     if (host == null) {
