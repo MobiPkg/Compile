@@ -1,0 +1,16 @@
+name: mesa
+type: meson
+source:
+  git: 
+    url: https://github.com/Mesa3D/mesa.git
+    ref: mesa-22.2.5
+license: LICENSE
+
+flags:
+  c: -fPIC -O2 -Wall 
+  cxx: -fPIC -O3 -std=c++17
+  cpp: 
+  ld: 
+
+precompile: 
+  - pip3 install mako

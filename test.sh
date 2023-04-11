@@ -24,6 +24,10 @@ http)
 subpath)
     C c cmake -C example/libexpat-git-subpath-cmake $@
     ;;
+meson)
+    # C c meson -C example/git-meson/glib $@
+    C c meson -C example/git-meson/mesa $@
+    ;;
 all)
     C c autotools -C example/libffi-git-at $@
     C c cmake -C example/zlib-git-cmake $@
