@@ -15,14 +15,13 @@ autotools | at)
     C c autotools -C example/libffi-git-at $@
     ;;
 cmake | cm)
-    ## Compile cmake example (zlib)
-    C c cmake -C example/zlib-git-cmake $@
+    C c cmake -C example/git-cmake/zlib $@
     ;;
 http)
     C c cmake -C example/zlib-http-cmake $@
     ;;
 subpath)
-    C c cmake -C example/libexpat-git-subpath-cmake $@
+    C c cmake -C example/git-cmake/libexpat-subpath $@
     ;;
 meson)
     # C c meson -C example/git-meson/glib $@

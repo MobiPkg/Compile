@@ -25,6 +25,16 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
   }
 
   @override
+  FutureOr<void> doPrecompile(Lib lib) async {
+    final dir = lib.workingPath.directory();
+    final upstreamWrapFile = join(dir.path, 'upstream.wrap').file();
+    if (upstreamWrapFile.existsSync()) {
+      const cmd = 'meson wrap install';
+      await shell.run(cmd, workingDirectory: dir.path);
+    }
+  }
+
+  @override
   FutureOr<void> doCompileAndroid(
     Lib lib,
     Map<String, String> env,
@@ -67,8 +77,17 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
 
     logger.info('meson install path: $prefix');
 
+    final params = <String, String>{
+      'prefix': prefix,
+      'cross-file': crossFilePath,
+      'buildtype': 'release',
+    };
+
+    final opt =
+        params.entries.map((entry) => '--${entry.key}="${entry.value}"');
+
     var cmd =
-        'meson setup $buildPath --prefix=$prefix --cross-file=$crossFilePath';
+        'meson setup $buildPath $opt';
     await shell.run(cmd, workingDirectory: lib.workingPath, environment: env);
 
     final cpuCount = envs.cpuCount;
