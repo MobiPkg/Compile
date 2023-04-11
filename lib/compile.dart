@@ -11,11 +11,13 @@ export 'package:args/args.dart';
 export 'package:process_run/process_run.dart';
 
 export 'src/command/base.dart';
-export 'src/command/c/autotools.dart';
-export 'src/command/c/c.dart';
-export 'src/command/c/cmake.dart';
-export 'src/command/c/meson.dart';
+export 'src/command/compile/c/autotools.dart';
+export 'src/command/compile/c/c.dart';
+export 'src/command/compile/c/cmake.dart';
+export 'src/command/compile/c/meson.dart';
+export 'src/command/compile/compiler_mixin.dart';
 export 'src/command/support.dart';
+export 'src/command/tmpl/template.dart';
 export 'src/commander.dart';
 export 'src/consts/consts.dart';
 export 'src/options.dart';

@@ -12,6 +12,7 @@ class Commander with LogMixin {
   final _commanders = <BaseVoidCommand>[
     CCommand(),
     SupportCommand(),
+    TemplateCommand(),
   ];
 
   CommandRunner<void> get runner => _runner;

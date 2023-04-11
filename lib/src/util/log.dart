@@ -12,7 +12,7 @@ mixin LogMixin {
 }
 
 final logger = Logger(
-  level: commandOption.verbose ? Level.verbose : Level.info,
+  level: globalOptions.verbose ? Level.verbose : Level.info,
   printer: PrettyPrinter(
     methodCount: 3,
     errorMethodCount: 10,
@@ -25,7 +25,7 @@ final logger = Logger(
 );
 
 final simpleLogger = Logger(
-  level: commandOption.verbose ? Level.verbose : Level.info,
+  level: globalOptions.verbose ? Level.verbose : Level.info,
   printer: SimplePrinter(),
   filter: ProductionFilter(),
   // filter: DevelopmentFilter(),
