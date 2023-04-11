@@ -1,0 +1,16 @@
+name: libpng
+type: autotools
+source:
+  git: 
+    url: https://github.com/glennrp/libpng.git
+    ref: v1.6.39
+license: LICENSE
+
+flags:
+  c: -fPIC -O2 -Wall -s
+  cxx: -fPIC -O3 -std=c++17 -s
+  cpp: 
+  ld: -s
+
+precompile:
+  # - ./autogen.sh
