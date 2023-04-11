@@ -46,7 +46,7 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
   FutureOr<void> doPrecompile(Lib lib) async {
     await super.doPrecompile(lib);
     final sourceDir = lib.workingPath;
-    
+
     // check configure exists
     if (!File(join(sourceDir, 'configure')).existsSync()) {
       print('configure not found');
