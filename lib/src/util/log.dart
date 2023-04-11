@@ -17,7 +17,6 @@ final logger = Logger(
     methodCount: 3,
     errorMethodCount: 10,
     printTime: true,
-    printEmojis: true,
     // noBoxingByDefault: true,
   ),
   filter: ProductionFilter(),
@@ -33,8 +32,11 @@ final simpleLogger = Logger(
   output: ConsoleOutput(),
 );
 
-typedef CCLoggerFunction = void Function(dynamic message,
-    [dynamic error, StackTrace? stackTrace]);
+typedef CCLoggerFunction = void Function(
+  dynamic message, [
+  dynamic error,
+  StackTrace? stackTrace,
+]);
 
 extension CCLoggerExt on Logger {
   CCLoggerFunction get verbose => v;

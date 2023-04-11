@@ -16,9 +16,9 @@ class SupportCommand extends BaseListCommand {
 
 mixin _SupportInfoMixin<T extends ConfigType> on LogMixin {
   void showInfo(String title, List<T> values) {
-    StringBuffer buffer = StringBuffer();
+    final buffer = StringBuffer();
     buffer.writeln('Support $title:');
-    for (var element in values) {
+    for (final element in values) {
       buffer.writeln('  ${element.value}');
     }
     logger.i(buffer.toString().trim());

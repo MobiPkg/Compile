@@ -26,7 +26,11 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
 
   @override
   FutureOr<void> doCompileAndroid(
-      Lib lib, Map<String, String> env, String prefix, AndroidCpuType type) {
+    Lib lib,
+    Map<String, String> env,
+    String prefix,
+    AndroidCpuType type,
+  ) {
     final crossFileContent = makeAndroidCrossFileContent(type);
     final crossFile = join(lib.buildPath, 'cross-file', 'cross-$type.ini')
         .file(createWhenNotExists: true);
@@ -36,7 +40,11 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
 
   @override
   FutureOr<void> doCompileIOS(
-      Lib lib, Map<String, String> env, String prefix, IOSCpuType type) {
+    Lib lib,
+    Map<String, String> env,
+    String prefix,
+    IOSCpuType type,
+  ) {
     final crossFileContent = makeIOSCrossFileContent(type);
     final crossFile = join(lib.buildPath, 'cross-file', 'cross-$type.ini')
         .file(createWhenNotExists: true);

@@ -1,12 +1,14 @@
+import 'package:compile/compile.dart';
+
 mixin LibFlagsMixin {
   Map get map;
 
-  Map get flagsMap => map['flags'] ?? {};
+  Map get flagsMap => map.getMap('flags');
 
-  String get cFlags => flagsMap['c'] ?? '';
-  String get cppFlags => flagsMap['cpp'] ?? '';
-  String get cxxFlags => flagsMap['cxx'] ?? '';
-  String get ldFlags => flagsMap['ld'] ?? '';
+  String get cFlags => flagsMap.stringValue('c');
+  String get cppFlags => flagsMap.stringValue('cpp');
+  String get cxxFlags => flagsMap.stringValue('cxx');
+  String get ldFlags => flagsMap.stringValue('ld');
 
   void _addFlagsToEnv(Map env, String key, String value) {
     if (value.isNotEmpty) {

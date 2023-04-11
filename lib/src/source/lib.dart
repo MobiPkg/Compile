@@ -40,30 +40,30 @@ class Lib
   final Map map;
   final Directory projectDir;
 
-  late final YamlList? _precompile = map['precompile'];
+  late final _precompile = map['precompile'] as YamlList?;
 
   late List<String> precompile =
       _precompile == null ? [] : _precompile!.whereType<String>().toList();
 
-  late String name = map['name'];
+  late String name = map['name'] as String;
 
   late String projectDirPath = normalize(absolute(projectDir.path));
   late String sourcePath = join(projectDirPath, 'source', name);
-  late String? subpath = sourceMap['subpath'];
+  late String? subpath = sourceMap['subpath'] as String?;
   late String workingPath =
-      subpath == null ? sourcePath : normalize(join(sourcePath, subpath!));
+      subpath == null ? sourcePath : normalize(join(sourcePath, subpath));
 
-  late final String? _licensePath = map['license'];
+  late final String? _licensePath = map['license'] as String?;
 
   late String? licensePath = _licensePath == null
       ? null
-      : normalize(absolute(join(sourcePath, _licensePath!)));
+      : normalize(absolute(join(sourcePath, _licensePath)));
   late String buildPath = join(projectDirPath, 'build');
 
   late String installPath = join(projectDirPath, 'install');
 
   LibType get type {
-    final type = map['type'];
+    final type = map['type'] as String;
     return LibType.fromValue(type);
   }
 
@@ -72,7 +72,7 @@ class Lib
   }
 
   factory Lib.fromYaml(String yaml, Directory projectDir) {
-    final map = loadYaml(yaml);
+    final map = loadYaml(yaml) as Map;
     return Lib.fromMap(map, projectDir);
   }
 
@@ -89,7 +89,7 @@ class Lib
   }
 
   Future<void> download() async {
-    final Map source = map['source'];
+    final Map source = map['source'] as Map;
     final targetDirPath = sourcePath;
 
     if (targetDirPath.directory().existsSync()) {
@@ -100,7 +100,7 @@ class Lib
     if (source.containsKey('git')) {
       await downloadGit(targetDirPath, gitSource);
     } else if (source.containsKey('path')) {
-      final String path = source['path'];
+      final String path = source['path'] as String;
       final sourcePath = normalize(absolute(path));
       final sourceDir = Directory(sourcePath);
       if (!sourceDir.existsSync()) {

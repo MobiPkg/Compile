@@ -1,15 +1,16 @@
 import 'package:compile/compile.dart';
 
-Future<void> main(List<String> arguments) async {
+Future<void> main(List<String> args) async {
+  List<String> arguments = args;
   final Commander commander = Commander();
-  if (arguments.length == 1) {
-    arguments = convertArgs(arguments.first);
+  if (args.length == 1) {
+    arguments = convertArgs(args.first);
   }
   await commander.run(arguments);
 }
 
-List<String> convertArgs(String arg) {
-  arg = arg.trim();
+List<String> convertArgs(String argText) {
+  var arg = argText.trim();
   while (arg.contains('  ')) {
     arg = arg.replaceAll('  ', ' ');
   }

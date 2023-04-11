@@ -50,9 +50,9 @@ abstract class BaseCommand<T> extends Command<T> with LogMixin {
 abstract class BaseVoidCommand extends BaseCommand<void> {
   @override
   FutureOr<void>? onError(Object exception, StackTrace st) {
-    print('Happen error when run command');
-    print(exception);
-    print(st);
+    simpleLogger.i('Happen error when run command');
+    simpleLogger.i(exception);
+    simpleLogger.i(st);
     return null;
   }
 }
@@ -75,8 +75,8 @@ mixin CompilerCommandMixin on BaseVoidCommand {
   FutureOr<void> checkProject(Lib lib) async {
     if (lib.type != libType) {
       throw Exception(
-        'Project type not match'
-        'project type is ${lib.type}, '
+        'Project type not match, '
+        'current project type is ${lib.type}, '
         'But compiler type is $libType',
       );
     }
@@ -185,10 +185,18 @@ mixin CompilerCommandMixin on BaseVoidCommand {
   }
 
   FutureOr<void> doCompileAndroid(
-      Lib lib, Map<String, String> env, String prefix, AndroidCpuType type);
+    Lib lib,
+    Map<String, String> env,
+    String prefix,
+    AndroidCpuType type,
+  );
 
   FutureOr<void> doCompileIOS(
-      Lib lib, Map<String, String> env, String prefix, IOSCpuType type);
+    Lib lib,
+    Map<String, String> env,
+    String prefix,
+    IOSCpuType type,
+  );
 
   FutureOr<void> precompile(Lib lib) async {
     final preCompile = lib.precompile;

@@ -3,7 +3,7 @@ import 'package:compile/compile.dart';
 mixin LibSourceMixin {
   Map get map;
 
-  Map get sourceMap => map['source'];
+  Map get sourceMap => map['source'] as Map;
 
   LibSourceType get sourceType {
     if (sourceMap.containsKey('git')) {
@@ -17,15 +17,15 @@ mixin LibSourceMixin {
   }
 
   GitSource get gitSource {
-    return GitSource.fromMap(sourceMap['git']);
+    return GitSource.fromMap(sourceMap['git'] as Map);
   }
 
   PathSource get pathSource {
-    return PathSource(sourceMap['path']);
+    return PathSource(sourceMap['path'] as String);
   }
 
   HttpSource get httpSource {
-    return HttpSource.fromMap(sourceMap['http']);
+    return HttpSource.fromMap(sourceMap['http'] as Map);
   }
 }
 
@@ -35,8 +35,8 @@ class GitSource {
   GitSource(this.url, this.ref);
 
   factory GitSource.fromMap(Map map) {
-    final url = map['url'];
-    final ref = map['ref'];
+    final url = map['url'] as String;
+    final ref = map['ref'] as String;
     return GitSource(url, ref);
   }
 }
@@ -53,8 +53,8 @@ class HttpSource {
   HttpSource(this.url, this.type);
 
   factory HttpSource.fromMap(Map map) {
-    final url = map['url'];
-    final type = map['type'];
+    final url = map['url'] as String;
+    final type = map['type'] as String;
     return HttpSource(url, type);
   }
 

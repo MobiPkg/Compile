@@ -60,22 +60,26 @@ mixin LibCheckMixin on LibSourceMixin {
   }
 
   void analyze() {
-    final source = map['source'];
+    final source = map.getMapOrNull('source');
     if (source == null) {
       throw Exception('Not found source in lib.yaml');
     }
     if (source['git'] != null) {
-      final git = source['git'];
-      if (git is! Map) {
+      final git = source.getMapOrNull('git');
+      if (git == null) {
         _throwError('git is must be map.');
       }
-      _checkGit(git);
+      _checkGit(git!);
     } else if (source['path'] != null) {
       final path = source['path'];
       _checkPath(path);
     } else if (source['http'] != null) {
       final http = source['http'];
-      _checkHttp(http);
+
+      if (http is! Map) {
+        _throwError('http is must be map.');
+      }
+      _checkHttp(http as Map);
     } else {
       throw Exception('Not support source type');
     }
@@ -95,12 +99,12 @@ mixin LibCheckMixin on LibSourceMixin {
     }
   }
 
-  void _checkPath(path) {
+  void _checkPath(dynamic path) {
     checkWhich('cp');
     if (path is! String) {
       _throwError('path is must be string.');
     }
-    if (!FileSystemEntity.isDirectorySync(path)) {
+    if (!FileSystemEntity.isDirectorySync(path as String)) {
       _throwError('path is must be directory.');
     }
   }
@@ -108,14 +112,14 @@ mixin LibCheckMixin on LibSourceMixin {
   void _checkHttp(Map http) {
     checkWhich('wget');
 
-    final url = http['url'];
+    final url = http.stringValueOrNull('url');
     final type = http['type'];
 
-    if (url == null || url is! String) {
+    if (url == null) {
       _throwError('url is must be string.');
     }
 
-    final uri = Uri.parse(url);
+    final uri = Uri.parse(url!);
     if (uri.scheme != 'http' && uri.scheme != 'https') {
       _throwError('http is must be http or https.');
     }
@@ -128,7 +132,7 @@ mixin LibCheckMixin on LibSourceMixin {
   }
 
   LibHttpSourceType get httpSourceType {
-    final type = sourceMap['http']['type'];
+    final type = map.getMap('http').stringValue('type');
     if (type == 'zip') {
       return LibHttpSourceType.zip;
     } else if (type == 'tar') {

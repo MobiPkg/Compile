@@ -109,7 +109,7 @@ set(CMAKE_OSX_ARCHITECTURES $arch)
     final host = env['HOST'];
     final buildDir = join(lib.buildPath, host).directory();
 
-    StringBuffer log = StringBuffer();
+    final log = StringBuffer();
 
     final buildPath = buildDir.absolute.path;
     log.writeln('sourceDir: $sourceDir');
@@ -147,8 +147,12 @@ set(CMAKE_OSX_ARCHITECTURES $arch)
     }
   }
 
-  Future<void> compileWithMake(String args, String sourceDir, String buildPath,
-      Map<String, String> env) async {
+  Future<void> compileWithMake(
+    String args,
+    String sourceDir,
+    String buildPath,
+    Map<String, String> env,
+  ) async {
     final cmd = 'cmake $args -S $sourceDir -B $buildPath';
     // i('cmd: $cmd');
     await shell.run(cmd, environment: env, workingDirectory: sourceDir);

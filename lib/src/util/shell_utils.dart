@@ -10,14 +10,15 @@ bool checkWhich(
   bool throwOnError = true,
   String? throwMessage,
 }) {
+  String message;
   final haveCommand = shell.whichSync(command) != null;
   if (!haveCommand && throwOnError) {
     if (throwMessage == null) {
-      throwMessage = '';
+      message = '';
     } else {
-      throwMessage = ': $throwMessage';
+      message = ': $throwMessage';
     }
-    throw Exception('$command not found $throwMessage');
+    throw Exception('$command not found $message');
   }
   return haveCommand;
 }
@@ -26,14 +27,15 @@ void checkEnv(
   String key, {
   String? throwMessage,
 }) {
+  String message;
   final env = Platform.environment[key];
   if (env == null || env.isEmpty) {
     if (throwMessage == null) {
-      throwMessage = '';
+      message = '';
     } else {
-      throwMessage = ': $throwMessage';
+      message = ': $throwMessage';
     }
-    throw Exception('Please set $key, $throwMessage');
+    throw Exception('Please set $key, $message');
   }
 }
 
@@ -67,7 +69,8 @@ class Shell with LogMixin {
       log.writeLineWithIndent(environment.debugString(), 2);
     }
     log.writeLineWithIndent(
-        'Include parent environment: $includeParentEnvironment');
+      'Include parent environment: $includeParentEnvironment',
+    );
 
     logger.d(log.toString().trim());
 
@@ -129,7 +132,8 @@ class Shell with LogMixin {
       log.writeLineWithIndent(environment.debugString(), 2);
     }
     log.writeLineWithIndent(
-        'Include parent environment: $includeParentEnvironment');
+      'Include parent environment: $includeParentEnvironment',
+    );
 
     logger.d(log.toString().trim());
     final r = Process.runSync(
@@ -150,7 +154,7 @@ class Shell with LogMixin {
         logger.e(r.stderr);
       }
     }
-    return r.stdout;
+    return r.stdout as String;
   }
 
   String? whichSync(
@@ -174,7 +178,7 @@ class Shell with LogMixin {
 extension StringBufferExtForCmd on StringBuffer {
   void writeLineWithIndent(String log, [int indent = 0]) {
     final lines = log.split('\n');
-    for (var line in lines) {
+    for (final line in lines) {
       if (line.isNotEmpty) {
         write(' ' * indent);
         write(line);

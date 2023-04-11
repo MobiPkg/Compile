@@ -24,8 +24,8 @@ class Commander with LogMixin {
       _checkEnv();
       await runner.run(args);
     } on UsageException catch (e, st) {
-      print(e);
-      print(st);
+      final log = '$e\n$st';
+      logger.e(log);
     } catch (e, st) {
       logger.e('Happen error:', e, st);
     }
@@ -36,7 +36,6 @@ class Commander with LogMixin {
     argParser.addFlag(
       'verbose',
       abbr: 'v',
-      defaultsTo: false,
       help: 'Print verbose output.',
     );
     argParser.addFlag(
@@ -54,7 +53,6 @@ class Commander with LogMixin {
     argParser.addFlag(
       'upload',
       abbr: 'u',
-      defaultsTo: false,
       help: 'Upload to gitlab.',
     );
     argParser.addOption(
@@ -66,7 +64,6 @@ class Commander with LogMixin {
     argParser.addFlag(
       'remove-old-source',
       abbr: 'R',
-      defaultsTo: false,
       help: 'Remove old build files before compile.',
     );
 

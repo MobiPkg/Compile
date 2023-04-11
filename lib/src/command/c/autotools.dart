@@ -49,13 +49,13 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
 
     // check configure exists
     if (!File(join(sourceDir, 'configure')).existsSync()) {
-      print('configure not found');
+      simpleLogger.i('configure not found');
       await shell.run('autoreconf -i -v', workingDirectory: sourceDir);
     }
 
     // check configure exists
     if (!File(join(sourceDir, 'configure')).existsSync()) {
-      print('configure not found');
+      simpleLogger.i('configure not found');
       return;
     }
   }
@@ -70,7 +70,7 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
 
     final host = env['HOST'];
     if (host == null) {
-      print('HOST not found');
+      simpleLogger.i('HOST not found');
       return;
     }
 

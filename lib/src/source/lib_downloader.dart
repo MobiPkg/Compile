@@ -34,7 +34,7 @@ mixin LibDownloadMixin on LibSourceMixin, LogMixin {
 
     String cmd;
     final time = DateTime.now().millisecondsSinceEpoch;
-    String tmpPath = join(
+    final tmpPath = join(
       tmpDir.absolute.path,
       time.toString(),
     );

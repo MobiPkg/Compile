@@ -26,7 +26,6 @@ class CompileOptions {
     argParser.addFlag(
       'verbose',
       abbr: 'v',
-      defaultsTo: false,
       help: 'Print verbose output.',
     );
     argParser.addFlag(
@@ -44,7 +43,6 @@ class CompileOptions {
     argParser.addFlag(
       'upload',
       abbr: 'u',
-      defaultsTo: false,
       help: 'Upload to gitlab.',
     );
     argParser.addOption(
@@ -56,13 +54,11 @@ class CompileOptions {
     argParser.addFlag(
       'remove-old-source',
       abbr: 'R',
-      defaultsTo: false,
       help: 'Remove old build files before compile.',
     );
     argParser.addFlag(
       'strip',
       abbr: 's',
-      defaultsTo: false,
       help: 'Strip symbols for dynamic libraries.',
     );
 
