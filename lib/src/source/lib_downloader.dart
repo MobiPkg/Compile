@@ -3,15 +3,15 @@ import 'package:path/path.dart';
 
 mixin LibDownloadMixin on LibSourceMixin, LogMixin {
   Future<void> downloadGit(String targetPath, GitSource git) async {
+    final depth = compileOptions.gitDepth;
+
     final gitUrl = git.url;
     final ref = git.ref;
-    final cmd = 'git clone $gitUrl $targetPath';
-    await shell.run(cmd);
-
+    var cmd = 'git clone $gitUrl $targetPath --depth $depth';
     if (ref != null) {
-      final cmd = 'git checkout $ref';
-      await shell.run(cmd, workingDirectory: targetPath);
+      cmd = '$cmd --branch $ref';
     }
+    await shell.run(cmd);
   }
 
   Future<void> copyPath(String targetPath, PathSource source) async {

@@ -18,6 +18,8 @@ class CompileOptions {
 
   bool strip = false;
 
+  int gitDepth = 1;
+
   Future<void> handleGlobalOptions(
     CommandRunner<void> runner,
     List<String> args,
@@ -61,6 +63,12 @@ class CompileOptions {
       abbr: 's',
       help: 'Strip symbols for dynamic libraries.',
     );
+    argParser.addOption(
+      'git-depth',
+      abbr: 'd',
+      help: 'If use git to download source, set git depth to 1.',
+      defaultsTo: "1",
+    );
 
     final result = argParser.parse(args);
 
@@ -71,6 +79,7 @@ class CompileOptions {
     upload = result['upload'] as bool;
     removeOldSource = result['remove-old-source'] as bool;
     strip = result['strip'] as bool;
+    gitDepth = int.parse(result['git-depth'] as String);
   }
 }
 
