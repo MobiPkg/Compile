@@ -5,3 +5,4 @@ pubspec.lock
 
 .vscode/settings.json
 .idea/
+logs/
