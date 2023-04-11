@@ -61,6 +61,7 @@ class CompileOptions {
     argParser.addFlag(
       'strip',
       abbr: 's',
+      defaultsTo: true,
       help: 'Strip symbols for dynamic libraries.',
     );
     argParser.addOption(
