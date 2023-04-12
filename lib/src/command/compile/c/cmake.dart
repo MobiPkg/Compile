@@ -132,6 +132,8 @@ set(CMAKE_OSX_ARCHITECTURES $arch)
       'CMAKE_BUILD_TYPE': 'Release',
     };
 
+    // add LIBRARY_PATH to env for link library
+
     lib.addFlagsToCmakeArgs(paramMap);
 
     final argsBuffer = StringBuffer();
