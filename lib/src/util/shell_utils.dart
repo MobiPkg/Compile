@@ -99,6 +99,7 @@ class Shell with LogMixin {
       final env = environment ?? {};
       log.writeln('env:');
       log.writeLineWithIndent(env.debugString(), 2);
+      log.writeln('workingDirectory: $workingDirectory');
       log.writeln('script:');
       log.writeLineWithIndent(script, 2);
       simpleLogger.error(log.toString().trim());

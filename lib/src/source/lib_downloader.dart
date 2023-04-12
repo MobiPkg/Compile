@@ -16,8 +16,13 @@ mixin LibDownloadMixin on LibSourceMixin, LogMixin {
 
   Future<void> copyPath(String targetPath, PathSource source) async {
     final srcPath = source.path;
-    final cmd = 'cp -r $srcPath $targetPath';
-    await shell.run(cmd);
+    final dir = targetPath.directory();
+    if (!dir.existsSync()) {
+      dir.createSync(recursive: true);
+    }
+
+    final cmd = 'sh -c "cp -r $srcPath/* $targetPath"';
+    await shell.run(cmd, runInShell: true);
   }
 
   Future<void> downloadAndExtractHttp(
