@@ -87,7 +87,9 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
       }
     }
 
-    final cmd = './configure --prefix=$prefix --host $host';
+    final opt = lib.options.joinWithSpace();
+
+    final cmd = './configure --prefix=$prefix --host $host $opt';
     await shell.run(
       cmd,
       workingDirectory: sourceDir,

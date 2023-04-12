@@ -21,3 +21,9 @@ extension CCMapExt on Map {
     return this[key] as Map?;
   }
 }
+
+extension CCStringListExt on List<String> {
+  String joinWithSpace() {
+    return join(' ');
+  }
+}

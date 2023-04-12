@@ -134,11 +134,17 @@ set(CMAKE_OSX_ARCHITECTURES $arch)
 
     lib.addFlagsToCmakeArgs(paramMap);
 
-    final args = paramMap.entries
-        .map(
-          (e) => '-D${e.key}="${e.value}"',
-        )
-        .join(' ');
+    final argsBuffer = StringBuffer();
+
+    for (final e in paramMap.entries) {
+      argsBuffer.write(' -D${e.key}="${e.value}" ');
+    }
+
+    for (final opt in lib.options) {
+      argsBuffer.write(' $opt ');
+    }
+
+    final args = argsBuffer.toString().trim();
 
     if (checkWhich('ninja', throwOnError: false)) {
       await compileWithNinja(args, sourceDir, buildPath, env);

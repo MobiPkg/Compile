@@ -1,4 +1,5 @@
 import 'package:compile/compile.dart';
+import 'package:yaml/yaml.dart';
 
 mixin LibFlagsMixin {
   Map get map;
@@ -35,5 +36,14 @@ mixin LibFlagsMixin {
     add('CMAKE_C_FLAGS_RELEASE', cFlags);
     add('CMAKE_CXX_FLAGS_RELEASE', cxxFlags);
     add('CMAKE_EXE_LINKER_FLAGS_RELEASE', ldFlags);
+  }
+
+  List<String> get options {
+    final result = <String>[];
+    final opt = map['options'] as YamlList?;
+    if (opt != null) {
+      opt.whereType<String>().forEach(result.add);
+    }
+    return result;
   }
 }
