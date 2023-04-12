@@ -102,7 +102,7 @@ mixin CompilerCommandMixin on BaseVoidCommand {
 
     await compile(lib);
 
-    logger.info('Compile done');
+    logger.info('Compile done, see ${lib.installPath}');
   }
 
   FutureOr<void> compile(Lib lib) async {
