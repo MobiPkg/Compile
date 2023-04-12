@@ -43,5 +43,9 @@ final envs = Envs();
 class Envs {
   late int cpuCount = Platform.numberOfProcessors;
 
+  Map<String, String?> get systemEnvs => Platform.environment;
+
+  String get script => systemEnvs['_']!;
+
   Future<void> init() async {}
 }

@@ -1,9 +1,23 @@
 import 'package:compile/compile.dart';
 
-enum LibSourceType {
+enum LibSourceType with ConfigType {
   git,
   path,
-  http,
+  http;
+
+  const LibSourceType();
+
+  @override
+  String get value => toString().split('.').last;
+
+  static LibSourceType fromValue(String value) {
+    for (final type in values) {
+      if (type.value == value) {
+        return type;
+      }
+    }
+    throw Exception('Not support type: $value');
+  }
 }
 
 enum LibHttpSourceType {

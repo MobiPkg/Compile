@@ -7,17 +7,38 @@ mixin ConfigType {
 }
 
 enum LibType with ConfigType {
-  cAutotools('autotools'),
-  cCmake('cmake'),
-  cMeson('meson'),
+  cAutotools(
+    'autotools',
+    defaultOptions: [
+      '--enable-static',
+      '--enable-shared',
+    ],
+    aliases: [
+      'at',
+    ],
+  ),
+  cCmake(
+    'cmake',
+    aliases: ['cm'],
+  ),
+  cMeson('meson', hide: true),
   ;
 
   const LibType(
-    this.value,
-  );
+    this.value, {
+    this.defaultOptions = const [],
+    this.hide = false,
+    this.aliases = const [],
+  });
 
   @override
   final String value;
+
+  final List<String> defaultOptions;
+
+  final List<String> aliases;
+
+  final bool hide;
 
   static LibType fromValue(String value) {
     for (final type in values) {
