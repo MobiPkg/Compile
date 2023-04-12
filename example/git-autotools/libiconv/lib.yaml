@@ -1,0 +1,21 @@
+name: libiconv
+type: autotools
+source:
+  git:
+    url: git://git.savannah.gnu.org/libiconv.git
+    ref: v1.17
+license: COPYING
+
+flags:
+  c: -fPIC -O2 -Wall 
+  cxx: -fPIC -O3 -std=c++17
+  cpp:
+  ld: -s
+
+precompile:
+  - ./gitsub.sh pull
+  - sh ./autogen.sh
+
+options:
+  - --enable-static
+  - --enable-shared
