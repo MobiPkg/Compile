@@ -45,7 +45,7 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     final crossFile = join(lib.buildPath, 'cross-file', 'cross-$type.ini')
         .file(createWhenNotExists: true);
     crossFile.writeAsStringSync(crossFileContent);
-    return _compile(lib, env, prefix, crossFile);
+    return _compile(lib, env, prefix, crossFile, type);
   }
 
   @override
@@ -59,7 +59,7 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     final crossFile = join(lib.buildPath, 'cross-file', 'cross-$type.ini')
         .file(createWhenNotExists: true);
     crossFile.writeAsStringSync(crossFileContent);
-    return _compile(lib, env, prefix, crossFile);
+    return _compile(lib, env, prefix, crossFile, type);
   }
 
   FutureOr<void> _compile(
@@ -67,8 +67,10 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     Map<String, String> env,
     String prefix,
     File crossFile,
+    CpuType cpuType,
   ) async {
-    lib.addFlagsToEnv(env);
+    lib.injectEnv(env);
+    lib.injectPrefix(env, cpuType);
 
     // setup meson
     final buildPath = lib.buildPath;
@@ -86,8 +88,7 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     final opt =
         params.entries.map((entry) => '--${entry.key}="${entry.value}"');
 
-    var cmd =
-        'meson setup $buildPath $opt';
+    var cmd = 'meson setup $buildPath $opt';
     await shell.run(cmd, workingDirectory: lib.workingPath, environment: env);
 
     final cpuCount = envs.cpuCount;

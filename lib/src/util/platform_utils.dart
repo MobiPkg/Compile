@@ -1,6 +1,12 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
 
+mixin CpuType {
+  String installPath();
+
+  String platformName();
+}
+
 mixin PlatformUtils {
   String cc();
 
@@ -57,7 +63,7 @@ mixin PlatformUtils {
   Future<void> stripFile(File file);
 }
 
-enum AndroidCpuType {
+enum AndroidCpuType with CpuType {
   arm,
   arm64,
   x86,
@@ -76,7 +82,8 @@ enum AndroidCpuType {
     }
   }
 
-  String installName() {
+  @override
+  String installPath() {
     switch (this) {
       case AndroidCpuType.arm:
         return 'armeabi-v7a';
@@ -100,6 +107,11 @@ enum AndroidCpuType {
       case AndroidCpuType.x86_64:
         return 'x86_64-linux-android';
     }
+  }
+
+  @override
+  String platformName() {
+    return 'android';
   }
 }
 
@@ -197,7 +209,7 @@ class AndroidUtils with PlatformUtils {
   }
 }
 
-enum IOSCpuType {
+enum IOSCpuType with CpuType {
   arm64,
   x86_64;
 
@@ -211,8 +223,14 @@ enum IOSCpuType {
     }
   }
 
+  @override
   String installPath() {
     return arch();
+  }
+
+  @override
+  String platformName() {
+    return 'ios';
   }
 
   String arch() {

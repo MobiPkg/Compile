@@ -81,7 +81,9 @@ class Lib
       : normalize(absolute(join(sourcePath, _licensePath)));
   late String buildPath = join(projectDirPath, 'build');
 
-  late String installPath = join(projectDirPath, 'install');
+  String get installPath {
+    return envs.prefix ?? join(projectDirPath, 'install');
+  }
 
   LibType get type {
     final type = map['type'] as String;

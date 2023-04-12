@@ -47,5 +47,9 @@ class Envs {
 
   String get script => systemEnvs['_']!;
 
+  String? get prefix => systemEnvs[Consts.prefix];
+
+  String get ndk => systemEnvs[Consts.ndkKey]!;
+
   Future<void> init() async {}
 }

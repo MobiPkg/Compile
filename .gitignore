@@ -6,3 +6,5 @@ pubspec.lock
 .vscode
 .idea/
 logs/
+
+install/

@@ -1,0 +1,14 @@
+name: libsdl
+type: cmake
+source:
+  git:
+    url: https://github.com/libsdl-org/SDL.git
+    ref: release-2.26.5
+  subpath: .
+license: license
+flags:
+  c: -fPIC -O2 -Wall
+  cxx: -fPIC -O2 -Wall
+  cpp: ""
+  ld: -s
+options:

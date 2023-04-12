@@ -119,7 +119,7 @@ mixin CompilerCommandMixin on BaseVoidCommand {
       final androidUtils = AndroidUtils(targetCpuType: type);
       final env = androidUtils.getEnvMap();
       final installRoot = lib.installPath;
-      final prefix = join(installRoot, 'android', type.installName());
+      final prefix = join(installRoot, 'android', type.installPath());
 
       _printEnv(env);
       await doCompileAndroid(lib, env, prefix, type);

@@ -32,12 +32,23 @@ class CMakeCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     if (ndk == null) {
       throw Exception('Not found ndk in env');
     }
-    final toolchainPath =
-        join(ndk, 'build', 'cmake', 'android.toolchain.cmake');
-    await _compile(lib, env, prefix, toolchainPath, {
-      'ANDROID_NATIVE_API_LEVEL': '21',
-      'ANDROID_ABI': type.installName(),
-    });
+    final toolchainPath = join(
+      ndk,
+      'build',
+      'cmake',
+      'android.toolchain.cmake',
+    );
+    await _compile(
+      lib,
+      env,
+      prefix,
+      toolchainPath,
+      {
+        'ANDROID_NATIVE_API_LEVEL': '21',
+        'ANDROID_ABI': type.installPath(),
+      },
+      type,
+    );
   }
 
   @override
@@ -49,9 +60,14 @@ class CMakeCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
   ) async {
     final toolchain = await createiOSToolchainFile(lib, type, env);
     final sdkPath = IOSUtils(cpuType: type).getSdkPath();
-    await _compile(lib, env, prefix, toolchain, {
-      'CMAKE_OSX_SYSROOT': sdkPath,
-    });
+    await _compile(
+      lib,
+      env,
+      prefix,
+      toolchain,
+      {'CMAKE_OSX_SYSROOT': sdkPath},
+      type,
+    );
   }
 
   Future<String> createiOSToolchainFile(
@@ -102,8 +118,10 @@ set(CMAKE_OSX_ARCHITECTURES $arch)
     String prefix,
     String toolchainPath,
     Map<String, String> params,
+    CpuType cpuType,
   ) async {
-    lib.addFlagsToEnv(env);
+    lib.injectEnv(env);
+    lib.injectPrefix(env, cpuType);
 
     final sourceDir = lib.workingPath;
     final host = env['HOST'];
