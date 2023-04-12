@@ -137,11 +137,11 @@ set(CMAKE_OSX_ARCHITECTURES $arch)
     final argsBuffer = StringBuffer();
 
     for (final e in paramMap.entries) {
-      argsBuffer.write(' -D${e.key}="${e.value}" ');
+      argsBuffer.write(' -D${e.key}="${e.value}"');
     }
 
     for (final opt in lib.options) {
-      argsBuffer.write(' $opt ');
+      argsBuffer.write(' $opt');
     }
 
     final args = argsBuffer.toString().trim();
