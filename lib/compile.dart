@@ -17,7 +17,6 @@ export 'src/command/compile/c/cmake.dart';
 export 'src/command/compile/c/meson.dart';
 export 'src/command/compile/compiler_mixin.dart';
 export 'src/command/support.dart';
-export 'src/command/tmpl/autotools.dart';
 export 'src/command/tmpl/template.dart';
 export 'src/commander.dart';
 export 'src/consts/consts.dart';
