@@ -41,7 +41,7 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     String prefix,
     AndroidCpuType type,
   ) {
-    final crossFileContent = makeAndroidCrossFileContent(type);
+    final crossFileContent = makeAndroidCrossFileContent(lib, type);
     final crossFile = join(lib.buildPath, 'cross-file', 'cross-$type.ini')
         .file(createWhenNotExists: true);
     crossFile.writeAsStringSync(crossFileContent);
@@ -55,30 +55,28 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     String prefix,
     IOSCpuType type,
   ) {
-    final crossFileContent = makeIOSCrossFileContent(type);
+    final crossFileContent = makeIOSCrossFileContent(lib, type);
     final crossFile = join(lib.buildPath, 'cross-file', 'cross-$type.ini')
         .file(createWhenNotExists: true);
     crossFile.writeAsStringSync(crossFileContent);
     return _compile(lib, env, prefix, crossFile, type);
   }
 
-  void _setLibrarayPath(
-    Map<String, String> params,
+  String? _prefix(
     CpuType cpuType,
   ) {
     final prefix = envs.prefix;
     if (prefix == null) {
-      return;
+      return null;
     }
 
     final libPath = join(
       prefix,
       cpuType.platformName(),
       cpuType.installPath(),
-      'lib',
     );
 
-    params['libdir'] = libPath;
+    return libPath;
   }
 
   FutureOr<void> _compile(
@@ -104,7 +102,6 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
       'buildtype': 'release',
     };
 
-    _setLibrarayPath(params, cpuType);
     final cpuCount = envs.cpuCount;
     final opt = params.entries
         .map((entry) => '--${entry.key}="${entry.value}"')
@@ -116,7 +113,9 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
       shellBuffer.writeln();
       shellBuffer.writeln('cd ${lib.workingPath}');
       shellBuffer.writeln(
-        'meson setup $buildPath ${opt.formatCommand([RegExp('--')])}',
+        'meson setup $buildPath --reconfigure ${opt.formatCommand([
+              RegExp('--')
+            ])}',
       );
       shellBuffer.writeln('ninja -C $buildPath -j $cpuCount');
       shellBuffer.writeln('ninja -C $buildPath install');
@@ -127,7 +126,7 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
       return;
     }
 
-    var cmd = 'meson setup $buildPath $opt';
+    var cmd = 'meson setup $buildPath $opt --reconfigure';
     await shell.run(cmd, workingDirectory: lib.workingPath, environment: env);
 
     // build
@@ -139,12 +138,21 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     await shell.run(cmd, workingDirectory: lib.workingPath, environment: env);
   }
 
-  String makeAndroidCrossFileContent(AndroidCpuType cpuType) {
+  String makeAndroidCrossFileContent(Lib lib, AndroidCpuType cpuType) {
     final androidUtils = AndroidUtils(targetCpuType: cpuType);
 
     final pkgConfigPath = whichSync('pkg-config');
     if (pkgConfigPath == null) {
       throw Exception('pkg-config not found');
+    }
+
+    var prefix = _prefix(cpuType);
+    if (prefix == null) {
+      prefix = '';
+    } else {
+      prefix = """
+prefix = '$prefix'
+""";
     }
 
     final content = '''
@@ -166,12 +174,43 @@ cpp =   '${androidUtils.cxx()}'
 ar =    '${androidUtils.ar()}'
 strip = '${androidUtils.strip()}'
 pkgconfig = '$pkgConfigPath'
+
+${_makeBuiltInOptions(lib, cpuType)}
+
 ''';
 
     return content;
   }
 
-  String makeIOSCrossFileContent(IOSCpuType cpuType) {
+  String _makeBuiltInOptions(Lib lib, CpuType cpuType) {
+    final cArgs = lib.cFlags.toList();
+    final cxxArgs = lib.cxxFlags.toList();
+    final ldArgs = lib.ldFlags.toList();
+    final cppArgs = lib.cppFlags.toList();
+
+    final prefix = _prefix(cpuType);
+    if (prefix != null) {
+      cArgs.add('-I$prefix/include');
+      cxxArgs.add('-I$prefix/include');
+      ldArgs.add('-L$prefix/lib');
+    }
+
+    final flags = '''
+c_args = ${[...cppArgs, ...cArgs].toMesonIniValue()}
+cpp_args = ${[...cppArgs, ...cxxArgs].toMesonIniValue()}
+c_link_args = ${ldArgs.toMesonIniValue()}
+cpp_link_args = ${ldArgs.toMesonIniValue()}
+''';
+
+    return '''
+[built-in options]
+c_std = 'c11'
+cpp_std = 'c++11'
+$flags
+''';
+  }
+
+  String makeIOSCrossFileContent(Lib lib, IOSCpuType cpuType) {
     final iosUtils = IOSUtils(cpuType: cpuType);
 
     final pkgConfigPath = whichSync('pkg-config');
@@ -181,7 +220,6 @@ pkgconfig = '$pkgConfigPath'
 
     final content = '''
 [host_machine]
-;; system = 'darwin'
 system = 'ios'
 cpu_family = '${cpuType.getMesonCpuFamily()}'
 cpu = '${cpuType.getCpuName()}'
@@ -199,6 +237,10 @@ sys_root = '${iosUtils.sysroot()}'
 ; ar =    '${iosUtils.ar()}'
 ; strip = '${iosUtils.strip()}'
 ; pkgconfig = '$pkgConfigPath'
+
+${_makeBuiltInOptions(lib, cpuType)}
+
+b_bitcode = true
 ''';
 
     return content;

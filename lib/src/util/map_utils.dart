@@ -21,3 +21,11 @@ extension CCMapEntryExt on MapEntry<String, String?> {
     return export ? 'export $kv' : kv;
   }
 }
+
+extension CCListExt on List<String> {
+  String toMesonIniValue() {
+    final valueContent = map((e) => "'$e'").join(',');
+    final value = '[$valueContent]';
+    return value;
+  }
+}

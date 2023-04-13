@@ -16,6 +16,15 @@ extension CCStringExt on String {
       return this;
     }
   }
+
+  List<String> toList() {
+    final l = removeMultipleSpaces().trim();
+    if (l.isEmpty) {
+      return [];
+    } else {
+      return l.split(' ');
+    }
+  }
 }
 
 extension CCMapExt on Map {
