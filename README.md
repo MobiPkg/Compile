@@ -30,7 +30,15 @@ If you want to compile c
 
 ## Environment Variables
 
-- `ANDROID_NDK_HOME` - Android NDK 25
+### ANDROID_NDK_HOME
+
+Android NDK 25 Path, other version is not tested.
+
+### MOBIPKG_PREFIX
+
+If this env is configured, all libraries will be installed into this directory. (Default: `<lib>/install`)
+
+At the same time, if compile need some dependencies, it will find them in this directory.
 
 ## Usage for command
 

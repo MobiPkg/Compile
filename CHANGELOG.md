@@ -3,6 +3,9 @@
 ## Unreleased
 
 - Support for `strip` option.
+- Support iOS mutil arch in one package.
+- Support `MOBIPKG_PREFIX` env.
+- Support custom args for `qlib.yaml`.
 
 ## 0.0.2
 
