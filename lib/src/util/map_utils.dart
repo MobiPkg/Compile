@@ -3,18 +3,21 @@ extension CCStringMapExt on Map<String, String?> {
     return {...this, ...other};
   }
 
-  String debugString() {
-    return entries.map((e) => e.toEnvString()).join('\n');
+  String toEnvString({bool export = false, String separator = ' '}) {
+    return entries.map((e) => e.toEnvString(export: export)).join(separator);
   }
 
-  String toEnvString() {
-    return entries.map((e) => e.toEnvString()).join(' ');
+  String debugString() {
+    return toEnvString(separator: '\n');
   }
 }
 
 extension CCMapEntryExt on MapEntry<String, String?> {
-  String toEnvString() {
+  String toEnvString({
+    bool export = false,
+  }) {
     final value = this.value ?? '';
-    return '$key="$value"';
+    final kv = '$key="$value"';
+    return export ? 'export $kv' : kv;
   }
 }

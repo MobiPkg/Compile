@@ -166,6 +166,9 @@ sys_root = '${iosUtils.sysroot()}'
 
     return content;
   }
+
+  @override
+  bool get buildMultiiOSArch => false;
 }
 
 extension _AndroidCpuTypeExt on AndroidCpuType {

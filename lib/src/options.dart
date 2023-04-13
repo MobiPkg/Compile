@@ -14,14 +14,22 @@ Future<void> handleGlobalOptions(
     abbr: 'v',
     help: 'Print verbose output.',
   );
+  argParser.addFlag(
+    'debug',
+    abbr: 'd',
+    help: 'Make some debug info.',
+  );
+ 
 
   final result = argParser.parse(args);
 
   globalOptions.verbose = result['verbose'] as bool;
+  globalOptions.debug = result['debug'] as bool;
 }
 
 class CommandOptions {
   bool verbose = false;
+  bool debug = false;
 }
 
 class CompileOptions {
@@ -36,6 +44,8 @@ class CompileOptions {
   bool strip = false;
 
   int gitDepth = 1;
+
+  bool justMakeShell = false;
 }
 
 final envs = Envs();

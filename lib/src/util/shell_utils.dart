@@ -174,6 +174,10 @@ class Shell with LogMixin {
     final result = await run(script);
     return result.map((e) => e.stdout).join(' ').trim();
   }
+
+  void chmod(String shellPath, String permssion) {
+    runSync('chmod $permssion $shellPath');
+  }
 }
 
 extension StringBufferExtForCmd on StringBuffer {
@@ -186,5 +190,31 @@ extension StringBufferExtForCmd on StringBuffer {
       }
       writeln();
     }
+  }
+}
+
+extension StringExtForCmd on String {
+  String formatCommand([List<Pattern> needNewLinePrefix = const []]) {
+    final src = trim().removeMultipleSpaces();
+
+    logger.info('src command: $src');
+
+    final buffer = StringBuffer();
+    final params = src.split(' ');
+
+    for (var i = 0; i < params.length; i++) {
+      final param = params[i];
+      if (needNewLinePrefix.any((element) => param.startsWith(element))) {
+        buffer.writeln(' \\');
+        buffer.write(' ' * 4);
+      } else {
+        buffer.write(' ');
+      }
+      buffer.write(param);
+    }
+
+    logger.info('formatCommand: $buffer');
+
+    return buffer.toString().trim();
   }
 }

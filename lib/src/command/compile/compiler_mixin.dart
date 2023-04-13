@@ -44,9 +44,15 @@ mixin CompilerCommandMixin on BaseVoidCommand {
     );
     argParser.addOption(
       'git-depth',
-      abbr: 'd',
+      abbr: 'g',
       help: 'If use git to download source, set git depth to 1.',
       defaultsTo: "1",
+    );
+
+    argParser.addFlag(
+      'just-make-shell',
+      abbr: 'j',
+      help: 'Just make shell script, not run it.',
     );
   }
 
@@ -78,6 +84,7 @@ mixin CompilerCommandMixin on BaseVoidCommand {
       compileOptions.removeOldSource = result['remove-old-source'] as bool;
       compileOptions.strip = result['strip'] as bool;
       compileOptions.gitDepth = int.parse(result['git-depth'] as String);
+      compileOptions.justMakeShell = result['just-make-shell'] as bool;
     }
 
     doCheckEnvAndCommand();
@@ -110,8 +117,91 @@ mixin CompilerCommandMixin on BaseVoidCommand {
       await compileAndroid(lib);
     }
     if (compileOptions.ios && Platform.isMacOS) {
-      await compileIOS(lib);
+      if (buildMultiiOSArch) {
+        await compileMultiCpuIos(lib);
+      } else {
+        await compileIOS(lib);
+        _lipoLibWithIos(lib);
+      }
     }
+  }
+
+  bool get buildMultiiOSArch;
+
+  void _lipoLibWithIos(Lib lib) {
+    final installPath = lib.installPath;
+    final iOSPath = join(installPath, 'ios');
+    final logBuffer = StringBuffer('Lipo lib with ios in $iOSPath');
+    // 1. create universal path
+    final universalPath = join(iOSPath, Consts.iOSMutilArchName)
+      ..directory(createWhenNotExists: true);
+
+    logBuffer.writeln('Create universal path: $universalPath');
+
+    // 2. find first cpu type
+    final firstCpuName = IOSCpuType.values.first;
+    final example = Directory(join(iOSPath, firstCpuName.installPath()));
+    final items = example.listSync();
+
+    if (items.isEmpty) {
+      logBuffer.writeln('No items in $example');
+      logger.info(logBuffer.toString());
+      return;
+    }
+
+    // 3. copy all files to universal path, not include lib/**
+    for (final item in items) {
+      final name = basename(item.path);
+      if (name == 'lib') {
+        continue;
+      } else {
+        shell.runSync('cp -r ${item.absolute.path} $universalPath');
+        logBuffer.writeln('Copy ${item.absolute.path} to $universalPath');
+      }
+    }
+    // 4. lipo lib
+    final targetLibPath = join(universalPath, 'lib')
+      ..directory(createWhenNotExists: true);
+
+    void lipoLib(List<File> srcFiles, String dstPath) {
+      final srcPaths = srcFiles.map((e) => e.absolute.path).join(' ');
+      final cmd = 'lipo -create $srcPaths -output $dstPath';
+      shell.runSync('lipo -create $srcPaths -output $dstPath');
+      logBuffer.writeln('Lipo lib with cmd: $cmd');
+    }
+
+    void lipoSameNameLib(String name) {
+      final srcFiles = <File>[];
+      for (final type in IOSCpuType.values) {
+        final cpuPath = join(iOSPath, type.installPath());
+        final cpuLibPath = join(cpuPath, 'lib');
+        final cpuLibFile = File(join(cpuLibPath, name));
+        if (cpuLibFile.existsSync()) {
+          srcFiles.add(cpuLibFile);
+        }
+      }
+      if (srcFiles.isEmpty) {
+        return;
+      }
+      final dstPath = join(targetLibPath, name);
+      lipoLib(srcFiles, dstPath);
+    }
+
+    final exampleLibPath = join(example.absolute.path, 'lib');
+    final exampleLibDir = Directory(exampleLibPath);
+    for (final exampleFile in exampleLibDir.listSync()) {
+      final name = basename(exampleFile.path);
+      if (name.endsWith('.a') || name.endsWith('.dylib')) {
+        lipoSameNameLib(name);
+      } else {
+        // copy to universal path
+        shell.runSync('cp -r ${exampleFile.absolute.path} $targetLibPath');
+        logBuffer
+            .writeln('Copy ${exampleFile.absolute.path} to $targetLibPath');
+      }
+    }
+
+    logger.info(logBuffer.toString());
   }
 
   FutureOr<void> compileAndroid(Lib lib) async {
@@ -149,6 +239,8 @@ mixin CompilerCommandMixin on BaseVoidCommand {
       _copyLicense(lib, prefix);
     }
   }
+
+  FutureOr<void> compileMultiCpuIos(Lib lib) async {}
 
   void _copyLicense(Lib lib, String installPath) {
     final licensePath = lib.licensePath;
@@ -202,4 +294,28 @@ mixin CompilerCommandMixin on BaseVoidCommand {
   }
 
   FutureOr<void> doPrecompile(Lib lib) async {}
+
+  void makeCompileShell(Lib lib, String buildShell, CpuType cpuType) {
+    if (!globalOptions.debug) {
+      return;
+    }
+
+    final srcPath = lib.sourcePath;
+    final shellName = '${cpuType.platformName()}-${cpuType.installPath()}';
+    final shellPath = join(srcPath, 'shell', 'build-$shellName.sh');
+    final shellFile = File(shellPath);
+    shellFile.createSync(recursive: true);
+
+    final shellContent = '''
+#!/bin/bash
+set -e
+
+$buildShell
+''';
+    shellFile.writeAsStringSync(shellContent);
+    // add execute permission
+    shell.chmod(shellPath, '+x');
+
+    logger.i('Write compile shell to $shellPath');
+  }
 }

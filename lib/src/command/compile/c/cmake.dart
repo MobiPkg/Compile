@@ -58,58 +58,49 @@ class CMakeCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     String prefix,
     IOSCpuType type,
   ) async {
-    final toolchain = await createiOSToolchainFile(lib, type, env);
-    final sdkPath = IOSUtils(cpuType: type).getSdkPath();
+    // do not use
+  }
+
+  @override
+  FutureOr<void> compileMultiCpuIos(Lib lib) async {
+    final toolchainPath = await createiOSToolchainFile(lib);
+
+    final prefix = join(lib.installPath, 'ios', Consts.iOSMutilArchName);
+
     await _compile(
       lib,
-      env,
+      {},
       prefix,
-      toolchain,
-      {'CMAKE_OSX_SYSROOT': sdkPath},
-      type,
+      toolchainPath,
+      {
+        'CMAKE_SYSTEM_NAME': 'iOS',
+        'CMAKE_OSX_ARCHITECTURES': IOSCpuType.cmakeArchsString(),
+      },
+      CpuType.universal,
     );
   }
 
   Future<String> createiOSToolchainFile(
     Lib lib,
-    IOSCpuType type,
-    Map<String, String> env,
   ) async {
-    final buildPath = lib.buildPath;
-    final toolchainPath = join(
-      buildPath,
-      type.sdkName(),
+    final toolchainFile = join(
+      lib.sourcePath,
+      Consts.iOSMutilArchName,
       'ios.toolchain.cmake',
     ).file(createWhenNotExists: true);
-    final IOSUtils iosUtils = IOSUtils(cpuType: type);
 
-    final sdkPath = iosUtils.getSdkPath();
-    final arch = type.arch();
-
-    final cc = env['CC'];
-    final cxx = env['CXX'];
-
-    final toolchainContent = '''
+    const toolchainContent = '''
 # iOS Toolchain
 
 # Set the target system name
 set(CMAKE_SYSTEM_NAME iOS)
-
-# Set the path to the iOS SDK
-set(CMAKE_OSX_SYSROOT $sdkPath)
-
-# Set the target CPU architectures
-set(CMAKE_OSX_ARCHITECTURES $arch)
-
-# Set the compiler paths and flags
-# set(CMAKE_C_COMPILER $cc)
-# set(CMAKE_CXX_COMPILER $cxx)
-# set(CMAKE_C_FLAGS "\${CMAKE_C_FLAGS} -arch $arch")
-# set(CMAKE_CXX_FLAGS "\${CMAKE_CXX_FLAGS} -arch $arch")
 ''';
+    toolchainFile.writeAsStringSync(toolchainContent);
 
-    toolchainPath.writeAsStringSync(toolchainContent);
-    return toolchainPath.absolute.path;
+    logger.info('create toolchain file: ${toolchainFile.path}');
+    logger.info('content: \n${toolchainFile.readAsStringSync()}');
+
+    return toolchainFile.absolute.path;
   }
 
   Future<void> _compile(
@@ -167,18 +158,40 @@ set(CMAKE_OSX_ARCHITECTURES $arch)
     final args = argsBuffer.toString().trim();
 
     if (checkWhich('ninja', throwOnError: false)) {
-      await compileWithNinja(args, sourceDir, buildPath, env);
+      await _compileWithNinja(lib, args, sourceDir, buildPath, env, cpuType);
     } else {
-      await compileWithMake(args, sourceDir, buildPath, env);
+      await _compileWithMake(lib, args, sourceDir, buildPath, env, cpuType);
     }
   }
 
-  Future<void> compileWithMake(
+  Future<void> _compileWithMake(
+    Lib lib,
     String args,
     String sourceDir,
     String buildPath,
     Map<String, String> env,
+    CpuType cpuType,
   ) async {
+    final cmdBuffer = StringBuffer();
+    cmdBuffer.writeln(env.toEnvString(export: true, separator: '\n'));
+    cmdBuffer.writeln('cd $sourceDir');
+    cmdBuffer.writeln();
+    cmdBuffer.writeln(
+      'cmake $args -S $sourceDir -B $buildPath'.formatCommand([
+        RegExp('-[DSBG]'),
+      ]),
+    );
+
+    cmdBuffer.writeln('cd $buildPath');
+    cmdBuffer.writeln('make -j$cpuCount');
+    cmdBuffer.writeln('make install');
+    makeCompileShell(lib, cmdBuffer.toString(), cpuType);
+
+    if (compileOptions.justMakeShell) {
+      logger.info('Just make shell, skip compile.');
+      return;
+    }
+
     final cmd = 'cmake $args -S $sourceDir -B $buildPath';
     // i('cmd: $cmd');
     await shell.run(cmd, environment: env, workingDirectory: sourceDir);
@@ -194,12 +207,33 @@ set(CMAKE_OSX_ARCHITECTURES $arch)
     );
   }
 
-  Future<void> compileWithNinja(
+  Future<void> _compileWithNinja(
+    Lib lib,
     String args,
     String sourceDir,
     String buildPath,
     Map<String, String> env,
+    CpuType cpuType,
   ) async {
+    final cmdBuffer = StringBuffer();
+    cmdBuffer.writeln(env.toEnvString(export: true, separator: '\n'));
+    cmdBuffer.writeln('cd $sourceDir');
+    cmdBuffer.writeln();
+    cmdBuffer.writeln(
+      'cmake $args -S $sourceDir -B $buildPath -G Ninja'.formatCommand([
+        RegExp('-[DSBG]'),
+      ]),
+    );
+
+    cmdBuffer.writeln('cd $buildPath');
+    cmdBuffer.writeln('ninja -j$cpuCount');
+    cmdBuffer.writeln('ninja install');
+    makeCompileShell(lib, cmdBuffer.toString(), cpuType);
+
+    if (compileOptions.justMakeShell) {
+      return;
+    }
+
     final cmd = 'cmake $args -S $sourceDir -B $buildPath -G Ninja';
     await shell.run(cmd, environment: env, workingDirectory: sourceDir);
     await shell.run(
@@ -213,4 +247,7 @@ set(CMAKE_OSX_ARCHITECTURES $arch)
       workingDirectory: buildPath,
     );
   }
+
+  @override
+  bool get buildMultiiOSArch => true;
 }

@@ -1,6 +1,20 @@
+import 'dart:io';
+
 extension CCStringExt on String {
   int toInt() {
     return int.parse(this);
+  }
+
+  String removeMultipleSpaces() {
+    return replaceAll(RegExp(r'\s+'), ' ');
+  }
+
+  String removeSuffix(String suffix) {
+    if (endsWith(suffix)) {
+      return substring(0, length - suffix.length);
+    } else {
+      return this;
+    }
   }
 }
 
@@ -25,5 +39,13 @@ extension CCMapExt on Map {
 extension CCStringListExt on List<String> {
   String joinWithSpace() {
     return join(' ');
+  }
+}
+
+extension CCDirectoryExt on Directory {
+  void createIfNotExists() {
+    if (!existsSync()) {
+      createSync(recursive: true);
+    }
   }
 }

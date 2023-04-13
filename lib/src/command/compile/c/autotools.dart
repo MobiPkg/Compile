@@ -1,6 +1,5 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
-import 'package:process_run/shell_run.dart' as sr;
 
 class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
   @override
@@ -99,8 +98,7 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
     );
 
     // make
-    final cpuNumber =
-        int.parse((await shell.run('sysctl -n hw.ncpu')).outLines.first);
+    final cpuNumber = envs.cpuCount;
 
     await shell.run(
       'make -j$cpuNumber',
@@ -115,4 +113,7 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
       environment: env,
     );
   }
+
+  @override
+  bool get buildMultiiOSArch => false;
 }

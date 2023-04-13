@@ -5,6 +5,8 @@ mixin CpuType {
   String installPath();
 
   String platformName();
+
+  static const CpuType universal = _IOSUniversal();
 }
 
 mixin PlatformUtils {
@@ -45,6 +47,10 @@ mixin PlatformUtils {
   }
 
   Future<void> stripDynamicLib(String prefix) async {
+    if (compileOptions.justMakeShell) {
+      return;
+    }
+
     final sb = StringBuffer();
     final dir = Directory(prefix);
     final files = dir.listSync(recursive: true);
@@ -258,6 +264,25 @@ enum IOSCpuType with CpuType {
       case IOSCpuType.x86_64:
         return '';
     }
+  }
+
+  static String cmakeArchsString() {
+    final archs = IOSCpuType.values.map((e) => e.arch()).join(';');
+    return archs;
+  }
+}
+
+class _IOSUniversal with CpuType {
+  const _IOSUniversal();
+
+  @override
+  String installPath() {
+    return Consts.iOSMutilArchName;
+  }
+
+  @override
+  String platformName() {
+    return 'ios';
   }
 }
 
