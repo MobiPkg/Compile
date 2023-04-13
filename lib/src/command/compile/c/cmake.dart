@@ -103,6 +103,27 @@ set(CMAKE_SYSTEM_NAME iOS)
     return toolchainFile.absolute.path;
   }
 
+  void _setLibrarayPath(
+    Map<String, String> env,
+    Map<String, String> params,
+    CpuType cpuType,
+  ) {
+    final prefix = envs.prefix;
+    if (prefix == null) {
+      return;
+    }
+
+    final libPath = join(
+      prefix,
+      cpuType.platformName(),
+      cpuType.installPath(),
+      'lib',
+    );
+
+    env['LIBRARY_PATH'] = libPath;
+    params['CMAKE_INSTALL_RPATH'] = libPath;
+  }
+
   Future<void> _compile(
     Lib lib,
     Map<String, String> env,
@@ -113,6 +134,8 @@ set(CMAKE_SYSTEM_NAME iOS)
   ) async {
     lib.injectEnv(env);
     lib.injectPrefix(env, cpuType);
+
+    _setLibrarayPath(env, params, cpuType);
 
     final sourceDir = lib.workingPath;
     final host = env['HOST'];

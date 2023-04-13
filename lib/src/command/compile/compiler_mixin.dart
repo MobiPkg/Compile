@@ -52,7 +52,8 @@ mixin CompilerCommandMixin on BaseVoidCommand {
     argParser.addFlag(
       'just-make-shell',
       abbr: 'j',
-      help: 'Just make shell script, not run it.',
+      help: 'Just make shell script, not run it. The command is help.',
+      hide: true,
     );
   }
 

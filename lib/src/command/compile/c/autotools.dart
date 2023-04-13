@@ -59,6 +59,25 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
     }
   }
 
+  void _setLibrarayPath(
+    Map<String, String> env,
+    CpuType cpuType,
+  ) {
+    final prefix = envs.prefix;
+    if (prefix == null) {
+      return;
+    }
+
+    final libPath = join(
+      prefix,
+      cpuType.platformName(),
+      cpuType.installPath(),
+      'lib',
+    );
+
+    env['LIBRARY_PATH'] = libPath;
+  }
+
   Future<void> _compile(
     Lib lib,
     Map<String, String> env,
@@ -67,6 +86,8 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
   ) async {
     lib.injectEnv(env);
     lib.injectPrefix(env, cpuType);
+    _setLibrarayPath(env, cpuType);
+
     final sourceDir = lib.workingPath;
 
     final host = env['HOST'];

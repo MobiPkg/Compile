@@ -62,6 +62,25 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     return _compile(lib, env, prefix, crossFile, type);
   }
 
+  void _setLibrarayPath(
+    Map<String, String> params,
+    CpuType cpuType,
+  ) {
+    final prefix = envs.prefix;
+    if (prefix == null) {
+      return;
+    }
+
+    final libPath = join(
+      prefix,
+      cpuType.platformName(),
+      cpuType.installPath(),
+      'lib',
+    );
+
+    params['libdir'] = libPath;
+  }
+
   FutureOr<void> _compile(
     Lib lib,
     Map<String, String> env,
@@ -85,8 +104,11 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
       'buildtype': 'release',
     };
 
-    final opt =
-        params.entries.map((entry) => '--${entry.key}="${entry.value}"');
+    _setLibrarayPath(params, cpuType);
+
+    final opt = params.entries
+        .map((entry) => '--${entry.key}="${entry.value}"')
+        .join(' ');
 
     var cmd = 'meson setup $buildPath $opt';
     await shell.run(cmd, workingDirectory: lib.workingPath, environment: env);
