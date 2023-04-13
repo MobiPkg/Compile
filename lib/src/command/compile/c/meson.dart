@@ -105,15 +105,30 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     };
 
     _setLibrarayPath(params, cpuType);
-
+    final cpuCount = envs.cpuCount;
     final opt = params.entries
         .map((entry) => '--${entry.key}="${entry.value}"')
         .join(' ');
 
+    if (compileOptions.justMakeShell) {
+      final shellBuffer = StringBuffer();
+      shellBuffer.writeln(env.toEnvString(export: true, separator: '\n'));
+      shellBuffer.writeln();
+      shellBuffer.writeln('cd ${lib.workingPath}');
+      shellBuffer.writeln(
+        'meson setup $buildPath ${opt.formatCommand([RegExp('--')])}',
+      );
+      shellBuffer.writeln('ninja -C $buildPath -j $cpuCount');
+      shellBuffer.writeln('ninja -C $buildPath install');
+
+      makeCompileShell(lib, shellBuffer.toString(), cpuType);
+
+      logger.info('skip compile, just make shell');
+      return;
+    }
+
     var cmd = 'meson setup $buildPath $opt';
     await shell.run(cmd, workingDirectory: lib.workingPath, environment: env);
-
-    final cpuCount = envs.cpuCount;
 
     // build
     cmd = 'ninja -C $buildPath -j $cpuCount';

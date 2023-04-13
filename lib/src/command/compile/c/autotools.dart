@@ -108,8 +108,22 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
         // ignore
       }
     }
+    // cpu number
+    final cpuNumber = envs.cpuCount;
 
     final opt = lib.options.joinWithSpace();
+    if (compileOptions.justMakeShell) {
+      final shellBuffer = StringBuffer();
+      shellBuffer.writeln(env.toEnvString(export: true, separator: '\n'));
+      shellBuffer.writeln('cd $sourceDir');
+      shellBuffer.writeln('./configure --prefix=$prefix --host $host $opt');
+      shellBuffer.writeln('cd $sourceDir');
+      shellBuffer.writeln('make -j$cpuNumber');
+      shellBuffer.writeln('make install');
+      makeCompileShell(lib, shellBuffer.toString(), cpuType);
+      logger.info('Just make shell, skip compile.');
+      return;
+    }
 
     final cmd = './configure --prefix=$prefix --host $host $opt';
     await shell.run(
@@ -119,7 +133,6 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
     );
 
     // make
-    final cpuNumber = envs.cpuCount;
 
     await shell.run(
       'make -j$cpuNumber',

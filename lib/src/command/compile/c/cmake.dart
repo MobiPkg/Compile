@@ -195,22 +195,21 @@ set(CMAKE_SYSTEM_NAME iOS)
     Map<String, String> env,
     CpuType cpuType,
   ) async {
-    final cmdBuffer = StringBuffer();
-    cmdBuffer.writeln(env.toEnvString(export: true, separator: '\n'));
-    cmdBuffer.writeln('cd $sourceDir');
-    cmdBuffer.writeln();
-    cmdBuffer.writeln(
-      'cmake $args -S $sourceDir -B $buildPath'.formatCommand([
-        RegExp('-[DSBG]'),
-      ]),
-    );
-
-    cmdBuffer.writeln('cd $buildPath');
-    cmdBuffer.writeln('make -j$cpuCount');
-    cmdBuffer.writeln('make install');
-    makeCompileShell(lib, cmdBuffer.toString(), cpuType);
-
     if (compileOptions.justMakeShell) {
+      final cmdBuffer = StringBuffer();
+      cmdBuffer.writeln(env.toEnvString(export: true, separator: '\n'));
+      cmdBuffer.writeln('cd $sourceDir');
+      cmdBuffer.writeln();
+      cmdBuffer.writeln(
+        'cmake $args -S $sourceDir -B $buildPath'.formatCommand([
+          RegExp('-[DSBG]'),
+        ]),
+      );
+
+      cmdBuffer.writeln('cd $buildPath');
+      cmdBuffer.writeln('make -j$cpuCount');
+      cmdBuffer.writeln('make install');
+      makeCompileShell(lib, cmdBuffer.toString(), cpuType);
       logger.info('Just make shell, skip compile.');
       return;
     }
@@ -238,22 +237,21 @@ set(CMAKE_SYSTEM_NAME iOS)
     Map<String, String> env,
     CpuType cpuType,
   ) async {
-    final cmdBuffer = StringBuffer();
-    cmdBuffer.writeln(env.toEnvString(export: true, separator: '\n'));
-    cmdBuffer.writeln('cd $sourceDir');
-    cmdBuffer.writeln();
-    cmdBuffer.writeln(
-      'cmake $args -S $sourceDir -B $buildPath -G Ninja'.formatCommand([
-        RegExp('-[DSBG]'),
-      ]),
-    );
-
-    cmdBuffer.writeln('cd $buildPath');
-    cmdBuffer.writeln('ninja -j$cpuCount');
-    cmdBuffer.writeln('ninja install');
-    makeCompileShell(lib, cmdBuffer.toString(), cpuType);
-
     if (compileOptions.justMakeShell) {
+      final cmdBuffer = StringBuffer();
+      cmdBuffer.writeln(env.toEnvString(export: true, separator: '\n'));
+      cmdBuffer.writeln('cd $sourceDir');
+      cmdBuffer.writeln();
+      cmdBuffer.writeln(
+        'cmake $args -S $sourceDir -B $buildPath -G Ninja'.formatCommand([
+          RegExp('-[DSBG]'),
+        ]),
+      );
+
+      cmdBuffer.writeln('cd $buildPath');
+      cmdBuffer.writeln('ninja -j$cpuCount');
+      cmdBuffer.writeln('ninja install');
+      makeCompileShell(lib, cmdBuffer.toString(), cpuType);
       return;
     }
 
