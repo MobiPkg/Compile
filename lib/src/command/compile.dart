@@ -3,6 +3,11 @@ import 'package:path/path.dart';
 
 class CompileCommand extends BaseVoidCommand {
   @override
+  List<String> get aliases => [
+        'c',
+      ];
+
+  @override
   void init(ArgParser argParser) {
     super.init(argParser);
     argParser.addFlag(
@@ -50,11 +55,10 @@ class CompileCommand extends BaseVoidCommand {
   }
 
   @override
-  String get commandDescription => 'Compile lib.';
+  String get commandDescription => 'Compile lib for project.';
 
   @override
-  // TODO: implement name
-  String get name => 'cc';
+  String get name => 'compile';
 
   @override
   FutureOr<void>? runCommand() async {
