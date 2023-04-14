@@ -86,6 +86,12 @@ source/
 install/
 ```
 
+### Other documents
+
+- [Config lib](lib.md)
+- [Example list](example-list.md)
+- [Develop](Develop.md)
+
 ## LICENSE
 
 [Apache-2.0 License](LICENSE)
