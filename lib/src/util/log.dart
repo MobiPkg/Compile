@@ -42,6 +42,6 @@ extension CCLoggerExt on Logger {
   CCLoggerFunction get verbose => v;
   CCLoggerFunction get debug => d;
   CCLoggerFunction get info => i;
-  CCLoggerFunction get waring => w;
+  CCLoggerFunction get warning => w;
   CCLoggerFunction get error => e;
 }

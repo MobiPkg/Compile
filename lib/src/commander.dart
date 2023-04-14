@@ -10,6 +10,7 @@ class Commander with LogMixin {
   );
 
   final _commanders = <BaseVoidCommand>[
+    CompileCommand(),
     CCommand(),
     SupportCommand(),
     TemplateCommand(),
@@ -40,4 +41,5 @@ class Commander with LogMixin {
       checkWhich('xcrun', throwMessage: 'Please install xcode first.');
     }
   }
+
 }
