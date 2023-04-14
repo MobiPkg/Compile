@@ -5,7 +5,11 @@
 - Support for `strip` option.
 - Support iOS mutil arch in one package.
 - Support `MOBIPKG_PREFIX` env.
-- Support custom args for `qlib.yaml`.
+- Support custom args for `lib.yaml`.
+- Support find lib from `MOBIPKG_PREFIX`.
+- Auto detect `type` for `lib.yaml`.
+- Remove compile commands.
+- Support custom `install-prefix`.
 
 ## 0.0.2
 

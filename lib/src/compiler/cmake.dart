@@ -16,7 +16,8 @@ class CMakeCompiler extends BaseCompiler {
   FutureOr<void> doCompileAndroid(
     Lib lib,
     Map<String, String> env,
-    String prefix,
+    String depPrefix,
+    String installPrefix,
     AndroidCpuType type,
   ) async {
     final ndk = env[Consts.ndkKey];
@@ -32,11 +33,12 @@ class CMakeCompiler extends BaseCompiler {
     await _compile(
       lib,
       env,
-      prefix,
+      depPrefix,
+      installPrefix,
       toolchainPath,
       {
         'ANDROID_NATIVE_API_LEVEL': '21',
-        'ANDROID_ABI': type.installPath(),
+        'ANDROID_ABI': type.cpuName(),
       },
       type,
     );
@@ -46,7 +48,8 @@ class CMakeCompiler extends BaseCompiler {
   FutureOr<void> doCompileIOS(
     Lib lib,
     Map<String, String> env,
-    String prefix,
+    String depPrefix,
+    String installPrefix,
     IOSCpuType type,
   ) async {
     // do not use
@@ -56,12 +59,14 @@ class CMakeCompiler extends BaseCompiler {
   FutureOr<void> compileMultiCpuIos(Lib lib) async {
     final toolchainPath = await createiOSToolchainFile(lib);
 
-    final prefix = join(lib.installPath, 'ios', Consts.iOSMutilArchName);
+    final depPrefix = CpuType.universal.depPrefix();
+    final installPrefix = CpuType.universal.installPrefix(lib);
 
     await _compile(
       lib,
       {},
-      prefix,
+      depPrefix,
+      installPrefix,
       toolchainPath,
       {
         'CMAKE_SYSTEM_NAME': 'iOS',
@@ -99,26 +104,20 @@ set(CMAKE_SYSTEM_NAME iOS)
     Map<String, String> params,
     CpuType cpuType,
   ) {
-    final prefix = envs.prefix;
-    if (prefix == null) {
+    final depPrefix = cpuType.depPrefix();
+    if (depPrefix.isEmpty) {
       return;
     }
-
-    final libPath = join(
-      prefix,
-      cpuType.platformName(),
-      cpuType.installPath(),
-      'lib',
-    );
-
-    env['LIBRARY_PATH'] = libPath;
-    params['CMAKE_INSTALL_RPATH'] = libPath;
+    final libPath = join(depPrefix, 'lib');
+    env['LIBRARY_PATH'] = libPath; // For find library when compile.
+    params['CMAKE_INSTALL_RPATH'] = libPath; // For find library when run.
   }
 
   Future<void> _compile(
     Lib lib,
     Map<String, String> env,
-    String prefix,
+    String depPrefix,
+    String installPrefix,
     String toolchainPath,
     Map<String, String> params,
     CpuType cpuType,
@@ -144,14 +143,15 @@ set(CMAKE_SYSTEM_NAME iOS)
     buildDir.createSync(recursive: true);
     log.writeln('buildPath: $buildPath');
     log.writeln('toolchainPath: $toolchainPath');
-    log.writeln('prefix: $prefix');
+    log.writeln('depPrefix: $depPrefix');
+    log.writeln('installPrefix: $installPrefix');
 
     logger.i(log.toString().trim());
 
     final paramMap = {
       ...params,
       'CMAKE_TOOLCHAIN_FILE': toolchainPath,
-      'CMAKE_INSTALL_PREFIX': prefix,
+      'CMAKE_INSTALL_PREFIX': installPrefix,
       'CMAKE_BUILD_TYPE': 'Release',
     };
 

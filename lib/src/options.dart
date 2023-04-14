@@ -1,5 +1,6 @@
 import 'package:args/command_runner.dart';
 import 'package:compile/compile.dart';
+import 'package:path/path.dart';
 
 final compileOptions = CompileOptions();
 final globalOptions = CommandOptions();
@@ -19,7 +20,6 @@ Future<void> handleGlobalOptions(
     abbr: 'd',
     help: 'Make some debug info.',
   );
- 
 
   final result = argParser.parse(args);
 
@@ -46,6 +46,19 @@ class CompileOptions {
   int gitDepth = 1;
 
   bool justMakeShell = false;
+
+  String? _installPrefix;
+
+  String? get installPrefix => _installPrefix;
+
+  set installPrefix(String? value) {
+    if (value != null) {
+      final dir = Directory(value).absolute.path;
+      _installPrefix = normalize(dir);
+    } else {
+      _installPrefix = value;
+    }
+  }
 }
 
 final envs = Envs();

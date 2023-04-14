@@ -29,7 +29,7 @@ mixin LibFlagsMixin {
   void injectPrefix(Map<String, String> env, CpuType cpuType) {
     final prefix = envs.prefix;
     if (prefix != null) {
-      final arch = cpuType.installPath();
+      final arch = cpuType.cpuName();
       final platform = cpuType.platformName();
       final sysroot = join(prefix, platform, arch);
 

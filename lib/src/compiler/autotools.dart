@@ -15,20 +15,34 @@ class AutoToolsCompiler extends BaseCompiler {
   FutureOr<void> doCompileAndroid(
     Lib lib,
     Map<String, String> env,
-    String prefix,
+    String depPrefix,
+    String installPrefix,
     AndroidCpuType type,
   ) async {
-    await _compile(lib, env, prefix, type);
+    await _compile(
+      lib,
+      env,
+      depPrefix,
+      installPrefix,
+      type,
+    );
   }
 
   @override
   FutureOr<void> doCompileIOS(
     Lib lib,
     Map<String, String> env,
-    String prefix,
+    String depPrefix,
+    String installPrefix,
     IOSCpuType type,
   ) async {
-    await _compile(lib, env, prefix, type);
+    await _compile(
+      lib,
+      env,
+      depPrefix,
+      installPrefix,
+      type,
+    );
   }
 
   @override
@@ -60,7 +74,7 @@ class AutoToolsCompiler extends BaseCompiler {
     final libPath = join(
       prefix,
       cpuType.platformName(),
-      cpuType.installPath(),
+      cpuType.cpuName(),
       'lib',
     );
 
@@ -70,7 +84,8 @@ class AutoToolsCompiler extends BaseCompiler {
   Future<void> _compile(
     Lib lib,
     Map<String, String> env,
-    String prefix,
+    String depPrefix,
+    String installPrefix,
     CpuType cpuType,
   ) async {
     lib.injectEnv(env);
@@ -99,24 +114,28 @@ class AutoToolsCompiler extends BaseCompiler {
     }
     // cpu number
     final cpuNumber = envs.cpuCount;
-
     final opt = lib.options.joinWithSpace();
+
+    final configureCmd =
+        './configure --prefix=$depPrefix --exec-prefix $installPrefix --host $host $opt';
+    final makeCmd = 'make -j$cpuNumber';
+    const makeInstallCmd = 'make install';
+
     if (compileOptions.justMakeShell) {
       final shellBuffer = StringBuffer();
       shellBuffer.writeln(env.toEnvString(export: true, separator: '\n'));
       shellBuffer.writeln('cd $sourceDir');
-      shellBuffer.writeln('./configure --prefix=$prefix --host $host $opt');
+      shellBuffer.writeln(configureCmd.formatCommandDefault());
       shellBuffer.writeln('cd $sourceDir');
-      shellBuffer.writeln('make -j$cpuNumber');
-      shellBuffer.writeln('make install');
+      shellBuffer.writeln(makeCmd);
+      shellBuffer.writeln(makeInstallCmd);
       makeCompileShell(lib, shellBuffer.toString(), cpuType);
       logger.info('Just make shell, skip compile.');
       return;
     }
 
-    final cmd = './configure --prefix=$prefix --host $host $opt';
     await shell.run(
-      cmd,
+      configureCmd,
       workingDirectory: sourceDir,
       environment: env,
     );
@@ -124,14 +143,14 @@ class AutoToolsCompiler extends BaseCompiler {
     // make
 
     await shell.run(
-      'make -j$cpuNumber',
+      makeCmd,
       workingDirectory: sourceDir,
       environment: env,
     );
 
     // make install
     await shell.run(
-      'make install',
+      makeInstallCmd,
       workingDirectory: sourceDir,
       environment: env,
     );

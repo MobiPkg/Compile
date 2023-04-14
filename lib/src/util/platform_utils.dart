@@ -2,9 +2,34 @@ import 'package:compile/compile.dart';
 import 'package:path/path.dart';
 
 mixin CpuType {
-  String installPath();
+  String cpuName();
 
   String platformName();
+
+  String get _platform => '${platformName()}/${cpuName()}';
+
+  /// When compiling or checking, it will look for library files from the subdirectory `depPrefix/lib`
+  /// Find header files from `depPrefix/include`
+  String depPrefix() {
+    if (envs.prefix != null) {
+      return '${envs.prefix}/$_platform';
+    }
+    return '';
+  }
+
+  /// The target directory for the installation.
+  ///
+  /// bin: `prefix/bin`
+  /// lib: `prefix/lib`
+  /// include: `prefix/include`
+  String installPrefix(Lib lib) {
+    final prefix = compileOptions.installPrefix ?? depPrefix();
+    if (prefix.isNotEmpty) {
+      return '$prefix/$_platform';
+    }
+
+    return '${lib.installPath}/$_platform';
+  }
 
   static const CpuType universal = _IOSUniversal();
 }
@@ -89,7 +114,7 @@ enum AndroidCpuType with CpuType {
   }
 
   @override
-  String installPath() {
+  String cpuName() {
     switch (this) {
       case AndroidCpuType.arm:
         return 'armeabi-v7a';
@@ -230,7 +255,7 @@ enum IOSCpuType with CpuType {
   }
 
   @override
-  String installPath() {
+  String cpuName() {
     return arch();
   }
 
@@ -276,7 +301,7 @@ class _IOSUniversal with CpuType {
   const _IOSUniversal();
 
   @override
-  String installPath() {
+  String cpuName() {
     return Consts.iOSMutilArchName;
   }
 
