@@ -2,9 +2,19 @@ import 'package:compile/compile.dart';
 import 'package:path/path.dart';
 
 mixin CpuType {
-  String installPath();
+  String cpuName();
 
   String platformName();
+
+  String installPath() {
+    // TODO
+    return '';
+  }
+
+  String prefix() {
+    // TODO
+    return '';
+  }
 
   static const CpuType universal = _IOSUniversal();
 }
@@ -89,7 +99,7 @@ enum AndroidCpuType with CpuType {
   }
 
   @override
-  String installPath() {
+  String cpuName() {
     switch (this) {
       case AndroidCpuType.arm:
         return 'armeabi-v7a';
@@ -230,7 +240,7 @@ enum IOSCpuType with CpuType {
   }
 
   @override
-  String installPath() {
+  String cpuName() {
     return arch();
   }
 
@@ -276,7 +286,7 @@ class _IOSUniversal with CpuType {
   const _IOSUniversal();
 
   @override
-  String installPath() {
+  String cpuName() {
     return Consts.iOSMutilArchName;
   }
 

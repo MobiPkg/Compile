@@ -19,7 +19,6 @@ Future<void> handleGlobalOptions(
     abbr: 'd',
     help: 'Make some debug info.',
   );
- 
 
   final result = argParser.parse(args);
 
@@ -46,6 +45,8 @@ class CompileOptions {
   int gitDepth = 1;
 
   bool justMakeShell = false;
+
+  String? installPath;
 }
 
 final envs = Envs();

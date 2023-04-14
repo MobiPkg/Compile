@@ -60,7 +60,7 @@ class AutoToolsCompiler extends BaseCompiler {
     final libPath = join(
       prefix,
       cpuType.platformName(),
-      cpuType.installPath(),
+      cpuType.cpuName(),
       'lib',
     );
 

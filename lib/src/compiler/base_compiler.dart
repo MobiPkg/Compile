@@ -44,7 +44,7 @@ abstract class BaseCompiler {
       final androidUtils = AndroidUtils(targetCpuType: type);
       final env = androidUtils.getEnvMap();
       final installRoot = lib.installPath;
-      final prefix = join(installRoot, 'android', type.installPath());
+      final prefix = join(installRoot, 'android', type.cpuName());
 
       _printEnv(env);
       await doCompileAndroid(lib, env, prefix, type);
@@ -62,7 +62,7 @@ abstract class BaseCompiler {
       final iosUtils = IOSUtils(cpuType: type);
       final env = iosUtils.getEnvMap();
       final installRoot = lib.installPath;
-      final prefix = join(installRoot, 'ios', type.installPath());
+      final prefix = join(installRoot, 'ios', type.cpuName());
 
       _printEnv(env);
       await doCompileIOS(lib, env, prefix, type);
@@ -89,7 +89,7 @@ abstract class BaseCompiler {
 
     // 2. find first cpu type
     final firstCpuName = IOSCpuType.values.first;
-    final example = Directory(join(iOSPath, firstCpuName.installPath()));
+    final example = Directory(join(iOSPath, firstCpuName.cpuName()));
     final items = example.listSync();
 
     if (items.isEmpty) {
@@ -122,7 +122,7 @@ abstract class BaseCompiler {
     void lipoSameNameLib(String name) {
       final srcFiles = <File>[];
       for (final type in IOSCpuType.values) {
-        final cpuPath = join(iOSPath, type.installPath());
+        final cpuPath = join(iOSPath, type.cpuName());
         final cpuLibPath = join(cpuPath, 'lib');
         final cpuLibFile = File(join(cpuLibPath, name));
         if (cpuLibFile.existsSync()) {
@@ -223,7 +223,7 @@ void _printEnv(Map<String, String> env) {
 
 void makeCompileShell(Lib lib, String buildShell, CpuType cpuType) {
   final srcPath = lib.shellPath;
-  final shellName = '${cpuType.platformName()}-${cpuType.installPath()}';
+  final shellName = '${cpuType.platformName()}-${cpuType.cpuName()}';
   final shellPath = join(srcPath, 'build-$shellName.sh');
   final shellFile = File(shellPath);
   shellFile.createSync(recursive: true);

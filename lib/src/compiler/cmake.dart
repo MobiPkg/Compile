@@ -36,7 +36,7 @@ class CMakeCompiler extends BaseCompiler {
       toolchainPath,
       {
         'ANDROID_NATIVE_API_LEVEL': '21',
-        'ANDROID_ABI': type.installPath(),
+        'ANDROID_ABI': type.cpuName(),
       },
       type,
     );
@@ -107,12 +107,12 @@ set(CMAKE_SYSTEM_NAME iOS)
     final libPath = join(
       prefix,
       cpuType.platformName(),
-      cpuType.installPath(),
+      cpuType.cpuName(),
       'lib',
     );
 
-    env['LIBRARY_PATH'] = libPath;
-    params['CMAKE_INSTALL_RPATH'] = libPath;
+    env['LIBRARY_PATH'] = libPath; // For find library when compile.
+    params['CMAKE_INSTALL_RPATH'] = libPath; // For find library when run.
   }
 
   Future<void> _compile(

@@ -61,7 +61,7 @@ class MesonCompiler extends BaseCompiler {
     final libPath = join(
       prefix,
       cpuType.platformName(),
-      cpuType.installPath(),
+      cpuType.cpuName(),
     );
 
     return libPath;
@@ -81,7 +81,7 @@ class MesonCompiler extends BaseCompiler {
     final buildPath = join(
       lib.buildPath,
       cpuType.platformName(),
-      cpuType.installPath(),
+      cpuType.cpuName(),
     );
 
     if (buildPath.directory().existsSync()) {
