@@ -32,6 +32,8 @@ abstract class BaseCompiler {
     if (compileOptions.ios && Platform.isMacOS) {
       if (buildMultiiOSArch) {
         await compileMultiCpuIos(lib);
+        final installPrefix = CpuType.universal.installPrefix(lib);
+        _copyLicense(lib, installPrefix);
       } else {
         await compileIOS(lib);
         if (!compileOptions.justMakeShell) _lipoLibWithIos(lib);
@@ -43,17 +45,24 @@ abstract class BaseCompiler {
     for (final type in AndroidCpuType.values) {
       final androidUtils = AndroidUtils(targetCpuType: type);
       final env = androidUtils.getEnvMap();
-      final installRoot = lib.installPath;
-      final prefix = join(installRoot, 'android', type.cpuName());
-
       _printEnv(env);
-      await doCompileAndroid(lib, env, prefix, type);
+
+      final depPrefix = type.depPrefix();
+      final installPrefix = type.installPrefix(lib);
+
+      await doCompileAndroid(
+        lib,
+        env,
+        depPrefix,
+        installPrefix,
+        type,
+      );
 
       if (compileOptions.strip) {
-        await androidUtils.stripDynamicLib(prefix);
+        await androidUtils.stripDynamicLib(installPrefix);
       }
 
-      _copyLicense(lib, prefix);
+      _copyLicense(lib, installPrefix);
     }
   }
 
@@ -61,17 +70,24 @@ abstract class BaseCompiler {
     for (final type in IOSCpuType.values) {
       final iosUtils = IOSUtils(cpuType: type);
       final env = iosUtils.getEnvMap();
-      final installRoot = lib.installPath;
-      final prefix = join(installRoot, 'ios', type.cpuName());
-
       _printEnv(env);
-      await doCompileIOS(lib, env, prefix, type);
+
+      final depPrefix = type.depPrefix();
+      final installPrefix = type.installPrefix(lib);
+
+      await doCompileIOS(
+        lib,
+        env,
+        depPrefix,
+        installPrefix,
+        type,
+      );
 
       if (compileOptions.strip) {
-        await iosUtils.stripDynamicLib(prefix);
+        await iosUtils.stripDynamicLib(installPrefix);
       }
 
-      _copyLicense(lib, prefix);
+      _copyLicense(lib, installPrefix);
     }
   }
 
@@ -156,20 +172,23 @@ abstract class BaseCompiler {
   FutureOr<void> doCompileAndroid(
     Lib lib,
     Map<String, String> env,
-    String prefix,
+    String depPrefix,
+    String installPrefix,
     AndroidCpuType type,
   );
 
   FutureOr<void> doCompileIOS(
     Lib lib,
     Map<String, String> env,
-    String prefix,
+    String depPrefix,
+    String installPrefix,
     IOSCpuType type,
   );
 
+  /// If true, will call [compileMultiCpuIos] instead of [compileIOS]
   bool get buildMultiiOSArch;
 
-  void _copyLicense(Lib lib, String installPath) {
+  void _copyLicense(Lib lib, String installPrefix) {
     final licensePath = lib.licensePath;
 
     final name = lib.name;
@@ -177,7 +196,7 @@ abstract class BaseCompiler {
     if (licensePath != null) {
       final srcLicenseFile = File(licensePath);
       final dstPath = join(
-        installPath,
+        installPrefix,
         'license',
         '$name-LICENSE',
       );

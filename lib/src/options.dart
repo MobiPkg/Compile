@@ -1,5 +1,6 @@
 import 'package:args/command_runner.dart';
 import 'package:compile/compile.dart';
+import 'package:path/path.dart';
 
 final compileOptions = CompileOptions();
 final globalOptions = CommandOptions();
@@ -46,7 +47,18 @@ class CompileOptions {
 
   bool justMakeShell = false;
 
-  String? installPrefix;
+  String? _installPrefix;
+
+  String? get installPrefix => _installPrefix;
+
+  set installPrefix(String? value) {
+    if (value != null) {
+      final dir = Directory(value).absolute.path;
+      _installPrefix = normalize(dir);
+    } else {
+      _installPrefix = value;
+    }
+  }
 }
 
 final envs = Envs();

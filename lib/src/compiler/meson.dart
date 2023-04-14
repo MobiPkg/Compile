@@ -26,28 +26,37 @@ class MesonCompiler extends BaseCompiler {
   FutureOr<void> doCompileAndroid(
     Lib lib,
     Map<String, String> env,
-    String prefix,
+    String depPrefix,
+    String installPrefix,
     AndroidCpuType type,
   ) {
     final crossFileContent = makeAndroidCrossFileContent(lib, type);
     final crossFile = join(lib.buildPath, 'cross-file', 'cross-$type.ini')
         .file(createWhenNotExists: true);
     crossFile.writeAsStringSync(crossFileContent);
-    return _compile(lib, env, prefix, crossFile, type);
+    return _compile(lib, env, depPrefix, installPrefix, crossFile, type);
   }
 
   @override
   FutureOr<void> doCompileIOS(
     Lib lib,
     Map<String, String> env,
-    String prefix,
+    String depPrefix,
+    String installPrefix,
     IOSCpuType type,
   ) {
     final crossFileContent = makeIOSCrossFileContent(lib, type);
     final crossFile = join(lib.buildPath, 'cross-file', 'cross-$type.ini')
         .file(createWhenNotExists: true);
     crossFile.writeAsStringSync(crossFileContent);
-    return _compile(lib, env, prefix, crossFile, type);
+    return _compile(
+      lib,
+      env,
+      depPrefix,
+      installPrefix,
+      crossFile,
+      type,
+    );
   }
 
   String? _prefix(
@@ -70,12 +79,12 @@ class MesonCompiler extends BaseCompiler {
   FutureOr<void> _compile(
     Lib lib,
     Map<String, String> env,
-    String prefix,
+    String depPrefix,
+    String installPrefix,
     File crossFile,
     CpuType cpuType,
   ) async {
     lib.injectEnv(env);
-    lib.injectPrefix(env, cpuType);
 
     // setup meson
     final buildPath = join(
@@ -91,10 +100,10 @@ class MesonCompiler extends BaseCompiler {
 
     final crossFilePath = crossFile.absolute.path;
 
-    logger.info('meson install path: $prefix');
+    logger.info('meson install path: $installPrefix');
 
     final params = <String, String>{
-      'prefix': prefix,
+      'prefix': installPrefix,
       'cross-file': crossFilePath,
       'buildtype': 'release',
     };
@@ -108,33 +117,42 @@ class MesonCompiler extends BaseCompiler {
       opt = '$opt ${lib.options.join(' ')}';
     }
 
+    final setupCmd = 'meson setup $buildPath $opt';
+    final buildCmd = 'meson compile -C $buildPath -j $cpuCount';
+    final installCmd = 'meson install -C $buildPath';
+
     if (compileOptions.justMakeShell) {
       final shellBuffer = StringBuffer();
       shellBuffer.writeln(env.toEnvString(export: true, separator: '\n'));
       shellBuffer.writeln();
       shellBuffer.writeln('cd ${lib.workingPath}');
-      shellBuffer.writeln(
-        'meson setup $buildPath --reconfigure ${opt.formatCommand([
-              RegExp('--')
-            ])}',
-      );
-      shellBuffer.writeln('ninja -C $buildPath -j $cpuCount');
-      shellBuffer.writeln('ninja -C $buildPath install');
+      shellBuffer.writeln(setupCmd.formatCommandDefault());
+      shellBuffer.writeln(buildCmd);
+      shellBuffer.writeln(installCmd);
 
       makeCompileShell(lib, shellBuffer.toString(), cpuType);
       return;
     }
 
-    var cmd = 'meson setup $buildPath $opt --reconfigure';
-    await shell.run(cmd, workingDirectory: lib.workingPath, environment: env);
+    await shell.run(
+      setupCmd,
+      workingDirectory: lib.workingPath,
+      environment: env,
+    );
 
     // build
-    cmd = 'ninja -C $buildPath -j $cpuCount';
-    await shell.run(cmd, workingDirectory: lib.workingPath, environment: env);
+    await shell.run(
+      buildCmd,
+      workingDirectory: lib.workingPath,
+      environment: env,
+    );
 
     // install
-    cmd = 'ninja -C $buildPath install';
-    await shell.run(cmd, workingDirectory: lib.workingPath, environment: env);
+    await shell.run(
+      installCmd,
+      workingDirectory: lib.workingPath,
+      environment: env,
+    );
   }
 
   String makeAndroidCrossFileContent(Lib lib, AndroidCpuType cpuType) {
@@ -187,11 +205,11 @@ ${_makeBuiltInOptions(lib, cpuType)}
     final ldArgs = lib.ldFlags.toList();
     final cppArgs = lib.cppFlags.toList();
 
-    final prefix = _prefix(cpuType);
-    if (prefix != null) {
-      cArgs.add('-I$prefix/include');
-      cxxArgs.add('-I$prefix/include');
-      ldArgs.add('-L$prefix/lib');
+    final depPrefix = cpuType.depPrefix();
+    if (depPrefix.isNotEmpty) {
+      cArgs.add('-I$depPrefix/include');
+      cxxArgs.add('-I$depPrefix/include');
+      ldArgs.add('-L$depPrefix/lib');
     }
 
     final flags = '''

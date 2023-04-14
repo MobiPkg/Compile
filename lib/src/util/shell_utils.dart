@@ -217,4 +217,8 @@ extension StringExtForCmd on String {
 
     return buffer.toString().trim();
   }
+
+  String formatCommandDefault() {
+    return formatCommand([RegExp('--')]);
+  }
 }
