@@ -112,9 +112,13 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     };
 
     final cpuCount = envs.cpuCount;
-    final opt = params.entries
+    var opt = params.entries
         .map((entry) => '--${entry.key}="${entry.value}"')
         .join(' ');
+
+    if (lib.options.isNotEmpty) {
+      opt = '$opt ${lib.options.join(' ')}';
+    }
 
     if (compileOptions.justMakeShell) {
       final shellBuffer = StringBuffer();
