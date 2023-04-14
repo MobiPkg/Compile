@@ -11,16 +11,16 @@ shift 1
 
 case $TYPE in
 autotools | at)
-    C c autotools -C example/git-autotools/libffi $@
+    C c -C example/git-autotools/libffi $@
     ;;
 cmake | cm)
-    C c cmake -C example/git-cmake/zlib $@
+    C c -C example/git-cmake/zlib $@
     ;;
 http)
-    C c cmake -C example/http-cmake/zlib $@
+    C c -C example/http-cmake/zlib $@
     ;;
 subpath)
-    C c cmake -C example/git-cmake/libexpat-subpath $@
+    C c -C example/git-cmake/libexpat-subpath $@
     ;;
 meson)
     # C c meson -C example/git-meson/glib $@

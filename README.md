@@ -46,6 +46,13 @@ At the same time, if compile need some dependencies, it will find them in this d
 compile -h
 ```
 
+Simple compile steps:
+
+```bash
+# 1. Create by template
+compile create -C example
+```
+
 ## Supported
 
 - Tools:

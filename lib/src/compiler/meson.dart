@@ -1,19 +1,7 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
-import 'package:process_run/shell.dart';
 
-class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
-  @override
-  LibType get libType => LibType.cMeson;
-
-  @override
-  String get name => 'meson';
-  @override
-  String get commandDescription => 'Meson compile';
-
-  @override
-  bool get hidden => true;
-
+class MesonCompiler extends BaseCompiler {
   @override
   void doCheckEnvAndCommand() {
     // check meson
@@ -152,7 +140,7 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
   String makeAndroidCrossFileContent(Lib lib, AndroidCpuType cpuType) {
     final androidUtils = AndroidUtils(targetCpuType: cpuType);
 
-    final pkgConfigPath = whichSync('pkg-config');
+    final pkgConfigPath = shell.whichSync('pkg-config');
     if (pkgConfigPath == null) {
       throw Exception('pkg-config not found');
     }
@@ -224,7 +212,7 @@ $flags
   String makeIOSCrossFileContent(Lib lib, IOSCpuType cpuType) {
     final iosUtils = IOSUtils(cpuType: cpuType);
 
-    final pkgConfigPath = whichSync('pkg-config');
+    final pkgConfigPath = shell.whichSync('pkg-config');
     if (pkgConfigPath == null) {
       throw Exception('pkg-config not found');
     }

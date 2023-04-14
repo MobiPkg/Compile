@@ -1,5 +1,5 @@
 name: zlib
-type: cmake
+# type: cmake
 source:
   git: 
     url: https://github.com/madler/zlib.git

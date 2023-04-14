@@ -1,22 +1,13 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
 
-class CMakeCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
+class CMakeCompiler extends BaseCompiler {
   @override
-  String get commandDescription => 'CMake compile';
-
-  @override
-  LibType get libType => LibType.cCmake;
-
-  @override
-  String get name => 'cmake';
-
-  @override
-  List<String> get aliases => ['cm'];
+  // TODO: implement buildMultiiOSArch
+  bool get buildMultiiOSArch => true;
 
   @override
   void doCheckEnvAndCommand() {
-    super.doCheckEnvAndCommand();
     checkWhich('autoreconf');
     checkWhich('make');
   }
@@ -270,5 +261,5 @@ set(CMAKE_SYSTEM_NAME iOS)
   }
 
   @override
-  bool get buildMultiiOSArch => true;
+  FutureOr<void> doPrecompile(Lib lib) {}
 }

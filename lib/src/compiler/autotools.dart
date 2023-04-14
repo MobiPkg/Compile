@@ -1,28 +1,18 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
 
-class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
+class AutoToolsCompiler extends BaseCompiler {
   @override
-  String get commandDescription => 'AutoTools compile';
-
-  @override
-  String get name => 'autotools';
-
-  @override
-  List<String> get aliases => ['at', 'a'];
-
-  @override
-  LibType get libType => LibType.cAutotools;
+  bool get buildMultiiOSArch => false;
 
   @override
   void doCheckEnvAndCommand() {
-    super.doCheckEnvAndCommand();
     checkWhich('autoreconf');
     checkWhich('make');
   }
 
   @override
-  Future<FutureOr<void>> doCompileAndroid(
+  FutureOr<void> doCompileAndroid(
     Lib lib,
     Map<String, String> env,
     String prefix,
@@ -43,7 +33,6 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
 
   @override
   FutureOr<void> doPrecompile(Lib lib) async {
-    await super.doPrecompile(lib);
     final sourceDir = lib.workingPath;
 
     // check configure exists
@@ -147,7 +136,4 @@ class AutoToolsCommand extends BaseVoidCommand with CompilerCommandMixin {
       environment: env,
     );
   }
-
-  @override
-  bool get buildMultiiOSArch => false;
 }
