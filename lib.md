@@ -98,6 +98,13 @@ The flags have the following properties:
 In actual use, it is a general option and will be appended before c flags and cxx flags.
 See [GNK make doc][] to learn more.
 
+Therefore, in order for the same parameter to have the same effect in different build systems,
+compile will use the same rules for passing arguments.
+
+`$cc $cppflags $cflags -c xxx.c`
+`$cxx $cppflags $cxxflags -c xxx.cc|cpp`
+`$ld $ldflags -o $`
+
 ```yaml
 flags:
   c: -O2
