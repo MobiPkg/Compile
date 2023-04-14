@@ -11,7 +11,6 @@ class Commander with LogMixin {
 
   final _commanders = <BaseVoidCommand>[
     CompileCommand(),
-    CCommand(),
     SupportCommand(),
     TemplateCommand(),
   ];
