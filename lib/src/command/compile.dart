@@ -53,7 +53,7 @@ class CompileCommand extends BaseVoidCommand {
       hide: true,
     );
     argParser.addOption(
-      'install-path',
+      'install-prefix',
       abbr: 'I',
       help: 'Set install path.',
     );
@@ -77,7 +77,7 @@ class CompileCommand extends BaseVoidCommand {
       compileOptions.strip = result['strip'] as bool;
       compileOptions.gitDepth = int.parse(result['git-depth'] as String);
       compileOptions.justMakeShell = result['just-make-shell'] as bool;
-      compileOptions.installPath = result['install-path'] as String?;
+      compileOptions.installPrefix = result['install-prefix'] as String?;
     }
     final projectDir = normalize(absolute(compileOptions.projectPath));
     logger.info('Change working directory to $projectDir');

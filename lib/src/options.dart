@@ -46,7 +46,7 @@ class CompileOptions {
 
   bool justMakeShell = false;
 
-  String? installPath;
+  String? installPrefix;
 }
 
 final envs = Envs();

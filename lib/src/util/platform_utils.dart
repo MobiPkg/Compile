@@ -6,14 +6,22 @@ mixin CpuType {
 
   String platformName();
 
-  String installPath() {
-    // TODO
+  String get _platform => '${platformName()}/${cpuName()}';
+
+  String depPrefix() {
+    if (envs.prefix != null) {
+      return '${envs.prefix}/$_platform';
+    }
     return '';
   }
 
-  String prefix() {
-    // TODO
-    return '';
+  String installPrefix(Lib lib) {
+    final prefix = compileOptions.installPrefix ?? depPrefix();
+    if (prefix.isNotEmpty) {
+      return '$prefix/$_platform';
+    }
+
+    return '${lib.installPath}/$_platform';
   }
 
   static const CpuType universal = _IOSUniversal();
