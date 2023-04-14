@@ -122,7 +122,7 @@ mixin CompilerCommandMixin on BaseVoidCommand {
         await compileMultiCpuIos(lib);
       } else {
         await compileIOS(lib);
-        _lipoLibWithIos(lib);
+        if (!compileOptions.justMakeShell) _lipoLibWithIos(lib);
       }
     }
   }
@@ -246,15 +246,30 @@ mixin CompilerCommandMixin on BaseVoidCommand {
   void _copyLicense(Lib lib, String installPath) {
     final licensePath = lib.licensePath;
 
+    final name = lib.name;
+
     if (licensePath != null) {
       final srcLicenseFile = File(licensePath);
+      final dstPath = join(
+        installPath,
+        'license',
+        '$name-LICENSE',
+      );
       if (srcLicenseFile.existsSync()) {
-        final dstLicenseFile = File(join(installPath, 'LICENSE'));
+        final dstLicenseFile = File(dstPath);
+        final parentPath = dstLicenseFile.parent.absolute.path;
+
+        if (!FileSystemEntity.isDirectorySync(parentPath)) {
+          shell.runSync('rm -rf $parentPath');
+        }
+
+        if (!dstLicenseFile.parent.existsSync()) {
+          dstLicenseFile.parent.createSync(recursive: true);
+        }
+
         dstLicenseFile.createSync(recursive: true);
-        dstLicenseFile.writeAsStringSync(
-          srcLicenseFile.readAsStringSync(),
-        );
-        logger.info('Copy $licensePath file to $installPath');
+        dstLicenseFile.writeAsStringSync(srcLicenseFile.readAsStringSync());
+        logger.info('Copy $licensePath file to $dstPath');
       } else {
         logger.w('The license file is not exist: $licensePath');
       }
@@ -297,13 +312,9 @@ mixin CompilerCommandMixin on BaseVoidCommand {
   FutureOr<void> doPrecompile(Lib lib) async {}
 
   void makeCompileShell(Lib lib, String buildShell, CpuType cpuType) {
-    if (!globalOptions.debug) {
-      return;
-    }
-
-    final srcPath = lib.sourcePath;
+    final srcPath = lib.shellPath;
     final shellName = '${cpuType.platformName()}-${cpuType.installPath()}';
-    final shellPath = join(srcPath, 'shell', 'build-$shellName.sh');
+    final shellPath = join(srcPath, 'build-$shellName.sh');
     final shellFile = File(shellPath);
     shellFile.createSync(recursive: true);
 

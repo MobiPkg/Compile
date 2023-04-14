@@ -1,0 +1,15 @@
+name: pcre2
+type: cmake
+source:
+  git:
+    url: https://github.com/PCRE2Project/pcre2.git
+    ref: pcre2-10.42
+  subpath: .
+license: license
+flags:
+  c: -fPIC -O2 -Wall
+  cxx: -fPIC -O2 -Wall
+  cpp: ""
+  ld: -s
+options: 
+  

@@ -18,6 +18,7 @@ class TemplateCommand extends BaseListCommand {
   List<BaseVoidCommand> get subCommands => [
         _SubTemplateCommand(LibType.cAutotools),
         _SubTemplateCommand(LibType.cCmake),
+        _SubTemplateCommand(LibType.cMeson),
       ];
 }
 
@@ -60,17 +61,19 @@ class _SubTemplateCommand extends BaseVoidCommand {
 
   @override
   FutureOr<void>? runCommand() async {
-    var directory = argResults!['directory'] as String?;
-    if (directory == null) {
+    var dirPath = argResults!['directory'] as String?;
+    if (dirPath == null) {
       throw Exception('Please specify target directory.');
     }
 
-    directory = Directory(directory).absolute.path;
+    final dir = Directory(dirPath);
+
+    dirPath = dir.absolute.path;
 
     final force = argResults!['force'] as bool;
-    if (!force && Directory(directory).existsSync()) {
-      throw Exception('Target directory is already exists. '
-          'If you want to force overwrite, please use --force option.');
+    if (!force && dir.existsSync()) {
+      throw Exception('Target directory: $dirPath is already exists. '
+          'If you want to force overwrite, please use --force/-f option.');
     }
 
     final sourceType = argResults!['source-type'] as String;
@@ -79,12 +82,13 @@ class _SubTemplateCommand extends BaseVoidCommand {
 
     final template = Template();
 
-    template.writeToDir(targetPath: directory, type: type, sourceType: source);
+    template.writeToDir(targetPath: dirPath, type: type, sourceType: source);
 
-    logger.info('Created template project in $directory');
+    logger.info('Created template project in $dirPath');
 
     logger.info(
-      'Run `compile c ${type.value} -C $directory` to compile project.',
+      'Edit $dirPath/lib.yaml to configure your project.\n'
+      'Run `compile c ${type.value} -C $dirPath` to compile project.',
     );
   }
 }

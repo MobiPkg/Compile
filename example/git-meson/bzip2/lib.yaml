@@ -1,0 +1,16 @@
+name: bzip2
+type: meson
+source:
+  git:
+    url: https://gitlab.com/bzip2/bzip2.git
+    ref: master
+  subpath: .
+license: COPYING
+flags:
+  c: -fPIC -O2 -Wall
+  cxx: -fPIC -O2 -Wall
+  cpp: ""
+  ld: -s
+precompile:
+  - pip3 install pytest
+options: []

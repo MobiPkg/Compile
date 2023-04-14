@@ -3,7 +3,8 @@ type: meson
 source:
   git: 
     url: https://github.com/GNOME/glib.git
-    ref: 2.74.6
+    # ref: 2.74.6
+    ref: 2.76.1
 license: LICENSE
 
 flags:

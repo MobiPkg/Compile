@@ -90,7 +90,16 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
     lib.injectPrefix(env, cpuType);
 
     // setup meson
-    final buildPath = lib.buildPath;
+    final buildPath = join(
+      lib.buildPath,
+      cpuType.platformName(),
+      cpuType.installPath(),
+    );
+
+    if (buildPath.directory().existsSync()) {
+      buildPath.directory().deleteSync(recursive: true);
+    }
+    buildPath.directory().parent.createSync(recursive: true);
 
     final crossFilePath = crossFile.absolute.path;
 
@@ -121,8 +130,6 @@ class MesonCommand extends BaseVoidCommand with CompilerCommandMixin, LogMixin {
       shellBuffer.writeln('ninja -C $buildPath install');
 
       makeCompileShell(lib, shellBuffer.toString(), cpuType);
-
-      logger.info('skip compile, just make shell');
       return;
     }
 
