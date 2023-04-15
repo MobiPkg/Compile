@@ -92,7 +92,7 @@ class CompileCommand extends BaseVoidCommand {
       compileOptions.installPrefix = result['install-prefix'] as String?;
       compileOptions.dependencyPrefix = result['dependency-prefix'] as String?;
     }
-    
+
     _checkEnv();
 
     final projectDir = normalize(absolute(compileOptions.projectPath));
