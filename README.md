@@ -54,13 +54,14 @@ compile create -C example
 ## Supported
 
 - Tools:
-  - [x] Autotools
-  - [x] CMake
+  - [x] autotools
+  - [x] cmake
+  - [x] meson
 
 - Source type
-  - [x] Git
-  - [x] File
-  - [x] Http
+  - [x] git
+  - [x] file
+  - [x] http
 
 ## Example usage
 
