@@ -3,9 +3,7 @@ import 'package:path/path.dart';
 
 class CompileCommand extends BaseVoidCommand {
   @override
-  List<String> get aliases => [
-        'c',
-      ];
+  List<String> get aliases => ['c', 'comp'];
 
   @override
   void init(ArgParser argParser) {
