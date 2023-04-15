@@ -1,6 +1,6 @@
 # CHANGLOG
 
-## Unreleased
+## 0.0.3
 
 - Support for `strip` option.
 - Support iOS mutil arch in one package.
