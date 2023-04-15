@@ -149,4 +149,33 @@ options:
   - --debug
 ```
 
+### matrix
+
+Each group triggers a compilation.
+A typical usage is that expat's cmake can only export static or shared libraries,
+so it needs to be compiled multiple times with different parameters.
+
+matrix is just support `flags` and `options`.
+
+```yaml
+matrix:
+  - flags:
+      c: -O2
+      cxx: -O2
+      cpp: -fPIC
+      ld: 
+    options:
+      - -DEXPAT_SHARED_LIBS=OFF
+  - flags:
+      c: -O2
+      cxx: -O2
+      cpp: -fPIC
+      ld: 
+    options:
+      - -DEXPAT_SHARED_LIBS=ON
+```
+
+The options of `matrix` will be appended after root options.  
+The flags of `matrix` will be appended after each flags of root.
+
 [GNK make doc]: https://www.gnu.org/software/make/manual/html_node/Catalogue-of-Rules.html#index-C_002c-rule-to-compile
