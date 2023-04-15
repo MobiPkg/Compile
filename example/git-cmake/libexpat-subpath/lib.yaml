@@ -2,14 +2,20 @@ name: libexpat
 type: cmake
 # type: autotools
 source:
-  git: 
+  git:
     url: https://github.com/libexpat/libexpat.git
     ref: R_2_5_0
   subpath: expat
 license: COPYING
 
 flags:
-  c: -fPIC -O2 -Wall 
+  c: -fPIC -O2 -Wall
   cxx: -fPIC -O3 -std=c++17
-  cpp: 
-  ld: 
+  cpp:
+  ld:
+
+matrix:
+  - options:
+      - -DEXPAT_SHARED_LIBS=OFF
+  - options:
+      - -DEXPAT_SHARED_LIBS=ON

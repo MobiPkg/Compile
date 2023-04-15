@@ -68,6 +68,15 @@ class CompileCommand extends BaseVoidCommand {
   @override
   String get name => 'compile';
 
+  void _checkEnv() {
+    if (compileOptions.android) {
+      checkEnv(Consts.ndkKey, throwMessage: 'Please set ndk path first.');
+    }
+    if (compileOptions.ios) {
+      checkWhich('xcrun', throwMessage: 'Please install xcode first.');
+    }
+  }
+
   @override
   FutureOr<void>? runCommand() async {
     final result = argResults;
@@ -83,6 +92,9 @@ class CompileCommand extends BaseVoidCommand {
       compileOptions.installPrefix = result['install-prefix'] as String?;
       compileOptions.dependencyPrefix = result['dependency-prefix'] as String?;
     }
+    
+    _checkEnv();
+
     final projectDir = normalize(absolute(compileOptions.projectPath));
     logger.info('Change working directory to $projectDir');
     Directory.current = projectDir;

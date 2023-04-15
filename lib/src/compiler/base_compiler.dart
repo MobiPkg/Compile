@@ -228,7 +228,16 @@ abstract class BaseCompiler {
     // pre compile
     await _precompile(lib);
 
-    await _compile(lib);
+    final matrix = lib.matrixList;
+
+    if (matrix.isEmpty) {
+      await _compile(lib);
+    } else {
+      for (final martixItem in matrix) {
+        lib.matrixItem = martixItem;
+        await _compile(lib);
+      }
+    }
 
     logger.info('Compile done, see ${lib.installPath}');
   }

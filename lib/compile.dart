@@ -26,6 +26,7 @@ export 'src/source/lib_check.dart';
 export 'src/source/lib_downloader.dart';
 export 'src/source/lib_flags.dart';
 export 'src/source/lib_source_mixin.dart';
+export 'src/source/lib_type.dart';
 export 'src/template/base_template.dart';
 export 'src/util/common_utils.dart';
 export 'src/util/file_utils.dart';

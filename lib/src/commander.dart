@@ -22,7 +22,7 @@ class Commander with LogMixin {
       await envs.init();
       _commanders.forEach(runner.addCommand);
       await handleGlobalOptions(runner, args);
-      _checkEnv();
+     
       await runner.run(args);
     } on UsageException catch (e, st) {
       final log = '$e\n$st';
@@ -31,14 +31,6 @@ class Commander with LogMixin {
       logger.e('Happen error:', e, st);
     }
   }
-
-  void _checkEnv() {
-    if (compileOptions.android) {
-      checkEnv(Consts.ndkKey, throwMessage: 'Please set ndk path first.');
-    }
-    if (compileOptions.ios) {
-      checkWhich('xcrun', throwMessage: 'Please install xcode first.');
-    }
-  }
+  
 
 }
