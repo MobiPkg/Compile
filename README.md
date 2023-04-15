@@ -1,6 +1,4 @@
-# Compile (Do not use this package, it is not ready yet.)
-
-(Do not use this package, it is not ready yet.)
+# Compile c/c++ code to dynamic/static library
 
 This package is part of mobipkg.
 
