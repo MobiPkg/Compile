@@ -11,6 +11,9 @@ mixin CpuType {
   /// When compiling or checking, it will look for library files from the subdirectory `depPrefix/lib`
   /// Find header files from `depPrefix/include`
   String depPrefix() {
+    if (compileOptions.dependencyPrefix != null) {
+      return '${compileOptions.dependencyPrefix}/$_platform';
+    }
     if (envs.prefix != null) {
       return '${envs.prefix}/$_platform';
     }

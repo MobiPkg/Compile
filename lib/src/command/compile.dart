@@ -55,6 +55,11 @@ class CompileCommand extends BaseVoidCommand {
       abbr: 'I',
       help: 'Set install path.',
     );
+    argParser.addOption(
+      'dependency-prefix',
+      abbr: 'p',
+      help: 'Set dependencies prefix.',
+    );
   }
 
   @override
@@ -76,6 +81,7 @@ class CompileCommand extends BaseVoidCommand {
       compileOptions.gitDepth = int.parse(result['git-depth'] as String);
       compileOptions.justMakeShell = result['just-make-shell'] as bool;
       compileOptions.installPrefix = result['install-prefix'] as String?;
+      compileOptions.dependencyPrefix = result['dependency-prefix'] as String?;
     }
     final projectDir = normalize(absolute(compileOptions.projectPath));
     logger.info('Change working directory to $projectDir');

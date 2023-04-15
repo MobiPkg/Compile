@@ -59,6 +59,19 @@ class CompileOptions {
       _installPrefix = value;
     }
   }
+
+  String? _dependencyPrefix;
+
+  String? get dependencyPrefix => _dependencyPrefix;
+
+  set dependencyPrefix(String? value) {
+    if (value != null) {
+      final dir = Directory(value).absolute.path;
+      _dependencyPrefix = normalize(dir);
+    } else {
+      _dependencyPrefix = value;
+    }
+  }
 }
 
 final envs = Envs();
