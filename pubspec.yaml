@@ -1,6 +1,6 @@
 name: compile
 description: The MobiPkg Compile package, a tool for compiling code to dynamic/static libraries.
-version: 0.0.3
+version: 0.0.4
 repository: https://github.com/MobiPkg/Compile
 
 environment:

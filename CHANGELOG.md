@@ -1,5 +1,11 @@
 # CHANGLOG
 
+## 0.0.4
+
+- Change `meson` compile lib type to `both`.
+- Add `--dependency-prefix` for compile command.
+- Support `matrix` for `lib.yaml`.
+
 ## 0.0.3
 
 - Support for `strip` option.
