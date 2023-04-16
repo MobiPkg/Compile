@@ -94,9 +94,11 @@ install/
 
 ### Other documents
 
-- [Config lib](lib.md)
-- [Example list](example-list.md)
-- [Develop](Develop.md)
+- [Config lib](docs/lib.md)
+- [Config option](docs/options.md)
+- [Example list](docs/example-list.md)
+- [Develop](docs/Develop.md)
+- [Why](docs/WAY%26HOW.md)
 
 ## LICENSE
 
