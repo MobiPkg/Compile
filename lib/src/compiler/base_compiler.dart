@@ -42,7 +42,7 @@ abstract class BaseCompiler {
   }
 
   FutureOr<void> compileAndroid(Lib lib) async {
-    for (final type in AndroidCpuType.values) {
+    for (final type in compileOptions.androidCpuTypes) {
       final androidUtils = AndroidUtils(targetCpuType: type);
       final env = androidUtils.getEnvMap();
       _printEnv(env);

@@ -147,6 +147,19 @@ enum AndroidCpuType with CpuType {
   String platformName() {
     return 'android';
   }
+
+  static List<String> args() {
+    return values.map((e) => e.cpuName()).toList();
+  }
+
+  static AndroidCpuType from(String name) {
+    for (final value in values) {
+      if (value.cpuName() == name) {
+        return value;
+      }
+    }
+    throw Exception('Not found $name');
+  }
 }
 
 class AndroidUtils with PlatformUtils {
@@ -297,6 +310,19 @@ enum IOSCpuType with CpuType {
   static String cmakeArchsString() {
     final archs = IOSCpuType.values.map((e) => e.arch()).join(';');
     return archs;
+  }
+
+  static List<String> args() {
+    return values.map((e) => e.cpuName()).toList();
+  }
+
+  static IOSCpuType from(String name) {
+    for (final value in values) {
+      if (value.cpuName() == name) {
+        return value;
+      }
+    }
+    throw Exception('Not found $name');
   }
 }
 

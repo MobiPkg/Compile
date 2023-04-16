@@ -1,10 +1,13 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
+import 'package:yaml/yaml.dart';
 
 final compileOptions = CompileOptions();
 
 class CompileOptions {
   bool android = true;
+
+  List<AndroidCpuType> androidCpuTypes = AndroidCpuType.values;
 
   bool ios = true;
 
@@ -53,6 +56,12 @@ extension CompileOptionsExt on CompileOptions {
       defaultsTo: true,
       help: 'Print this usage information.',
     );
+    argParser.addMultiOption(
+      'android-cpu',
+      help: 'Set android cpu, support: arm64-v8a, armeabi-v7a, x86, x86_64.',
+      allowed: AndroidCpuType.args(),
+      defaultsTo: AndroidCpuType.args(),
+    );
     argParser.addFlag(
       'ios',
       abbr: 'i',
@@ -99,12 +108,25 @@ extension CompileOptionsExt on CompileOptions {
       abbr: 'p',
       help: 'Set dependencies prefix.',
     );
+    argParser.addOption(
+      'option-file',
+      help: 'Set option file, if config option, other options will be ignore.',
+    );
   }
 
   void configArgResults(ArgResults? result) {
     if (result != null) {
+      final optionPath = result['option-file'] as String?;
+      if (optionPath != null) {
+        _configOptionFile(optionPath);
+        return;
+      }
+
       android = result['android'] as bool;
-      ios = result['ios'] as bool;
+      androidCpuTypes = (result['android-cpu'] as List)
+          .whereType<String>()
+          .map((e) => AndroidCpuType.from(e))
+          .toList();
       projectPath = result['project-path'] as String;
       removeOldSource = result['remove-old-source'] as bool;
       strip = result['strip'] as bool;
@@ -113,5 +135,63 @@ extension CompileOptionsExt on CompileOptions {
       installPrefix = result['install-prefix'] as String?;
       dependencyPrefix = result['dependency-prefix'] as String?;
     }
+  }
+
+  void _configOptionFile(String optionFile) {
+    final file = File(optionFile);
+    if (!file.existsSync()) {
+      throw Exception('Option file not found: $optionFile');
+    }
+    final content = file.readAsStringSync();
+    final map = loadYamlDocument(content).contents.value as Map;
+
+    void configKeyWhenNotNull(
+      String key,
+      void Function(dynamic value) callback,
+    ) {
+      final value = map[key];
+      if (value != null) {
+        callback(value);
+      }
+    }
+
+    String resolve(String path) {
+      final parent = file.parent.absolute;
+      return normalize(join(parent.path, path));
+    }
+
+    configKeyWhenNotNull('android', (value) {
+      android = value as bool;
+    });
+    configKeyWhenNotNull('ios', (value) {
+      ios = value as bool;
+    });
+    configKeyWhenNotNull('project-path', (value) {
+      projectPath = resolve(value as String);
+    });
+    configKeyWhenNotNull('remove-old-source', (value) {
+      removeOldSource = value as bool;
+    });
+    configKeyWhenNotNull('strip', (value) {
+      strip = value as bool;
+    });
+    configKeyWhenNotNull('git-depth', (value) {
+      gitDepth = value as int;
+    });
+    configKeyWhenNotNull('just-make-shell', (value) {
+      justMakeShell = value as bool;
+    });
+    configKeyWhenNotNull('install-prefix', (value) {
+      installPrefix = resolve(value as String);
+    });
+    configKeyWhenNotNull('dependency-prefix', (value) {
+      dependencyPrefix = resolve(value as String);
+    });
+
+    configKeyWhenNotNull('android-cpu', (value) {
+      final list = value as List;
+      androidCpuTypes =
+          list.whereType<String>().map((e) => AndroidCpuType.from(e)).toList();
+    });
   }
 }

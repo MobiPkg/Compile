@@ -5,6 +5,8 @@
 - Change `meson` compile lib type to `both`.
 - Add `--dependency-prefix` for compile command.
 - Support `matrix` for `lib.yaml`.
+- Support `android-cpu` type for compile command.
+- Support `option-file` for compile command. (See [example-option-file](example/options/lib-option.yaml))
 
 ## 0.0.3
 
