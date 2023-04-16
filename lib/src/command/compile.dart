@@ -8,58 +8,7 @@ class CompileCommand extends BaseVoidCommand {
   @override
   void init(ArgParser argParser) {
     super.init(argParser);
-    argParser.addFlag(
-      'android',
-      abbr: 'a',
-      defaultsTo: true,
-      help: 'Print this usage information.',
-    );
-    argParser.addFlag(
-      'ios',
-      abbr: 'i',
-      defaultsTo: true,
-      help: 'Print this usage information.',
-    );
-    argParser.addOption(
-      'project-path',
-      abbr: 'C',
-      defaultsTo: '.',
-      help: 'Set project path.',
-    );
-    argParser.addFlag(
-      'remove-old-source',
-      abbr: 'R',
-      help: 'Remove old build files before compile.',
-    );
-    argParser.addFlag(
-      'strip',
-      abbr: 's',
-      defaultsTo: true,
-      help: 'Strip symbols for dynamic libraries.',
-    );
-    argParser.addOption(
-      'git-depth',
-      abbr: 'g',
-      help: 'If use git to download source, set git depth to 1.',
-      defaultsTo: "1",
-    );
-
-    argParser.addFlag(
-      'just-make-shell',
-      abbr: 'j',
-      help: 'Just make shell script, not run it. The command is help.',
-      hide: true,
-    );
-    argParser.addOption(
-      'install-prefix',
-      abbr: 'I',
-      help: 'Set install path.',
-    );
-    argParser.addOption(
-      'dependency-prefix',
-      abbr: 'p',
-      help: 'Set dependencies prefix.',
-    );
+    compileOptions.initArgParser(argParser);
   }
 
   @override
@@ -79,19 +28,7 @@ class CompileCommand extends BaseVoidCommand {
 
   @override
   FutureOr<void>? runCommand() async {
-    final result = argResults;
-
-    if (result != null) {
-      compileOptions.android = result['android'] as bool;
-      compileOptions.ios = result['ios'] as bool;
-      compileOptions.projectPath = result['project-path'] as String;
-      compileOptions.removeOldSource = result['remove-old-source'] as bool;
-      compileOptions.strip = result['strip'] as bool;
-      compileOptions.gitDepth = int.parse(result['git-depth'] as String);
-      compileOptions.justMakeShell = result['just-make-shell'] as bool;
-      compileOptions.installPrefix = result['install-prefix'] as String?;
-      compileOptions.dependencyPrefix = result['dependency-prefix'] as String?;
-    }
+    compileOptions.configArgResults(argResults);
 
     _checkEnv();
 
