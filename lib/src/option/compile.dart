@@ -116,6 +116,8 @@ extension CompileOptionsExt on CompileOptions {
 
   void configArgResults(ArgResults? result) {
     if (result != null) {
+      projectPath = result['project-path'] as String;
+
       final optionPath = result['option-file'] as String?;
       if (optionPath != null) {
         _configOptionFile(optionPath);
@@ -127,7 +129,6 @@ extension CompileOptionsExt on CompileOptions {
           .whereType<String>()
           .map((e) => AndroidCpuType.from(e))
           .toList();
-      projectPath = result['project-path'] as String;
       removeOldSource = result['remove-old-source'] as bool;
       strip = result['strip'] as bool;
       gitDepth = int.parse(result['git-depth'] as String);
@@ -156,6 +157,9 @@ extension CompileOptionsExt on CompileOptions {
     }
 
     String resolve(String path) {
+      if (isAbsolute(path)) {
+        return path;
+      }
       final parent = file.parent.absolute;
       return normalize(join(parent.path, path));
     }
@@ -165,9 +169,6 @@ extension CompileOptionsExt on CompileOptions {
     });
     configKeyWhenNotNull('ios', (value) {
       ios = value as bool;
-    });
-    configKeyWhenNotNull('project-path', (value) {
-      projectPath = resolve(value as String);
     });
     configKeyWhenNotNull('remove-old-source', (value) {
       removeOldSource = value as bool;

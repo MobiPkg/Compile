@@ -9,9 +9,6 @@ android-cpu:
   # - x86_64
 ios: true
 
-project-path: ../git-cmake/zlib
-# project-path: example/git-cmake
-
 remove-old-source: false
 
 strip: true
