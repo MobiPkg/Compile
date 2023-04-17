@@ -117,6 +117,7 @@ extension CompileOptionsExt on CompileOptions {
   void configArgResults(ArgResults? result) {
     if (result != null) {
       projectPath = result['project-path'] as String;
+      justMakeShell = result['just-make-shell'] as bool;
 
       final optionPath = result['option-file'] as String?;
       if (optionPath != null) {
@@ -132,7 +133,6 @@ extension CompileOptionsExt on CompileOptions {
       removeOldSource = result['remove-old-source'] as bool;
       strip = result['strip'] as bool;
       gitDepth = int.parse(result['git-depth'] as String);
-      justMakeShell = result['just-make-shell'] as bool;
       installPrefix = result['install-prefix'] as String?;
       dependencyPrefix = result['dependency-prefix'] as String?;
     }

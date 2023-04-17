@@ -56,6 +56,9 @@ class CMakeCompiler extends BaseCompiler {
     final depPrefix = type.depPrefix();
     final installPrefix = type.installPrefix(lib);
 
+    final arch = type.cmakeCpuName();
+    final archParams = '$arch;$arch';
+
     await _compile(
       lib,
       {},
@@ -64,7 +67,7 @@ class CMakeCompiler extends BaseCompiler {
       toolchainPath,
       {
         'CMAKE_SYSTEM_NAME': 'iOS',
-        'CMAKE_OSX_ARCHITECTURES': '${type.cmakeCpuName()};',
+        'CMAKE_OSX_ARCHITECTURES': archParams,
       },
       type,
     );

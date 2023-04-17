@@ -1,5 +1,4 @@
 import 'package:compile/compile.dart';
-import 'package:path/path.dart';
 import 'package:yaml/yaml.dart';
 
 mixin LibFlagsMixin {
@@ -45,13 +44,9 @@ mixin LibFlagsMixin {
     }
 
     if (prefix != null) {
-      final arch = cpuType.cpuName();
-      final platform = cpuType.platformName();
-      final sysroot = join(prefix, platform, arch);
-
-      _addFlagsToEnv(env, 'CFLAGS', '-I$sysroot/include');
-      _addFlagsToEnv(env, 'CXXFLAGS', '-I$sysroot/include');
-      _addFlagsToEnv(env, 'LDFLAGS', '-L$sysroot/lib');
+      _addFlagsToEnv(env, 'CFLAGS', '-I$prefix/include');
+      _addFlagsToEnv(env, 'CXXFLAGS', '-I$prefix/include');
+      _addFlagsToEnv(env, 'LDFLAGS', '-L$prefix/lib');
     }
   }
 

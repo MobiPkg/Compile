@@ -10,6 +10,7 @@
 - Support `project` command.
 - Temporarily removed multiple ios cpu with cmake compile.
 - Fix install prefix problem.
+- Fix iOS cmake compile problem.
 
 ## 0.0.3
 

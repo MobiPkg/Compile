@@ -17,9 +17,6 @@ strip: true
 
 git-depth: 1
 
-# just-make-shell: true
-just-make-shell: false
-
 install-prefix: ./install
 
 dependency-prefix: ./install

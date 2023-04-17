@@ -118,6 +118,7 @@ class AutoToolsCompiler extends BaseCompiler {
 
     final configureCmd =
         './configure --prefix=$depPrefix --exec-prefix $installPrefix --host $host $opt';
+    const makeCleanCmd = 'make clean';
     final makeCmd = 'make -j$cpuNumber';
     const makeInstallCmd = 'make install';
 
@@ -127,6 +128,7 @@ class AutoToolsCompiler extends BaseCompiler {
       shellBuffer.writeln('cd $sourceDir');
       shellBuffer.writeln(configureCmd.formatCommandDefault());
       shellBuffer.writeln('cd $sourceDir');
+      shellBuffer.writeln(makeCleanCmd);
       shellBuffer.writeln(makeCmd);
       shellBuffer.writeln(makeInstallCmd);
       makeCompileShell(lib, shellBuffer.toString(), cpuType);
@@ -140,7 +142,16 @@ class AutoToolsCompiler extends BaseCompiler {
       environment: env,
     );
 
-    // make
+    // make clean (ignore error)
+    try {
+      await shell.run(
+        makeCleanCmd,
+        workingDirectory: sourceDir,
+        environment: env,
+      );
+    } catch (e) {
+      // ignore
+    }
 
     await shell.run(
       makeCmd,
