@@ -3,6 +3,7 @@
 ## UnRelease
 
 - Add abbr for `--option-file`.
+- Fix cmake compile problem for x86_64.
 
 ## 0.0.4
 

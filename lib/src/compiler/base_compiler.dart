@@ -70,6 +70,7 @@ abstract class BaseCompiler {
     for (final type in IOSCpuType.values) {
       final iosUtils = IOSUtils(cpuType: type);
       final env = iosUtils.getEnvMap();
+
       _printEnv(env);
 
       final depPrefix = type.depPrefix();
@@ -197,6 +198,8 @@ abstract class BaseCompiler {
   bool get buildMultiiOSArch;
 
   void _copyLicense(Lib lib, String installPrefix) {
+    if (compileOptions.justMakeShell) return;
+
     final licensePath = lib.licensePath;
 
     final name = lib.name;

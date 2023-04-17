@@ -1,5 +1,5 @@
 name: libpng
-type: autotools
+# type: autotools
 source:
   git: 
     url: https://github.com/glennrp/libpng.git
@@ -15,5 +15,5 @@ flags:
 precompile:
   # - ./autogen.sh
 
-# options:
-#   - -D SKIP_INSTALL_PROGRAMS=ON 
+options:
+  - -D SKIP_INSTALL_PROGRAMS=ON 

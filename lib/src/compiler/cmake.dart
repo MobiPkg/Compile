@@ -57,17 +57,20 @@ class CMakeCompiler extends BaseCompiler {
     final installPrefix = type.installPrefix(lib);
 
     final arch = type.cmakeCpuName();
-    final archParams = '$arch;$arch';
+
+    final iosUtils = IOSUtils(cpuType: type);
 
     await _compile(
       lib,
-      {},
+      {
+        'SDKROOT': iosUtils.sysroot(),
+      },
       depPrefix,
       installPrefix,
       toolchainPath,
       {
         'CMAKE_SYSTEM_NAME': 'iOS',
-        'CMAKE_OSX_ARCHITECTURES': archParams,
+        'CMAKE_OSX_ARCHITECTURES': arch,
       },
       type,
     );
