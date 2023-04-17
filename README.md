@@ -14,6 +14,7 @@ Because this is the environment used by developers, please test other environmen
 - Android NDK 25 (If you want to compile android)
 - XCode 14.x (If you want to compile iOS)
 - Git (If your source url is git)
+- autoconf (If your source is autotools)
 - wget (If your source url is http/https)
   - tar (If your source is tar)
     - gzip (If your source is gzip/tar.gz/tgz)

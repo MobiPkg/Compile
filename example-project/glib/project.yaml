@@ -1,3 +1,4 @@
 libs:
   - path: libffi
+  - path: libiconv
   - path: glib
