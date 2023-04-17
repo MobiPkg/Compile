@@ -123,13 +123,12 @@ set(CMAKE_SYSTEM_NAME iOS)
     CpuType cpuType,
   ) async {
     lib.injectEnv(env);
-    lib.injectPrefix(env, cpuType);
+    lib.injectPrefix(env, depPrefix, cpuType);
 
     _setLibrarayPath(env, params, cpuType);
 
     final sourceDir = lib.workingPath;
-    final host = env['HOST'];
-    final buildDir = join(lib.buildPath, host).directory();
+    final buildDir = join(lib.buildPath, cpuType.platform).directory();
 
     final log = StringBuffer();
 

@@ -6,16 +6,16 @@ mixin CpuType {
 
   String platformName();
 
-  String get _platform => '${platformName()}/${cpuName()}';
+  String get platform => '${platformName()}/${cpuName()}';
 
   /// When compiling or checking, it will look for library files from the subdirectory `depPrefix/lib`
   /// Find header files from `depPrefix/include`
   String depPrefix() {
     if (compileOptions.dependencyPrefix != null) {
-      return '${compileOptions.dependencyPrefix}/$_platform';
+      return '${compileOptions.dependencyPrefix}/$platform';
     }
     if (envs.prefix != null) {
-      return '${envs.prefix}/$_platform';
+      return '${envs.prefix}/$platform';
     }
     return '';
   }
@@ -28,10 +28,10 @@ mixin CpuType {
   String installPrefix(Lib lib) {
     final prefix = compileOptions.installPrefix ?? depPrefix();
     if (prefix.isNotEmpty) {
-      return '$prefix/$_platform';
+      return '$prefix/$platform';
     }
 
-    return '${lib.installPath}/$_platform';
+    return '${lib.installPath}/$platform';
   }
 
   static const CpuType universal = _IOSUniversal();

@@ -96,6 +96,7 @@ install/
 
 - [Config lib](docs/lib.md)
 - [Config option](docs/options.md)
+- [Config project yaml](docs/project-yaml.md)
 - [Example list](docs/example-list.md)
 - [Develop](docs/Develop.md)
 - [Why](docs/WAY%26HOW.md)

@@ -89,7 +89,7 @@ class AutoToolsCompiler extends BaseCompiler {
     CpuType cpuType,
   ) async {
     lib.injectEnv(env);
-    lib.injectPrefix(env, cpuType);
+    lib.injectPrefix(env, depPrefix, cpuType);
     _setLibrarayPath(env, cpuType);
 
     final sourceDir = lib.workingPath;

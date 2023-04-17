@@ -1,0 +1,23 @@
+## The options for compiling lib.
+## This file 
+
+# android: true
+android: false
+android-cpu:
+  # - armeabi-v7a
+  - arm64-v8a
+  # - x86
+  # - x86_64
+ios: true
+
+remove-old-source: false
+
+strip: true
+
+git-depth: 1
+
+just-make-shell: false
+
+install-prefix: ./install
+
+dependency-prefix: ./install

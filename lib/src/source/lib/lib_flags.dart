@@ -31,8 +31,19 @@ mixin LibFlagsMixin {
     _addFlagsToEnv(env, 'LDFLAGS', ldFlags);
   }
 
-  void injectPrefix(Map<String, String> env, CpuType cpuType) {
-    final prefix = envs.prefix;
+  void injectPrefix(
+    Map<String, String> env,
+    String depPrefix,
+    CpuType cpuType,
+  ) {
+    String? prefix;
+
+    if (depPrefix.trim().isNotEmpty) {
+      prefix = depPrefix;
+    } else {
+      prefix = envs.prefix;
+    }
+
     if (prefix != null) {
       final arch = cpuType.cpuName();
       final platform = cpuType.platformName();

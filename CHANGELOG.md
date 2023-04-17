@@ -7,6 +7,7 @@
 - Support `matrix` for `lib.yaml`.
 - Support `android-cpu` type for compile command.
 - Support `option-file` for compile command. (See [example-option-file](example/options/lib-option.yaml))
+- Support `project` command.
 
 ## 0.0.3
 

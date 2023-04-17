@@ -1,0 +1,3 @@
+libs:
+  - path: ../example/git-cmake/zlib
+  - path: ../example/git-autotools/libpng 
