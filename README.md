@@ -94,12 +94,12 @@ install/
 
 ### Other documents
 
-- [Config lib](docs/lib.md)
-- [Config option](docs/options.md)
-- [Config project yaml](docs/project-yaml.md)
-- [Example list](docs/example-list.md)
-- [Develop](docs/Develop.md)
-- [Why](docs/WAY%26HOW.md)
+- [Config lib](doc/lib.md)
+- [Config option](doc/options.md)
+- [Config project yaml](doc/project-yaml.md)
+- [Example list](doc/example-list.md)
+- [Develop](doc/Develop.md)
+- [Why](doc/WAY%26HOW.md)
 
 ## LICENSE
 
