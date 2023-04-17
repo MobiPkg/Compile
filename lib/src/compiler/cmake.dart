@@ -3,8 +3,7 @@ import 'package:path/path.dart';
 
 class CMakeCompiler extends BaseCompiler {
   @override
-  // TODO: implement buildMultiiOSArch
-  bool get buildMultiiOSArch => true;
+  bool get buildMultiiOSArch => false;
 
   @override
   void doCheckEnvAndCommand() {
@@ -52,15 +51,10 @@ class CMakeCompiler extends BaseCompiler {
     String installPrefix,
     IOSCpuType type,
   ) async {
-    // do not use
-  }
+    final toolchainPath = await createiOSToolchainFile(lib, type);
 
-  @override
-  FutureOr<void> compileMultiCpuIos(Lib lib) async {
-    final toolchainPath = await createiOSToolchainFile(lib);
-
-    final depPrefix = CpuType.universal.depPrefix();
-    final installPrefix = CpuType.universal.installPrefix(lib);
+    final depPrefix = type.depPrefix();
+    final installPrefix = type.installPrefix(lib);
 
     await _compile(
       lib,
@@ -70,21 +64,44 @@ class CMakeCompiler extends BaseCompiler {
       toolchainPath,
       {
         'CMAKE_SYSTEM_NAME': 'iOS',
-        'CMAKE_OSX_ARCHITECTURES': IOSCpuType.cmakeArchsString(),
+        'CMAKE_OSX_ARCHITECTURES': '${type.cmakeCpuName()};',
       },
-      CpuType.universal,
+      type,
+    );
+  }
+
+  @override
+  FutureOr<void> compileMultiCpuIos(Lib lib) async {
+    final cpuType = IOSCpuType.universal;
+
+    final toolchainPath = await createiOSToolchainFile(lib, cpuType);
+
+    final depPrefix = cpuType.depPrefix();
+    final installPrefix = cpuType.installPrefix(lib);
+
+    await _compile(
+      lib,
+      {},
+      depPrefix,
+      installPrefix,
+      toolchainPath,
+      {
+        'CMAKE_SYSTEM_NAME': 'iOS',
+        'CMAKE_OSX_ARCHITECTURES': IOSCpuType.universal.cmakeCpuName(),
+      },
+      cpuType,
     );
   }
 
   Future<String> createiOSToolchainFile(
     Lib lib,
+    CpuType type,
   ) async {
     final toolchainFile = join(
       lib.sourcePath,
-      Consts.iOSMutilArchName,
+      type.cpuName(),
       'ios.toolchain.cmake',
     ).file(createWhenNotExists: true);
-
     const toolchainContent = '''
 # iOS Toolchain
 

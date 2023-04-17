@@ -26,6 +26,10 @@ mixin CpuType {
   /// lib: `prefix/lib`
   /// include: `prefix/include`
   String installPrefix(Lib lib) {
+    if (compileOptions.installPrefix == null) {
+      return depPrefix();
+    }
+
     final prefix = compileOptions.installPrefix ?? depPrefix();
     if (prefix.isNotEmpty) {
       return '$prefix/$platform';
@@ -34,7 +38,7 @@ mixin CpuType {
     return '${lib.installPath}/$platform';
   }
 
-  static const CpuType universal = _IOSUniversal();
+  String cmakeCpuName();
 }
 
 mixin PlatformUtils {
@@ -146,6 +150,20 @@ enum AndroidCpuType with CpuType {
   @override
   String platformName() {
     return 'android';
+  }
+
+  @override
+  String cmakeCpuName() {
+    switch (this) {
+      case AndroidCpuType.arm:
+        return 'armeabi-v7a';
+      case AndroidCpuType.arm64:
+        return 'arm64-v8a';
+      case AndroidCpuType.x86:
+        return 'x86';
+      case AndroidCpuType.x86_64:
+        return 'x86_64';
+    }
   }
 
   static List<String> args() {
@@ -260,6 +278,8 @@ enum IOSCpuType with CpuType {
   arm64,
   x86_64;
 
+  static CpuType universal = const _IOSUniversal();
+
   String xcrunTarget() {
     switch (this) {
       case IOSCpuType.arm64:
@@ -307,6 +327,11 @@ enum IOSCpuType with CpuType {
     }
   }
 
+  @override
+  String cmakeCpuName() {
+    return arch();
+  }
+
   static String cmakeArchsString() {
     final archs = IOSCpuType.values.map((e) => e.arch()).join(';');
     return archs;
@@ -337,6 +362,11 @@ class _IOSUniversal with CpuType {
   @override
   String platformName() {
     return 'ios';
+  }
+
+  @override
+  String cmakeCpuName() {
+    return IOSCpuType.values.map((e) => e.cmakeCpuName()).join(';');
   }
 }
 

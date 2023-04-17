@@ -9,6 +9,7 @@ android-cpu:
   # - x86
   # - x86_64
 ios: true
+# ios: false
 
 remove-old-source: false
 
@@ -16,6 +17,7 @@ strip: true
 
 git-depth: 1
 
+# just-make-shell: true
 just-make-shell: false
 
 install-prefix: ./install

@@ -32,7 +32,7 @@ abstract class BaseCompiler {
     if (compileOptions.ios && Platform.isMacOS) {
       if (buildMultiiOSArch) {
         await compileMultiCpuIos(lib);
-        final installPrefix = CpuType.universal.installPrefix(lib);
+        final installPrefix = IOSCpuType.universal.installPrefix(lib);
         _copyLicense(lib, installPrefix);
       } else {
         await compileIOS(lib);
@@ -94,7 +94,15 @@ abstract class BaseCompiler {
   FutureOr<void> compileMultiCpuIos(Lib lib) async {}
 
   void _lipoLibWithIos(Lib lib) {
-    final installPath = lib.installPath;
+    String installPath;
+
+    // 1. get from compileOptions
+    if (compileOptions.installPrefix != null) {
+      installPath = compileOptions.installPrefix!;
+    } else {
+      installPath = lib.installPath;
+    }
+
     final iOSPath = join(installPath, 'ios');
     final logBuffer = StringBuffer('Lipo lib with ios in $iOSPath');
     // 1. create universal path

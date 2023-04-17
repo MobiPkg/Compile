@@ -8,6 +8,8 @@
 - Support `android-cpu` type for compile command.
 - Support `option-file` for compile command. (See [example-option-file](example/options/lib-option.yaml))
 - Support `project` command.
+- Temporarily removed multiple ios cpu with cmake compile.
+- Fix install prefix problem.
 
 ## 0.0.3
 
