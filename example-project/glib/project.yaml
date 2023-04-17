@@ -1,2 +1,3 @@
 libs:
-  - path: ../../example/git-meson/glib
+  - path: libffi
+  - path: glib
