@@ -1,5 +1,9 @@
 # CHANGLOG
 
+## UnRelease
+
+- Add abbr for `--option-file`.
+
 ## 0.0.4
 
 - Change `meson` compile lib type to `both`.

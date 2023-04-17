@@ -95,22 +95,27 @@ extension CompileOptionsExt on CompileOptions {
     argParser.addFlag(
       'just-make-shell',
       abbr: 'j',
-      help: 'Just make shell script, not run it. The command is help.',
+      help: 'Just make shell script, not run it. '
+          'The command is help developer to debug. '
+          'So, it will be hidden in help message.',
       hide: true,
     );
     argParser.addOption(
       'install-prefix',
       abbr: 'I',
-      help: 'Set install path.',
+      help: 'Set install path. (Override envrionment variable: MOBIPKG_PREFIX.',
     );
     argParser.addOption(
       'dependency-prefix',
       abbr: 'p',
-      help: 'Set dependencies prefix.',
+      help: 'Set dependencies prefix. '
+          '(Override envrionment variable: MOBIPKG_PREFIX)',
     );
     argParser.addOption(
       'option-file',
-      help: 'Set option file, if config option, other options will be ignore.',
+      abbr: 'o',
+      help: 'Set option file, if config option, '
+          'other common options will be ignore.',
     );
   }
 

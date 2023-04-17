@@ -38,6 +38,8 @@ If this env is configured, all libraries will be installed into this directory. 
 
 At the same time, if compile need some dependencies, it will find them in this directory.
 
+Command line option or option-file can override this value.
+
 ## Usage for command
 
 ```bash

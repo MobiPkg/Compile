@@ -13,6 +13,7 @@ It mainly contains 2 type:
 - `--option-file`: A yaml file used to specify compilation options.
   A yaml file used to specify compilation options.
 - `-C, --project-path`: The directory where the project is located should contain the lib.yaml file.
+- `just-make-shell`: A hide option, just for make shell script to help developer debug.
 
 ## common options
 
