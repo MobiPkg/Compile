@@ -106,7 +106,7 @@ class MesonCompiler extends BaseCompiler {
       'prefix': installPrefix,
       'cross-file': crossFilePath,
       'buildtype': 'release',
-      '--default-library': 'both',
+      'default-library': 'both',
     };
 
     final cpuCount = envs.cpuCount;

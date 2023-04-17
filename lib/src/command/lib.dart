@@ -1,10 +1,7 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
 
-class CompileCommand extends BaseVoidCommand {
-  @override
-  List<String> get aliases => ['c', 'comp'];
-
+class LibCommand extends BaseVoidCommand {
   @override
   void init(ArgParser argParser) {
     super.init(argParser);
@@ -12,10 +9,13 @@ class CompileCommand extends BaseVoidCommand {
   }
 
   @override
-  String get commandDescription => 'Compile lib for project.';
+  String get commandDescription => 'Compile lib, and install library.';
 
   @override
-  String get name => 'compile';
+  String get name => 'lib';
+
+  @override
+  List<String> get aliases => ['l'];
 
   void _checkEnv() {
     if (compileOptions.android) {

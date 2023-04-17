@@ -49,8 +49,13 @@ compile -h
 Simple compile steps:
 
 ```bash
-# 1. Create by template
 compile create -C example
+
+cd example
+# edit lib.yaml
+
+# compile
+compile lib -C .
 ```
 
 ## Supported

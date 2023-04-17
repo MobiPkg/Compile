@@ -2,6 +2,9 @@
 
 ## UnRelease
 
+- Rename `compile` command to `lib`.
+- Fix meson compile error.
+
 ## 0.0.5
 
 - Add abbr for `--option-file`.

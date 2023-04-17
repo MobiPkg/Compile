@@ -10,7 +10,7 @@ class Commander with LogMixin {
   );
 
   final _commanders = <BaseVoidCommand>[
-    CompileCommand(),
+    LibCommand(),
     ProjectCommand(),
     SupportCommand(),
     TemplateCommand(),

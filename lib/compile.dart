@@ -11,7 +11,7 @@ export 'package:args/args.dart';
 export 'package:process_run/process_run.dart';
 
 export 'src/command/base.dart';
-export 'src/command/compile.dart';
+export 'src/command/lib.dart';
 export 'src/command/project.dart';
 export 'src/command/support.dart';
 export 'src/command/template.dart';

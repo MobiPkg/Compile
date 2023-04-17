@@ -1,0 +1,2 @@
+libs:
+  - path: ../../example/git-meson/glib
