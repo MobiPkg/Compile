@@ -72,7 +72,9 @@ class Lib
   late String projectDirPath = normalize(absolute(projectDir.path));
   late String sourcePath = join(projectDirPath, 'source', name);
   late String shellPath = join(projectDirPath, 'source', 'shell');
+  late String toolchainPath = join(projectDirPath, 'source', 'toolchain');
   late String? subpath = sourceMap['subpath'] as String?;
+
   @override
   late String workingPath =
       subpath == null ? sourcePath : normalize(join(sourcePath, subpath));

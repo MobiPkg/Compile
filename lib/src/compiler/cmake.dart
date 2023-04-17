@@ -101,7 +101,7 @@ class CMakeCompiler extends BaseCompiler {
     CpuType type,
   ) async {
     final toolchainFile = join(
-      lib.sourcePath,
+      lib.toolchainPath,
       type.cpuName(),
       'ios.toolchain.cmake',
     ).file(createWhenNotExists: true);
