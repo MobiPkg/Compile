@@ -2,7 +2,7 @@ name: libiconv
 type: autotools
 source:
   git:
-    url: git://git.savannah.gnu.org/libiconv.git
+    url: https://gitlab.com/CaiJingLong/mirror-libiconv.git
     ref: v1.17
 license: COPYING
 
@@ -11,6 +11,12 @@ flags:
   cxx: -fPIC -O3 -std=c++17
   cpp:
   ld: -s
+
+patch:
+  - path: submodule-url.patch
+    target: .gitmodules
+    workdir: .
+    before-precompile: true
 
 precompile:
   - ./gitsub.sh pull

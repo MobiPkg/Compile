@@ -80,4 +80,8 @@ extension CCDirExt on Directory {
     }
     return null;
   }
+
+  File childFile(String path) {
+    return File(join(this.path, path));
+  }
 }

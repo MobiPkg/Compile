@@ -28,6 +28,7 @@ export 'src/source/lib/lib.dart';
 export 'src/source/lib/lib_check.dart';
 export 'src/source/lib/lib_downloader.dart';
 export 'src/source/lib/lib_flags.dart';
+export 'src/source/lib/lib_patch.dart';
 export 'src/source/lib/lib_source_mixin.dart';
 export 'src/source/lib/lib_type.dart';
 export 'src/source/project/project.dart';

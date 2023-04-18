@@ -9,10 +9,12 @@ class Lib
         LibCheckMixin,
         LibDownloadMixin,
         LibFlagsMixin,
-        LibTypeMixin {
+        LibTypeMixin,
+        LibPatchMixin {
   @override
   final Map map;
 
+  @override
   final Directory libDir;
 
   late final _precompile = map['precompile'] as YamlList?;
