@@ -1,6 +1,54 @@
 import 'package:compile/compile.dart';
 import 'package:path/path.dart';
 
+mixin ConfigType {
+  String get value;
+}
+
+enum LibType with ConfigType {
+  cAutotools(
+    'autotools',
+    defaultOptions: [
+      '--enable-static',
+      '--enable-shared',
+    ],
+    aliases: [
+      'at',
+    ],
+  ),
+  cCmake(
+    'cmake',
+    aliases: ['cm'],
+  ),
+  cMeson('meson', hide: true),
+  ;
+
+  const LibType(
+    this.value, {
+    this.defaultOptions = const [],
+    this.hide = false,
+    this.aliases = const [],
+  });
+
+  @override
+  final String value;
+
+  final List<String> defaultOptions;
+
+  final List<String> aliases;
+
+  final bool hide;
+
+  static LibType fromValue(String value) {
+    for (final type in values) {
+      if (type.value == value) {
+        return type;
+      }
+    }
+    throw Exception('Not support type: $value');
+  }
+}
+
 mixin LibTypeMixin {
   Map get map;
 

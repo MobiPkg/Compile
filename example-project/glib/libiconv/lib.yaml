@@ -2,7 +2,7 @@ name: libiconv
 type: autotools
 source:
   git:
-    url: https://git.savannah.gnu.org/git/libiconv.git
+    url: https://gitlab.com/CaiJingLong/mirror-libiconv.git
     ref: v1.17
 license: COPYING
 

@@ -46,6 +46,20 @@ class ProjectCommand extends BaseVoidCommand {
       final compiler = _createCompiler(lib);
       await compiler.compile(lib);
     }
+
+    if (compileOptions.justMakeShell) {
+      final projectDebugShellPath = join(projectDir, 'build', 'shell');
+      compilerShellLoggger.foreachNotEmtpy((cpuType, log) {
+        final shellFile = join(
+          projectDebugShellPath,
+          '${cpuType.platform}-${cpuType.cpuName()}.sh',
+        ).file(createWhenNotExists: true);
+
+        shellFile.writeAsStringSync(log);
+      });
+
+      logger.info('Shell files are generated in $projectDebugShellPath.');
+    }
   }
 
   void _checkEnv() {

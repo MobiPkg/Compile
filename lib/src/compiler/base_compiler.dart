@@ -259,23 +259,3 @@ void _printEnv(Map<String, String> env) {
     logger.v('Env:\n${env.debugString()}');
   }
 }
-
-void makeCompileShell(Lib lib, String buildShell, CpuType cpuType) {
-  final srcPath = lib.shellPath;
-  final shellName = '${cpuType.platformName()}-${cpuType.cpuName()}';
-  final shellPath = join(srcPath, 'build-$shellName.sh');
-  final shellFile = File(shellPath);
-  shellFile.createSync(recursive: true);
-
-  final shellContent = '''
-#!/bin/bash
-set -e
-
-$buildShell
-''';
-  shellFile.writeAsStringSync(shellContent);
-  // add execute permission
-  shell.chmod(shellPath, '+x');
-
-  logger.i('Write compile shell to $shellPath');
-}

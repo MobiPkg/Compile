@@ -2,54 +2,6 @@ import 'package:compile/compile.dart';
 import 'package:path/path.dart';
 import 'package:yaml/yaml.dart';
 
-mixin ConfigType {
-  String get value;
-}
-
-enum LibType with ConfigType {
-  cAutotools(
-    'autotools',
-    defaultOptions: [
-      '--enable-static',
-      '--enable-shared',
-    ],
-    aliases: [
-      'at',
-    ],
-  ),
-  cCmake(
-    'cmake',
-    aliases: ['cm'],
-  ),
-  cMeson('meson', hide: true),
-  ;
-
-  const LibType(
-    this.value, {
-    this.defaultOptions = const [],
-    this.hide = false,
-    this.aliases = const [],
-  });
-
-  @override
-  final String value;
-
-  final List<String> defaultOptions;
-
-  final List<String> aliases;
-
-  final bool hide;
-
-  static LibType fromValue(String value) {
-    for (final type in values) {
-      if (type.value == value) {
-        return type;
-      }
-    }
-    throw Exception('Not support type: $value');
-  }
-}
-
 class Lib
     with
         LogMixin,
@@ -60,7 +12,8 @@ class Lib
         LibTypeMixin {
   @override
   final Map map;
-  final Directory projectDir;
+
+  final Directory libDir;
 
   late final _precompile = map['precompile'] as YamlList?;
 
@@ -69,10 +22,10 @@ class Lib
 
   late String name = map['name'] as String;
 
-  late String projectDirPath = normalize(absolute(projectDir.path));
-  late String sourcePath = join(projectDirPath, 'source', name);
-  late String shellPath = join(projectDirPath, 'source', 'shell');
-  late String toolchainPath = join(projectDirPath, 'source', 'toolchain');
+  late String libDirPath = normalize(absolute(libDir.path));
+  late String sourcePath = join(libDirPath, 'source', name);
+  late String shellPath = join(libDirPath, 'source', 'shell');
+  late String toolchainPath = join(libDirPath, 'source', 'toolchain');
   late String? subpath = sourceMap['subpath'] as String?;
 
   @override
@@ -84,31 +37,31 @@ class Lib
   late String? licensePath = _licensePath == null
       ? null
       : normalize(absolute(join(sourcePath, _licensePath)));
-  late String buildPath = join(projectDirPath, 'build');
+  late String buildPath = join(libDirPath, 'build');
 
   String get installPath {
-    return envs.prefix ?? join(projectDirPath, 'install');
+    return envs.prefix ?? join(libDirPath, 'install');
   }
 
-  Lib.fromMap(this.map, this.projectDir) {
+  Lib.fromMap(this.map, this.libDir) {
     analyze();
   }
 
-  factory Lib.fromYaml(String yaml, Directory projectDir) {
+  factory Lib.fromYaml(String yaml, Directory libDir) {
     final map = loadYaml(yaml) as Map;
-    return Lib.fromMap(map, projectDir);
+    return Lib.fromMap(map, libDir);
   }
 
-  factory Lib.fromDir(Directory projectDir) {
+  factory Lib.fromDir(Directory libDir) {
     final fileNames = [
       'lib.yaml',
       'lib.yml',
     ];
-    final file = projectDir.getFirstMatchFile(fileNames);
+    final file = libDir.getFirstMatchFile(fileNames);
     if (file == null) {
-      throw Exception('Not found ${fileNames.join('|')} in ${projectDir.path}');
+      throw Exception('Not found ${fileNames.join('|')} in ${libDir.path}');
     }
-    return Lib.fromYaml(file.readAsStringSync(), projectDir);
+    return Lib.fromYaml(file.readAsStringSync(), libDir);
   }
 
   Future<void> download() async {

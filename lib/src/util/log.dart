@@ -1,5 +1,6 @@
 import 'package:compile/compile.dart';
 import 'package:logger/logger.dart';
+import 'package:path/path.dart';
 
 mixin LogMixin {
   late final w = logger.w;
@@ -44,4 +45,54 @@ extension CCLoggerExt on Logger {
   CCLoggerFunction get info => i;
   CCLoggerFunction get warning => w;
   CCLoggerFunction get error => e;
+}
+
+final compilerShellLoggger = CompilerShellLogger();
+
+class CompilerShellLogger {
+  final Map<CpuType, StringBuffer> _logMap = {};
+
+  void addLog(CpuType cpuType, String log) {
+    final buffer = _logMap[cpuType] ?? StringBuffer();
+    buffer.writeln(log);
+    _logMap[cpuType] = buffer;
+  }
+
+  String getLog(CpuType cpuType) {
+    return _logMap[cpuType]?.toString() ?? '';
+  }
+
+  void foreachNotEmtpy(void Function(CpuType cpuType, String log) callback) {
+    _logMap.forEach((cpuType, buffer) {
+      if (buffer.toString().trim().isNotEmpty) {
+        callback(cpuType, buffer.toString());
+      }
+    });
+  }
+}
+
+void makeCompileShell(
+  Lib lib,
+  String buildShell,
+  CpuType cpuType,
+) {
+  final srcPath = lib.shellPath;
+  final shellName = '${cpuType.platformName()}-${cpuType.cpuName()}';
+  final shellPath = join(srcPath, 'build-$shellName.sh');
+  final shellFile = File(shellPath);
+  shellFile.createSync(recursive: true);
+
+  final shellContent = '''
+#!/bin/bash
+set -e
+
+$buildShell
+''';
+  shellFile.writeAsStringSync(shellContent);
+  // add execute permission
+  shell.chmod(shellPath, '+x');
+
+  logger.i('Write compile shell to $shellPath');
+
+  compilerShellLoggger.addLog(cpuType, shellContent);
 }
