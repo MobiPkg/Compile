@@ -70,10 +70,13 @@ class _SubTemplateCommand extends BaseVoidCommand {
 
     dirPath = dir.absolute.path;
 
-    final force = argResults!['force'] as bool;
-    if (!force && dir.existsSync()) {
-      throw Exception('Target directory: $dirPath is already exists. '
-          'If you want to force overwrite, please use --force/-f option.');
+    if (dir.existsSync()) {
+      final force = argResults!['force'] as bool;
+      final children = dir.listSync();
+      if (children.isNotEmpty && !force) {
+        throw Exception('Target directory: $dirPath is already exists. '
+            'If you want to force overwrite, please use --force/-f option.');
+      }
     }
 
     final sourceType = argResults!['source-type'] as String;
