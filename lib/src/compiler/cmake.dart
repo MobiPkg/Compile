@@ -63,6 +63,7 @@ class CMakeCompiler extends BaseCompiler {
     await _compile(
       lib,
       {
+        ...env,
         'SDKROOT': iosUtils.sysroot(),
       },
       depPrefix,

@@ -64,9 +64,13 @@ mixin PlatformUtils {
 
   String sysroot();
 
+  CpuType get cpuType;
+
   Map<String, String> getEnvMap() {
+    final depPrefix = cpuType.depPrefix();
     // final systemEnv = Map<String, String>.from(Platform.environment);
     return {
+      if (depPrefix.isNotEmpty) 'PKG_CONFIG_PATH': '$depPrefix/lib/pkgconfig',
       // ...systemEnv,
       'CC': cc(),
       'CXX': cxx(),
@@ -185,6 +189,9 @@ enum AndroidCpuType with CpuType {
 class AndroidUtils with PlatformUtils {
   final int minSdk;
   final AndroidCpuType targetCpuType;
+
+  @override
+  CpuType get cpuType => targetCpuType;
 
   const AndroidUtils({
     required this.targetCpuType,
@@ -377,6 +384,7 @@ class IOSUtils with PlatformUtils {
     required this.cpuType,
   });
 
+  @override
   final IOSCpuType cpuType;
 
   String xcrun(

@@ -187,6 +187,7 @@ c_ld = 'gold'
 cpp_ld = 'gold'
 needs_exe_wrapper = false
 sys_root = '${androidUtils.sysroot()}'
+; pkg_config_libdir = '${cpuType.depPrefix()}/lib/pkgconfig'
 
 [binaries]
 c =     '${androidUtils.cc()}'
