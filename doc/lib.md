@@ -61,6 +61,8 @@ source:
   path: /path/to/libffi
 ```
 
+The `subpath` property is used to specify the path of the file in the archive/git/path.
+
 #### http-type
 
 http-type can be one of the following:
@@ -148,6 +150,49 @@ options:
 options:
   - --debug
 ```
+
+### patch
+
+Some libraries may have some issues.
+
+A typical example:
+the source url of the submodule changes, the master branch changes, but the historical tag remains unchanged.
+
+Now, you can use the patch to fix the problem.
+The patch will use `patch` command to apply the patch.
+
+```yaml
+patch:
+  - path: patch/submodule-url.patch
+    target: .gitmodules
+    workdir: . # default is .
+    before-precompile: true # default is true
+    type: unified # default is unified
+```
+
+There are 2 required items and 3 optional items:
+
+- path: The path of the patch file. It relative to the lib.yaml file.
+- target: The target file of the patch. It relative to the `source`.
+- workdir: The workdir of the patch. It relative to the `source`. Default is `.`.
+- before-precompile: Whether to execute the patch before precompile or not. Default is `true`.
+- type: The type of the patch. Default is `unified`. [See patch-type](#patch-type)
+
+#### patch-type
+
+The `patch-type` parameter can take one of the following values:
+
+- `unified`
+  - Command to generate patch file: `$ diff -u file1 file2 > diff.patch`
+  - Command to apply patch: `$ patch -i diff.patch -u -N target_file`
+- `normal`
+  - Command to generate patch file: `$ diff --normal file1 file2 > diff.patch`
+  - Command to apply patch: `$ patch -i diff.patch -n -N target_file`
+- `context`
+  - Command to generate patch file: `$ diff -c file1 file2 > diff.patch`
+  - Command to apply patch: `$ patch -i diff.patch -c -N target_file`
+
+Recommended to use `unified` type, the type is default value.
 
 ### matrix
 

@@ -236,8 +236,18 @@ abstract class BaseCompiler {
   FutureOr<void> compile(Lib lib) async {
     doCheckEnvAndCommand();
 
+    // apply before pre compile patch
+    lib.applyLibPath(
+      beforePrecompile: true,
+    );
+
     // pre compile
     await _precompile(lib);
+
+    // apply after pre compile patch
+    lib.applyLibPath(
+      beforePrecompile: false,
+    );
 
     final matrix = lib.matrixList;
 

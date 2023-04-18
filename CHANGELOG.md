@@ -4,6 +4,7 @@
 
 - Rename `compile` command to `lib`.
 - Fix meson compile error.
+- Support patch for `lib.yaml`.
 
 ## 0.0.5
 

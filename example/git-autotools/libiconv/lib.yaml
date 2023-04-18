@@ -10,13 +10,14 @@ flags:
   c: -fPIC -O2 -Wall 
   cxx: -fPIC -O3 -std=c++17
   cpp:
-  ld: -s
+  ld:
 
 patch:
-  - path: submodule-url.patch
+  - path: patch/submodule-url.patch
     target: .gitmodules
     workdir: .
     before-precompile: true
+    type: unified
 
 precompile:
   - ./gitsub.sh pull

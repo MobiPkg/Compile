@@ -25,6 +25,8 @@ class Lib
   late String name = map['name'] as String;
 
   late String libDirPath = normalize(absolute(libDir.path));
+
+  @override
   late String sourcePath = join(libDirPath, 'source', name);
   late String shellPath = join(libDirPath, 'source', 'shell');
   late String toolchainPath = join(libDirPath, 'source', 'toolchain');
