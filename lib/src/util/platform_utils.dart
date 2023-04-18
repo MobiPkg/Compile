@@ -8,6 +8,8 @@ mixin CpuType {
 
   String get platform => '${platformName()}/${cpuName()}';
 
+  String get singleName => '${platformName()}-${cpuName()}';
+
   /// When compiling or checking, it will look for library files from the subdirectory `depPrefix/lib`
   /// Find header files from `depPrefix/include`
   String depPrefix() {
@@ -63,9 +65,9 @@ mixin PlatformUtils {
   String sysroot();
 
   Map<String, String> getEnvMap() {
-    final systemEnv = Map<String, String>.from(Platform.environment);
+    // final systemEnv = Map<String, String>.from(Platform.environment);
     return {
-      ...systemEnv,
+      // ...systemEnv,
       'CC': cc(),
       'CXX': cxx(),
       'AR': ar(),
