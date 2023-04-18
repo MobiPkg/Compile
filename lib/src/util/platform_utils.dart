@@ -64,12 +64,15 @@ mixin PlatformUtils {
 
   String sysroot();
 
+  Map<String, String> get platformEnvs;
+
   CpuType get cpuType;
 
   Map<String, String> getEnvMap() {
     final depPrefix = cpuType.depPrefix();
     // final systemEnv = Map<String, String>.from(Platform.environment);
     return {
+      ...platformEnvs,
       if (depPrefix.isNotEmpty) 'PKG_CONFIG_PATH': '$depPrefix/lib/pkgconfig',
       // ...systemEnv,
       'CC': cc(),
@@ -189,6 +192,7 @@ enum AndroidCpuType with CpuType {
 class AndroidUtils with PlatformUtils {
   final int minSdk;
   final AndroidCpuType targetCpuType;
+  final bool useEnvExport;
 
   @override
   CpuType get cpuType => targetCpuType;
@@ -196,12 +200,17 @@ class AndroidUtils with PlatformUtils {
   const AndroidUtils({
     required this.targetCpuType,
     this.minSdk = 21,
+    this.useEnvExport = false,
   });
 
   String get toolchainPath {
-    final ndk = Platform.environment[Consts.ndkKey];
+    var ndk = Platform.environment[Consts.ndkKey];
     if (ndk == null) {
       throw Exception('Not found $ndk');
+    }
+
+    if (useEnvExport) {
+      ndk = '\$${Consts.ndkKey}';
     }
 
     // current platform
@@ -281,6 +290,11 @@ class AndroidUtils with PlatformUtils {
   String sysroot() {
     return join(toolchainPath, 'sysroot');
   }
+
+  @override
+  Map<String, String> get platformEnvs => {
+        Consts.ndkKey: Platform.environment[Consts.ndkKey]!,
+      };
 }
 
 enum IOSCpuType with CpuType {
@@ -471,4 +485,7 @@ class IOSUtils with PlatformUtils {
   String sysroot() {
     return getSdkPath();
   }
+
+  @override
+  Map<String, String> get platformEnvs => {};
 }
