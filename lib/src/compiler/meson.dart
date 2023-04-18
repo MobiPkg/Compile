@@ -31,8 +31,9 @@ class MesonCompiler extends BaseCompiler {
     AndroidCpuType type,
   ) {
     final crossFileContent = makeAndroidCrossFileContent(lib, type);
-    final crossFile = join(lib.buildPath, 'cross-file', 'cross-$type.ini')
-        .file(createWhenNotExists: true);
+    final crossFile =
+        join(lib.buildPath, 'cross-file', 'cross-${type.singleName}.ini')
+            .file(createWhenNotExists: true);
     crossFile.writeAsStringSync(crossFileContent);
     return _compile(lib, env, depPrefix, installPrefix, crossFile, type);
   }
@@ -46,8 +47,9 @@ class MesonCompiler extends BaseCompiler {
     IOSCpuType type,
   ) {
     final crossFileContent = makeIOSCrossFileContent(lib, type);
-    final crossFile = join(lib.buildPath, 'cross-file', 'cross-$type.ini')
-        .file(createWhenNotExists: true);
+    final crossFile =
+        join(lib.buildPath, 'cross-file', 'cross-${type.singleName}.ini')
+            .file(createWhenNotExists: true);
     crossFile.writeAsStringSync(crossFileContent);
     return _compile(
       lib,
@@ -191,7 +193,7 @@ c =     '${androidUtils.cc()}'
 cpp =   '${androidUtils.cxx()}'
 ar =    '${androidUtils.ar()}'
 strip = '${androidUtils.strip()}'
-pkgconfig = '$pkgConfigPath'
+; pkgconfig = '$pkgConfigPath'
 
 ${_makeBuiltInOptions(lib, cpuType)}
 
