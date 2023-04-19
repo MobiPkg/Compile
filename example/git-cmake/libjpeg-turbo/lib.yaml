@@ -1,0 +1,14 @@
+name: libjpeg-turbo
+type: cmake
+source:
+  git:
+    url: https://github.com/libjpeg-turbo/libjpeg-turbo.git
+    ref: 2.1.91
+  subpath: .
+license: LICENSE.md
+flags:
+  c: -fPIC -O2 -Wall
+  cxx: -fPIC -O2 -Wall
+  cpp: ""
+  ld: 
+options: []

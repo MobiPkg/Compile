@@ -28,11 +28,14 @@ mixin CpuType {
   /// lib: `prefix/lib`
   /// include: `prefix/include`
   String installPrefix(Lib lib) {
+    final depPrefix = this.depPrefix();
     if (compileOptions.installPrefix == null) {
-      return depPrefix();
+      if (depPrefix.isNotEmpty) {
+        return depPrefix;
+      }
     }
 
-    final prefix = compileOptions.installPrefix ?? depPrefix();
+    final prefix = compileOptions.installPrefix ?? depPrefix;
     if (prefix.isNotEmpty) {
       return '$prefix/$platform';
     }
@@ -41,6 +44,13 @@ mixin CpuType {
   }
 
   String cmakeCpuName();
+
+  static List<CpuType> values() {
+    return [
+      ...AndroidCpuType.values,
+      ...IOSCpuType.values,
+    ];
+  }
 }
 
 mixin PlatformUtils {
@@ -68,6 +78,8 @@ mixin PlatformUtils {
 
   CpuType get cpuType;
 
+  Map<String, String> get childEnv;
+
   Map<String, String> getEnvMap() {
     final depPrefix = cpuType.depPrefix();
     // final systemEnv = Map<String, String>.from(Platform.environment);
@@ -84,6 +96,7 @@ mixin PlatformUtils {
       'NM': nm(),
       'LD': ld(),
       'HOST': host(),
+      ...childEnv,
     };
   }
 
@@ -292,6 +305,9 @@ class AndroidUtils with PlatformUtils {
   }
 
   @override
+  Map<String, String> get childEnv => {};
+
+  @override
   Map<String, String> get platformEnvs => {
         Consts.ndkKey: Platform.environment[Consts.ndkKey]!,
       };
@@ -488,4 +504,10 @@ class IOSUtils with PlatformUtils {
 
   @override
   Map<String, String> get platformEnvs => {};
+
+  @override
+  Map<String, String> get childEnv => {
+        'OBJC': cc(),
+        'OBJCXX': cxx(),
+      };
 }

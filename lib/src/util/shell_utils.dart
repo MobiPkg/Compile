@@ -39,6 +39,10 @@ void checkEnv(
   }
 }
 
+final _reportSink = StreamController<List<int>>.broadcast();
+
+Stream<List<int>> get reportStream => _reportSink.stream;
+
 class Shell with LogMixin {
   Future<List<ProcessResult>> run(
     String script, {
@@ -50,8 +54,6 @@ class Shell with LogMixin {
     Encoding stdoutEncoding = systemEncoding,
     Encoding stderrEncoding = systemEncoding,
     Stream<List<int>>? stdin,
-    StreamSink<List<int>>? stdout,
-    StreamSink<List<int>>? stderr,
     bool verbose = true,
 
     // Default to true
@@ -74,6 +76,17 @@ class Shell with LogMixin {
 
     logger.d(log.toString().trim());
 
+    reporter.addCommand(
+      command: script,
+      workDir: workingDirectory ?? Directory.current.absolute.path,
+      env: environment,
+    );
+
+    final sub = reportStream.listen((event) {
+      reporter.addLog(systemEncoding.decode(event), newLine: false);
+      stdout.add(event);
+    });
+
     try {
       final result = await sr.run(
         script,
@@ -83,10 +96,10 @@ class Shell with LogMixin {
         includeParentEnvironment: includeParentEnvironment,
         onProcess: onProcess,
         runInShell: runInShell,
-        stderr: stderr,
+        stderr: _reportSink,
         stderrEncoding: stderrEncoding,
         stdin: stdin,
-        stdout: stdout,
+        stdout: _reportSink,
         stdoutEncoding: stdoutEncoding,
         throwOnError: throwOnError,
         verbose: verbose,
@@ -104,6 +117,8 @@ class Shell with LogMixin {
       log.writeLineWithIndent(script, 2);
       simpleLogger.error(log.toString().trim());
       return Future.error(e, st);
+    } finally {
+      sub.cancel();
     }
   }
 
@@ -136,6 +151,12 @@ class Shell with LogMixin {
       'Include parent environment: $includeParentEnvironment',
     );
 
+    reporter.addCommand(
+      command: script,
+      workDir: workingDirectory ?? Directory.current.absolute.path,
+      env: environment,
+    );
+
     logger.d(log.toString().trim());
     final r = Process.runSync(
       'sh',
@@ -148,7 +169,16 @@ class Shell with LogMixin {
       workingDirectory: workingDirectory,
     );
 
+    final output = r.stdout as String?;
+    if (output != null) {
+      reporter.addLog(output);
+    }
+
     if (r.exitCode != 0) {
+      final errorLog = r.stderr as String?;
+      if (errorLog != null) {
+        reporter.addLog(errorLog);
+      }
       if (throwOnError) {
         throw Exception(r.stderr);
       } else {

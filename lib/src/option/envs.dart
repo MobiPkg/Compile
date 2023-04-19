@@ -13,5 +13,9 @@ class Envs {
 
   String get ndk => systemEnvs[Consts.ndkKey]!;
 
-  Future<void> init() async {}
+  late Directory originDir;
+
+  Future<void> init() async {
+    originDir = Directory.current;
+  }
 }

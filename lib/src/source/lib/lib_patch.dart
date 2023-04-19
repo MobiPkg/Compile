@@ -123,7 +123,7 @@ mixin LibPatchMixin {
       logBuffer.writeLineWithIndent(patchCmd, 2);
     }
 
-    if (logBuffer.isNotEmpty) {
+    if (patches.isNotEmpty) {
       logger.info(logBuffer.toString());
     }
   }

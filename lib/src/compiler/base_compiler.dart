@@ -28,21 +28,28 @@ abstract class BaseCompiler {
   FutureOr<void> _compile(Lib lib) async {
     if (compileOptions.android) {
       await compileAndroid(lib);
+      reporter.changeCpuType(null);
     }
     if (compileOptions.ios && Platform.isMacOS) {
       if (buildMultiiOSArch) {
+        reporter.changeCpuType(IOSCpuType.universal);
         await compileMultiCpuIos(lib);
         final installPrefix = IOSCpuType.universal.installPrefix(lib);
         _copyLicense(lib, installPrefix);
       } else {
         await compileIOS(lib);
+        reporter.changeCpuType(null);
         if (!compileOptions.justMakeShell) _lipoLibWithIos(lib);
       }
     }
+    reporter.changeCpuType(null);
   }
 
   FutureOr<void> compileAndroid(Lib lib) async {
     for (final type in compileOptions.androidCpuTypes) {
+      reporter.changeCpuType(type);
+
+      final androidUtils = AndroidUtils(targetCpuType: type);
       final androidUtils = AndroidUtils(
         targetCpuType: type,
         useEnvExport: compileOptions.justMakeShell,
@@ -71,6 +78,7 @@ abstract class BaseCompiler {
 
   FutureOr<void> compileIOS(Lib lib) async {
     for (final type in IOSCpuType.values) {
+      reporter.changeCpuType(type);
       final iosUtils = IOSUtils(cpuType: type);
       final env = iosUtils.getEnvMap();
 

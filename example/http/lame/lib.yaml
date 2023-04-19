@@ -1,0 +1,13 @@
+name: lame
+source:
+  http:
+    url: https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz
+    type: tgz
+    version: "3.100"
+  subpath: lame-3.100
+license: license
+flags:
+  c: -fPIC -O2 -Wall
+  cxx: -fPIC -O2 -Wall
+  cpp: ""
+  ld: ""

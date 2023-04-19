@@ -146,7 +146,7 @@ mixin LibCheckMixin on LibSourceMixin {
   }
 
   LibHttpSourceType get httpSourceType {
-    final type = map.getMap('http').stringValue('type');
+    final type = sourceMap.getMap('http').stringValue('type');
     if (type == 'zip') {
       return LibHttpSourceType.zip;
     } else if (type == 'tar') {

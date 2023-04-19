@@ -19,22 +19,30 @@ class TemplateCommand extends BaseListCommand {
         _SubTemplateCommand(LibType.cAutotools),
         _SubTemplateCommand(LibType.cCmake),
         _SubTemplateCommand(LibType.cMeson),
+        _SubTemplateCommand(null),
       ];
 }
 
 class _SubTemplateCommand extends BaseVoidCommand {
-  final LibType type;
+  final LibType? type;
 
   _SubTemplateCommand(this.type);
 
-  @override
-  String get commandDescription => 'Create a lib with $name.';
+  String get typeSuffix {
+    if (type == null) {
+      return '';
+    }
+    return ' with ${type!.value}';
+  }
 
   @override
-  String get name => type.value;
+  String get commandDescription => 'Create template project$typeSuffix.';
 
   @override
-  List<String> get aliases => type.aliases;
+  String get name => type?.value ?? 'auto';
+
+  @override
+  List<String> get aliases => type?.aliases ?? [];
 
   @override
   void init(ArgParser argParser) {
@@ -85,13 +93,17 @@ class _SubTemplateCommand extends BaseVoidCommand {
 
     final template = Template();
 
-    template.writeToDir(targetPath: dirPath, type: type, sourceType: source);
+    template.writeToDir(
+      targetPath: dirPath,
+      type: type,
+      sourceType: source,
+    );
 
     logger.info('Created template project in $dirPath');
 
     logger.info(
       'Edit $dirPath/lib.yaml to configure your project.\n'
-      'Run `compile c ${type.value} -C $dirPath` to compile project.',
+      'Run `compile lib -C $dirPath` to compile project.',
     );
   }
 }

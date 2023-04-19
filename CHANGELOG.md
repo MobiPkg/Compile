@@ -5,6 +5,11 @@
 - Rename `compile` command to `lib`.
 - Fix meson compile error.
 - Support patch for `lib.yaml`.
+- Add `CMAKE_SYSTEM_PROCESSOR` to `cmake` compile.
+- Update `template` command.
+- Add `reporter` log for debug.
+- Add `OBJC` and `OBJCXX` env for iOS.
+- Fix http type check problem.
 
 ## 0.0.5
 

@@ -209,7 +209,12 @@ ${_makeBuiltInOptions(lib, cpuType)}
     final ldArgs = lib.ldFlags.toList();
     final cppArgs = lib.cppFlags.toList();
 
-    final depPrefix = cpuType.depPrefix();
+    var depPrefix = cpuType.depPrefix();
+
+    if (depPrefix.isEmpty) {
+      depPrefix = cpuType.installPrefix(lib);
+    }
+
     if (depPrefix.isNotEmpty) {
       cArgs.add('-I$depPrefix/include');
       cxxArgs.add('-I$depPrefix/include');
