@@ -19,10 +19,7 @@ class CMakeCompiler extends BaseCompiler {
     String installPrefix,
     AndroidCpuType type,
   ) async {
-    final ndk = env[Consts.ndkKey];
-    if (ndk == null) {
-      throw Exception('Not found ndk in env');
-    }
+    final ndk = envs.ndk;
     final toolchainPath = join(
       ndk,
       'build',
@@ -72,6 +69,7 @@ class CMakeCompiler extends BaseCompiler {
       {
         'CMAKE_SYSTEM_NAME': 'iOS',
         'CMAKE_OSX_ARCHITECTURES': arch,
+        'CMAKE_SYSTEM_PROCESSOR': arch,
       },
       type,
     );

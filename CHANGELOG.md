@@ -5,6 +5,7 @@
 - Rename `compile` command to `lib`.
 - Fix meson compile error.
 - Support patch for `lib.yaml`.
+- Add `CMAKE_SYSTEM_PROCESSOR` to `cmake` compile.
 
 ## 0.0.5
 
