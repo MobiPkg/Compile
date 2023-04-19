@@ -89,7 +89,7 @@ class Shell with LogMixin {
 
     try {
       final result = await sr.run(
-        'sh -C "$script"',
+        script,
         commandVerbose: commandVerbose,
         commentVerbose: commentVerbose,
         environment: environment,
