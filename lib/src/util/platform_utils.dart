@@ -78,8 +78,6 @@ mixin PlatformUtils {
 
   CpuType get cpuType;
 
-  Map<String, String> get childEnv;
-
   Map<String, String> getEnvMap() {
     final depPrefix = cpuType.depPrefix();
     // final systemEnv = Map<String, String>.from(Platform.environment);
@@ -96,7 +94,6 @@ mixin PlatformUtils {
       'NM': nm(),
       'LD': ld(),
       'HOST': host(),
-      ...childEnv,
     };
   }
 
@@ -305,9 +302,6 @@ class AndroidUtils with PlatformUtils {
   }
 
   @override
-  Map<String, String> get childEnv => {};
-
-  @override
   Map<String, String> get platformEnvs => {
         Consts.ndkKey: Platform.environment[Consts.ndkKey]!,
       };
@@ -503,10 +497,7 @@ class IOSUtils with PlatformUtils {
   }
 
   @override
-  Map<String, String> get platformEnvs => {};
-
-  @override
-  Map<String, String> get childEnv => {
+  Map<String, String> get platformEnvs => {
         'OBJC': cc(),
         'OBJCXX': cxx(),
       };

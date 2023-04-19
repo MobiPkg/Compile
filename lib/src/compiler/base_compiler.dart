@@ -49,7 +49,6 @@ abstract class BaseCompiler {
     for (final type in compileOptions.androidCpuTypes) {
       reporter.changeCpuType(type);
 
-      final androidUtils = AndroidUtils(targetCpuType: type);
       final androidUtils = AndroidUtils(
         targetCpuType: type,
         useEnvExport: compileOptions.justMakeShell,
