@@ -6,6 +6,7 @@
 - Fix meson compile error.
 - Support patch for `lib.yaml`.
 - Add `CMAKE_SYSTEM_PROCESSOR` to `cmake` compile.
+- Update `template` command.
 
 ## 0.0.5
 

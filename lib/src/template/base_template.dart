@@ -4,13 +4,14 @@ import 'package:yaml_edit/yaml_edit.dart';
 
 class Template {
   String makeLib({
-    required LibType type,
+    required LibType? type,
     required LibSourceType sourceType,
+    required String name,
   }) {
     final map = <String, dynamic>{};
 
-    map['name'] = 'libffi';
-    map['type'] = type.value;
+    map['name'] = name;
+    map['type'] = type?.value;
     final source = <String, dynamic>{};
 
     switch (sourceType) {
@@ -41,12 +42,20 @@ class Template {
       'c': '-fPIC -O2 -Wall',
       'cxx': '-fPIC -O2 -Wall',
       'cpp': '',
-      'ld': '-s',
+      'ld': '',
     };
 
-    map['precompile'] = <String>['./autogen.sh'];
+    if (type == LibType.cAutotools) {
+      map['precompile'] = <String>['./autogen.sh'];
+    }
 
-    map['options'] = type.defaultOptions;
+    map['options'] = type?.defaultOptions;
+
+    for (final key in map.keys.toList()) {
+      if (map[key] == null) {
+        map.remove(key);
+      }
+    }
 
     final yamlEditor = YamlEditor('');
     yamlEditor.update([], map);
@@ -64,15 +73,17 @@ class Template {
 
   void writeToDir({
     required String targetPath,
-    required LibType type,
+    required LibType? type,
     required LibSourceType sourceType,
   }) {
     final dir = Directory(targetPath);
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
+    final name = basename(targetPath);
     final libFile = join(targetPath, 'lib.yaml').file();
-    libFile.writeAsStringSync(makeLib(type: type, sourceType: sourceType));
+    libFile.writeAsStringSync(
+        makeLib(type: type, sourceType: sourceType, name: name));
 
     final ignoreFile = join(targetPath, '.gitignore').file();
     ignoreFile.writeAsStringSync(makeGitIgnore());
