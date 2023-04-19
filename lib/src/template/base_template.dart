@@ -83,7 +83,8 @@ class Template {
     final name = basename(targetPath);
     final libFile = join(targetPath, 'lib.yaml').file();
     libFile.writeAsStringSync(
-        makeLib(type: type, sourceType: sourceType, name: name));
+      makeLib(type: type, sourceType: sourceType, name: name),
+    );
 
     final ignoreFile = join(targetPath, '.gitignore').file();
     ignoreFile.writeAsStringSync(makeGitIgnore());
