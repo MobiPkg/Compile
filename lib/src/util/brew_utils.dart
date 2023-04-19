@@ -21,6 +21,8 @@ class BrewPkg {
 
   String get version => map.getMap('versions').stringValue('stable');
 
+  String get licenseType => map.stringValue('license');
+
   bool get isGithub {
     return Uri.parse(homepage).host == 'github.com';
   }

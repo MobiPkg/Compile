@@ -16,6 +16,10 @@ class Template {
       logger.debug(e);
     }
 
+    map['name'] = pkg?.name ?? name;
+    map['type'] = pkg?.buildType ?? type?.value;
+
+    final source = <String, dynamic>{};
     if (pkg != null) {
       if (pkg.isGithub) {
         sourceType = LibSourceType.git;
@@ -23,11 +27,11 @@ class Template {
         // ignore: parameter_assignments
         sourceType = LibSourceType.http;
       }
-    }
 
-    map['name'] = pkg?.name ?? name;
-    map['type'] = pkg?.buildType ?? type?.value;
-    final source = <String, dynamic>{};
+      map['homepage'] = pkg.homepage;
+      map['description'] = pkg.desc;
+      map['license-type'] = pkg.licenseType;
+    }
 
     source['subpath'] = '.';
     switch (sourceType) {
