@@ -34,6 +34,7 @@ export 'src/source/lib/lib_source_mixin.dart';
 export 'src/source/lib/lib_type.dart';
 export 'src/source/project/project.dart';
 export 'src/template/base_template.dart';
+export 'src/util/brew_utils.dart';
 export 'src/util/common_utils.dart';
 export 'src/util/file_utils.dart';
 export 'src/util/log.dart';

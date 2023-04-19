@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 extension CCStringExt on String {
@@ -32,6 +33,14 @@ extension CCStringExt on String {
     } else {
       return l.split(' ');
     }
+  }
+
+  Map toJSONMap() {
+    return jsonDecode(this) as Map;
+  }
+
+  List toJSONList() {
+    return jsonDecode(this) as List;
   }
 }
 

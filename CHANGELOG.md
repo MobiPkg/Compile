@@ -10,6 +10,7 @@
 - Add `reporter` log for debug.
 - Add `OBJC` and `OBJCXX` env for iOS.
 - Fix http type check problem.
+- Use `brew` to create lib.
 
 ## 0.0.5
 

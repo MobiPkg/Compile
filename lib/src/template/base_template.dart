@@ -9,34 +9,52 @@ class Template {
     required String name,
   }) {
     final map = <String, dynamic>{};
+    BrewPkg? pkg;
+    try {
+      pkg = getBrewPkg(name);
+    } catch (e) {
+      logger.debug(e);
+    }
 
-    map['name'] = name;
-    map['type'] = type?.value;
+    if (pkg != null) {
+      if (pkg.isGithub) {
+        sourceType = LibSourceType.git;
+      } else {
+        // ignore: parameter_assignments
+        sourceType = LibSourceType.http;
+      }
+    }
+
+    map['name'] = pkg?.name ?? name;
+    map['type'] = pkg?.buildType ?? type?.value;
     final source = <String, dynamic>{};
 
+    source['subpath'] = '.';
     switch (sourceType) {
       case LibSourceType.git:
         source['git'] = {
-          'url': 'https://github.com/libffi/libffi.git',
-          'ref': 'v3.4.4'
+          'url': pkg?.url ?? 'https://github.com/libffi/libffi.git',
+          'ref': pkg?.version ?? 'v1.0.0',
         };
         break;
       case LibSourceType.path:
         source['path'] = 'example/libffi';
         break;
       case LibSourceType.http:
-        source['http'] = {
-          'url':
-              'https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz',
-          'type': 'tar.gz',
-        };
-        break;
+        {
+          final url = pkg?.url ??
+              'https://github.com/libffi/libffi/archive/refs/tags/v1.0.0.tar.gz';
+          source['http'] = {
+            'url': url,
+            'type': 'tar.gz',
+            'version': pkg?.version ?? 'v1.0.0',
+          };
+          break;
+        }
     }
 
-    source['subpath'] = '.';
-
     map['source'] = source;
-    map['license'] = 'license';
+    map['license'] = 'LICENSE';
 
     map['flags'] = {
       'c': '-fPIC -O2 -Wall',
