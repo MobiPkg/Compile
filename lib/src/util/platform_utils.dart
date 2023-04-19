@@ -41,6 +41,13 @@ mixin CpuType {
   }
 
   String cmakeCpuName();
+
+  static List<CpuType> values() {
+    return [
+      ...AndroidCpuType.values,
+      ...IOSCpuType.values,
+    ];
+  }
 }
 
 mixin PlatformUtils {

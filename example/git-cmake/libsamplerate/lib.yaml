@@ -1,5 +1,6 @@
 name: libsamplerate
-type: autotools
+# type: autotools
+type: cmake
 source:
   git:
     url: https://github.com/libsndfile/libsamplerate.git

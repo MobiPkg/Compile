@@ -42,6 +42,7 @@ void checkEnv(
 class Shell with LogMixin {
   Future<List<ProcessResult>> run(
     String script, {
+    CpuType? cpuType,
     bool throwOnError = true,
     String? workingDirectory,
     Map<String, String>? environment,
@@ -73,6 +74,13 @@ class Shell with LogMixin {
     );
 
     logger.d(log.toString().trim());
+
+    reporter.addCommand(
+      cpuType: cpuType,
+      command: script,
+      workDir: workingDirectory ?? Directory.current.absolute.path,
+      env: environment,
+    );
 
     try {
       final result = await sr.run(
@@ -109,6 +117,7 @@ class Shell with LogMixin {
 
   String runSync(
     String script, {
+    CpuType? cpuType,
     bool throwOnError = true,
     String? workingDirectory,
     Map<String, String>? environment,
@@ -134,6 +143,13 @@ class Shell with LogMixin {
     }
     log.writeLineWithIndent(
       'Include parent environment: $includeParentEnvironment',
+    );
+
+    reporter.addCommand(
+      cpuType: cpuType,
+      command: script,
+      workDir: workingDirectory ?? Directory.current.absolute.path,
+      env: environment,
     );
 
     logger.d(log.toString().trim());
