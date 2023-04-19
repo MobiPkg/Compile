@@ -7,6 +7,8 @@
 - Support patch for `lib.yaml`.
 - Add `CMAKE_SYSTEM_PROCESSOR` to `cmake` compile.
 - Update `template` command.
+- Add `reporter` log for debug.
+- Add `OBJC` and `OBJCXX` env for iOS.
 
 ## 0.0.5
 
