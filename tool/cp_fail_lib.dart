@@ -36,14 +36,14 @@ Future<void> main(List<String> args) async {
   final latestDir = dirs.first;
 
   print('Check the latest fail log: ${latestDir.path}');
-  print('Can you want to copy it to $targetPath? (y/n)');
+  print('Can you want to copy it to $targetLogPath? (y/n)');
   final input = stdin.readLineSync()?.trim().toLowerCase();
 
   if (input == 'y' || input == 'yes') {
     var cmd = 'mkdir -p $targetLogPath';
     await shell.run(cmd);
-    cmd = 'cp -r ${latestDir.path}/* $targetPath';
-    await shell.run(cmd);
+    cmd = 'cp -r ${latestDir.path}/* $targetLogPath';
+    print(shell.runSync(cmd));
   }
 
   print('Done');
