@@ -155,6 +155,8 @@ mixin LibCheckMixin on LibSourceMixin {
       return LibHttpSourceType.tarGz;
     } else if (type == 'tar.bz2' || type == 'tbz2') {
       return LibHttpSourceType.tarBz2;
+    } else if (type == 'tar.xz' || type == 'txz') {
+      return LibHttpSourceType.tarXz;
     } else if (type == '7z') {
       return LibHttpSourceType.sevenZ;
     }
