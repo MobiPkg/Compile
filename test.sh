@@ -28,6 +28,9 @@ meson)
 project)
     C project -C example-project/glib -o example-project/project-opt.yml $@
     ;;
+create)
+    C template auto -C logs/libs/$@
+    ;;
 all)
     $0 autotools $@
     $0 cmake $@
