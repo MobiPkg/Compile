@@ -1,0 +1,13 @@
+name: libsamplerate
+type: autotools
+source:
+  git:
+    url: https://github.com/libsndfile/libsamplerate.git
+    ref: 0.2.2
+  subpath: .
+license: license
+flags:
+  c: -fPIC -O2 -Wall
+  cxx: -fPIC -O2 -Wall
+  cpp: ""
+  ld: ""

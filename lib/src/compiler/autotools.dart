@@ -52,7 +52,15 @@ class AutoToolsCompiler extends BaseCompiler {
     // check configure exists
     if (!File(join(sourceDir, 'configure')).existsSync()) {
       simpleLogger.i('configure not found');
-      await shell.run('autoreconf -i -v', workingDirectory: sourceDir);
+
+      // check autogen.sh exists
+      if (File(join(sourceDir, 'autogen.sh')).existsSync()) {
+        simpleLogger.i('autogen.sh found, run it.');
+        await shell.run('./autogen.sh', workingDirectory: sourceDir);
+      } else {
+        simpleLogger.i('autogen.sh not found, try run `autoreconf -i -v`.');
+        await shell.run('autoreconf -i -v', workingDirectory: sourceDir);
+      }
     }
 
     // check configure exists
