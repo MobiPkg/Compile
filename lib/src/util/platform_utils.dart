@@ -73,6 +73,8 @@ mixin PlatformUtils {
 
   CpuType get cpuType;
 
+  Map<String, String> get childEnv;
+
   Map<String, String> getEnvMap() {
     final depPrefix = cpuType.depPrefix();
     // final systemEnv = Map<String, String>.from(Platform.environment);
@@ -88,6 +90,7 @@ mixin PlatformUtils {
       'NM': nm(),
       'LD': ld(),
       'HOST': host(),
+      ...childEnv,
     };
   }
 
@@ -288,6 +291,9 @@ class AndroidUtils with PlatformUtils {
   String sysroot() {
     return join(toolchainPath, 'sysroot');
   }
+
+  @override
+  Map<String, String> get childEnv => {};
 }
 
 enum IOSCpuType with CpuType {
@@ -478,4 +484,10 @@ class IOSUtils with PlatformUtils {
   String sysroot() {
     return getSdkPath();
   }
+
+  @override
+  Map<String, String> get childEnv => {
+        'OBJC': cc(),
+        'OBJCXX': cxx(),
+      };
 }
