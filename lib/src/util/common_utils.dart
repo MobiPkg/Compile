@@ -17,6 +17,14 @@ extension CCStringExt on String {
     }
   }
 
+  String removePrefix(String prefix) {
+    if (startsWith(prefix)) {
+      return substring(prefix.length);
+    } else {
+      return this;
+    }
+  }
+
   List<String> toList() {
     final l = removeMultipleSpaces().trim();
     if (l.isEmpty) {

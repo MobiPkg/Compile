@@ -124,6 +124,11 @@ class AutoToolsCompiler extends BaseCompiler {
     final cpuNumber = envs.cpuCount;
     final opt = lib.options.joinWithSpace();
 
+    if (depPrefix.isEmpty) {
+      // ignore: parameter_assignments
+      depPrefix = installPrefix;
+    }
+
     final configureCmd =
         './configure --prefix=$depPrefix --exec-prefix $installPrefix --host $host $opt';
     const makeCleanCmd = 'make clean';

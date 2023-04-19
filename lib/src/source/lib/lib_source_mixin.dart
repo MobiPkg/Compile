@@ -25,7 +25,7 @@ mixin LibSourceMixin {
   }
 
   HttpSource get httpSource {
-    return HttpSource.fromMap(sourceMap['http'] as Map);
+    return HttpSource(sourceMap['http'] as Map);
   }
 }
 
@@ -47,16 +47,13 @@ class PathSource {
 }
 
 class HttpSource {
-  final String url;
-  final String type;
+  final Map map;
 
-  HttpSource(this.url, this.type);
+  String get type => map['type'] as String;
+  String get url => map['url'] as String;
+  String get version => map['version'] as String;
 
-  factory HttpSource.fromMap(Map map) {
-    final url = map['url'] as String;
-    final type = map['type'] as String;
-    return HttpSource(url, type);
-  }
+  HttpSource(this.map);
 
   LibHttpSourceType get typeEnum {
     if (type == 'zip') {

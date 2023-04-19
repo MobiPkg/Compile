@@ -1,0 +1,3 @@
+[submodule "success-example-libs"]
+	path = example-libs
+	url = https://github.com/MobiPkg/MobiPkgExampleLib.git

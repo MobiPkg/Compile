@@ -28,11 +28,14 @@ mixin CpuType {
   /// lib: `prefix/lib`
   /// include: `prefix/include`
   String installPrefix(Lib lib) {
+    final depPrefix = this.depPrefix();
     if (compileOptions.installPrefix == null) {
-      return depPrefix();
+      if (depPrefix.isNotEmpty) {
+        return depPrefix;
+      }
     }
 
-    final prefix = compileOptions.installPrefix ?? depPrefix();
+    final prefix = compileOptions.installPrefix ?? depPrefix;
     if (prefix.isNotEmpty) {
       return '$prefix/$platform';
     }

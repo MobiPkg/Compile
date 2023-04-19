@@ -147,6 +147,11 @@ set(CMAKE_SYSTEM_NAME iOS)
     lib.injectEnv(env);
     lib.injectPrefix(env, depPrefix, cpuType);
 
+    if (depPrefix.isEmpty) {
+      // ignore: parameter_assignments
+      depPrefix = installPrefix;
+    }
+
     _setLibrarayPath(env, params, cpuType);
 
     final sourceDir = lib.workingPath;
