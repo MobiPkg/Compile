@@ -8,16 +8,29 @@ typedef OutputReportFunc = void Function(
 
 class CCReport {
   CCReport._() {
-    for (final cpuType in CpuType.values()) {
+    for (final cpuType in [
+      ...CpuType.values(),
+      IOSCpuType.universal,
+    ]) {
       _map[cpuType] = CCReportItem();
     }
   }
 
   final _map = <CpuType, CCReportItem>{};
 
-  void addLog(CpuType? cpuType, String log) {
-    if (cpuType != null) {
-      final item = _map[cpuType];
+  CpuType? _cpuType;
+
+  // ignore: use_setters_to_change_properties
+  void changeCpuType(CpuType? cpuType) {
+    _cpuType = cpuType;
+  }
+
+  void addLog(
+    String log, {
+    bool newLine = true,
+  }) {
+    if (_cpuType != null) {
+      final item = _map[_cpuType];
       item?.addLog(log);
     } else {
       for (final item in _map.values) {
@@ -27,7 +40,6 @@ class CCReport {
   }
 
   void addCommand({
-    required CpuType? cpuType,
     required String command,
     required String? workDir,
     required Map<String, String>? env,
@@ -49,8 +61,8 @@ class CCReport {
       target.addCommand(command);
     }
 
-    if (cpuType != null) {
-      final item = _map[cpuType];
+    if (_cpuType != null) {
+      final item = _map[_cpuType];
       if (item == null) {
         return;
       }
@@ -73,8 +85,15 @@ class CCReportItem {
   final StringBuffer log = StringBuffer();
   final StringBuffer command = StringBuffer();
 
-  void addLog(String log) {
-    this.log.writeln(log);
+  void addLog(
+    String log, {
+    bool newLine = true,
+  }) {
+    if (newLine) {
+      this.log.writeln(log);
+    } else {
+      this.log.write(log);
+    }
   }
 
   void addCommand(String command) {
