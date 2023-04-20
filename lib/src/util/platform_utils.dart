@@ -12,6 +12,8 @@ mixin CpuType {
 
   String get singleName => '${platformName()}-${cpuName()}';
 
+  PlatformUtils get platformUtils;
+
   /// When compiling or checking, it will look for library files from the subdirectory `depPrefix/lib`
   /// Find header files from `depPrefix/include`
   String depPrefix() {
@@ -185,6 +187,11 @@ enum AndroidCpuType with CpuType {
       case AndroidCpuType.x86_64:
         return 'x86_64';
     }
+  }
+
+  @override
+  PlatformUtils get platformUtils {
+    return AndroidUtils(targetCpuType: this);
   }
 
   @override
@@ -408,6 +415,11 @@ enum IOSCpuType with CpuType {
     }
     throw Exception('Not found $name');
   }
+
+  @override
+  PlatformUtils get platformUtils {
+    return IOSUtils(cpuType: this);
+  }
 }
 
 class _IOSUniversal with CpuType {
@@ -430,6 +442,13 @@ class _IOSUniversal with CpuType {
 
   @override
   String rustTripleCpuName() {
+    throw UnimplementedError(
+      'The iOS universal architecture is not supported by rust',
+    );
+  }
+
+  @override
+  PlatformUtils get platformUtils {
     throw UnimplementedError(
       'The iOS universal architecture is not supported by rust',
     );

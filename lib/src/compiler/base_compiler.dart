@@ -251,34 +251,40 @@ abstract class BaseCompiler {
 
   /// Main method
   FutureOr<void> compile(Lib lib) async {
-    doCheckEnvAndCommand(lib);
+    try {
+      doCheckEnvAndCommand(lib);
 
-    // apply before pre compile patch
-    lib.applyLibPath(
-      beforePrecompile: true,
-    );
+      // apply before pre compile patch
+      lib.applyLibPath(
+        beforePrecompile: true,
+      );
 
-    // pre compile
-    await _precompile(lib);
+      // pre compile
+      await _precompile(lib);
 
-    // apply after pre compile patch
-    lib.applyLibPath(
-      beforePrecompile: false,
-    );
+      // apply after pre compile patch
+      lib.applyLibPath(
+        beforePrecompile: false,
+      );
 
-    final matrix = lib.matrixList;
+      final matrix = lib.matrixList;
 
-    if (matrix.isEmpty) {
-      await _compile(lib);
-    } else {
-      for (final martixItem in matrix) {
-        lib.matrixItem = martixItem;
+      if (matrix.isEmpty) {
         await _compile(lib);
+      } else {
+        for (final martixItem in matrix) {
+          lib.matrixItem = martixItem;
+          await _compile(lib);
+        }
       }
+    } finally {
+      await doCompileDone(lib);
     }
 
     logger.info('Compile done, see ${lib.installPath}');
   }
+
+  FutureOr<void> doCompileDone(Lib lib) {}
 }
 
 void _printEnv(Map<String, String> env) {
