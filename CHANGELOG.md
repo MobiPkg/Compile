@@ -2,6 +2,8 @@
 
 ## UnRelease
 
+## 0.0.6
+
 - Rename `compile` command to `lib`.
 - Fix meson compile error.
 - Support patch for `lib.yaml`.
