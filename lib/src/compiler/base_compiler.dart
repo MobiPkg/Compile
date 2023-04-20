@@ -175,16 +175,21 @@ abstract class BaseCompiler {
 
     final exampleLibPath = join(firstCpuDir.absolute.path, 'lib');
     final exampleLibDir = Directory(exampleLibPath);
-    for (final exampleFile in exampleLibDir.listSync()) {
-      final name = basename(exampleFile.path);
-      if (name.endsWith('.a') || name.endsWith('.dylib')) {
-        lipoSameNameLib(name);
-      } else {
-        // copy to universal path
-        shell.runSync('cp -r ${exampleFile.absolute.path} $targetLibPath');
-        logBuffer
-            .writeln('Copy ${exampleFile.absolute.path} to $targetLibPath');
+    if (exampleLibDir.existsSync()) {
+      for (final exampleFile in exampleLibDir.listSync()) {
+        final name = basename(exampleFile.path);
+        if (name.endsWith('.a') || name.endsWith('.dylib')) {
+          lipoSameNameLib(name);
+        } else {
+          // copy to universal path
+          shell.runSync('cp -r ${exampleFile.absolute.path} $targetLibPath');
+          logBuffer
+              .writeln('Copy ${exampleFile.absolute.path} to $targetLibPath');
+        }
       }
+      logBuffer.writeln('Lipo lib file done.');
+    } else {
+      logBuffer.writeln('No lib file in $exampleLibPath');
     }
 
     logger.info(logBuffer.toString());

@@ -14,6 +14,7 @@
 - Support HttpSource type: `tar.xz`.
 - Report error for just `Makefile` project.
 - Lipo for iOS lib will ignore `bin`.
+- Fix lipo iOS lib for just header lib.
 
 ## 0.0.5
 
