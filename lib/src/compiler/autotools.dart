@@ -179,4 +179,10 @@ class AutoToolsCompiler extends BaseCompiler {
       environment: env,
     );
   }
+
+  @override
+  Future<void> onCompileError(Lib lib, Object err, StackTrace st) async {
+    final usageCommand = join(lib.workingPath, 'configure --help');
+    await shell.run(usageCommand, workingDirectory: lib.workingPath);
+  }
 }

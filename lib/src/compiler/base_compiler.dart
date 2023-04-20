@@ -277,6 +277,9 @@ abstract class BaseCompiler {
           await _compile(lib);
         }
       }
+    } catch (e, st) {
+      onCompileError(lib, e, st);
+      rethrow;
     } finally {
       await doCompileDone(lib);
     }
@@ -285,6 +288,8 @@ abstract class BaseCompiler {
   }
 
   FutureOr<void> doCompileDone(Lib lib) {}
+
+  Future<void> onCompileError(Lib lib, Object err, StackTrace st) async {}
 }
 
 void _printEnv(Map<String, String> env) {
