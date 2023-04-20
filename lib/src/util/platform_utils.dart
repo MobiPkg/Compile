@@ -6,6 +6,8 @@ mixin CpuType {
 
   String platformName();
 
+  String rustTripleCpuName();
+
   String get platform => '${platformName()}/${cpuName()}';
 
   String get singleName => '${platformName()}-${cpuName()}';
@@ -185,6 +187,20 @@ enum AndroidCpuType with CpuType {
     }
   }
 
+  @override
+  String rustTripleCpuName() {
+    switch (this) {
+      case AndroidCpuType.arm:
+        return 'armv7-linux-androideabi';
+      case AndroidCpuType.arm64:
+        return 'aarch64-linux-android';
+      case AndroidCpuType.x86:
+        return 'i686-linux-android';
+      case AndroidCpuType.x86_64:
+        return 'x86_64-linux-android';
+    }
+  }
+
   static List<String> args() {
     return values.map((e) => e.cpuName()).toList();
   }
@@ -333,6 +349,16 @@ enum IOSCpuType with CpuType {
     return 'ios';
   }
 
+  @override
+  String rustTripleCpuName() {
+    switch (this) {
+      case IOSCpuType.arm64:
+        return 'aarch64-apple-ios';
+      case IOSCpuType.x86_64:
+        return 'x86_64-apple-ios';
+    }
+  }
+
   String arch() {
     switch (this) {
       case IOSCpuType.arm64:
@@ -400,6 +426,13 @@ class _IOSUniversal with CpuType {
   @override
   String cmakeCpuName() {
     return IOSCpuType.values.map((e) => e.cmakeCpuName()).join(';');
+  }
+
+  @override
+  String rustTripleCpuName() {
+    throw UnimplementedError(
+      'The iOS universal architecture is not supported by rust',
+    );
   }
 }
 

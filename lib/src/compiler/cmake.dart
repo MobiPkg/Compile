@@ -6,7 +6,7 @@ class CMakeCompiler extends BaseCompiler {
   bool get buildMultiiOSArch => false;
 
   @override
-  void doCheckEnvAndCommand() {
+  void doCheckEnvAndCommand(Lib lib) {
     checkWhich('autoreconf');
     checkWhich('make');
   }

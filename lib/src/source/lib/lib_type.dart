@@ -22,6 +22,7 @@ enum LibType with ConfigType {
   ),
   cMeson('meson'),
   cMakefile('makefile', hide: true),
+  rust('rust', hide: true),
   ;
 
   const LibType(
@@ -129,6 +130,16 @@ mixin LibTypeMixin {
         logBuffer.writeln('Found $name, will use makefile');
         logger.info(logBuffer.toString().trim());
         _type = LibType.cMakefile;
+        return _type!;
+      }
+    }
+
+    // guest for rust
+    for (final name in pathList) {
+      if (name == 'cargo.toml') {
+        logBuffer.writeln('Found $name, will use rust');
+        logger.info(logBuffer.toString().trim());
+        _type = LibType.rust;
         return _type!;
       }
     }

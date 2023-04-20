@@ -5,7 +5,7 @@ abstract class BaseCompiler {
   /// Check env or command
   ///
   /// If not found, throw [Exception]
-  void doCheckEnvAndCommand();
+  void doCheckEnvAndCommand(Lib lib);
 
   late int cpuCount = envs.cpuCount;
 
@@ -251,7 +251,7 @@ abstract class BaseCompiler {
 
   /// Main method
   FutureOr<void> compile(Lib lib) async {
-    doCheckEnvAndCommand();
+    doCheckEnvAndCommand(lib);
 
     // apply before pre compile patch
     lib.applyLibPath(
@@ -284,5 +284,21 @@ abstract class BaseCompiler {
 void _printEnv(Map<String, String> env) {
   if (globalOptions.verbose) {
     logger.v('Env:\n${env.debugString()}');
+  }
+}
+
+BaseCompiler createCompiler(Lib lib) {
+  final type = lib.type;
+  switch (type) {
+    case LibType.cAutotools:
+      return AutoToolsCompiler();
+    case LibType.cCmake:
+      return CMakeCompiler();
+    case LibType.cMeson:
+      return MesonCompiler();
+    case LibType.cMakefile:
+      return MakefileCompiler();
+    case LibType.rust:
+      return RustCompiler();
   }
 }

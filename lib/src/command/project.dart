@@ -43,7 +43,7 @@ class ProjectCommand extends BaseVoidCommand {
       }
       await lib.download();
 
-      final compiler = _createCompiler(lib);
+      final compiler = createCompiler(lib);
       await compiler.compile(lib);
     }
 
@@ -68,20 +68,6 @@ class ProjectCommand extends BaseVoidCommand {
     }
     if (compileOptions.ios) {
       checkWhich('xcrun', throwMessage: 'Please install xcode first.');
-    }
-  }
-
-  BaseCompiler _createCompiler(Lib lib) {
-    final type = lib.type;
-    switch (type) {
-      case LibType.cAutotools:
-        return AutoToolsCompiler();
-      case LibType.cCmake:
-        return CMakeCompiler();
-      case LibType.cMeson:
-        return MesonCompiler();
-      case LibType.cMakefile:
-        return MakefileCompiler();
     }
   }
 }

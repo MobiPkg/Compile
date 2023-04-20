@@ -3,7 +3,7 @@ import 'package:path/path.dart';
 
 class MesonCompiler extends BaseCompiler {
   @override
-  void doCheckEnvAndCommand() {
+  void doCheckEnvAndCommand(Lib lib) {
     // check meson
     checkWhich('meson');
     // check ninja
