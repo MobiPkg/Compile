@@ -60,6 +60,8 @@ class LibCommand extends BaseVoidCommand {
         return CMakeCompiler();
       case LibType.cMeson:
         return MesonCompiler();
+      case LibType.cMakefile:
+        return MakefileCompiler();
     }
   }
 }

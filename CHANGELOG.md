@@ -12,6 +12,8 @@
 - Fix http type check problem.
 - Use `brew info` when create lib.
 - Support HttpSource type: `tar.xz`.
+- Report error for just `Makefile` project.
+- Lipo for iOS lib will ignore `bin`.
 
 ## 0.0.5
 

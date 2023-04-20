@@ -124,19 +124,21 @@ abstract class BaseCompiler {
 
     // 2. find first cpu type
     final firstCpuName = IOSCpuType.values.first;
-    final example = Directory(join(iOSPath, firstCpuName.cpuName()));
-    final items = example.listSync();
+    final firstCpuDir = Directory(join(iOSPath, firstCpuName.cpuName()));
+    final firstCpuChildList = firstCpuDir.listSync();
 
-    if (items.isEmpty) {
-      logBuffer.writeln('No items in $example');
+    if (firstCpuChildList.isEmpty) {
+      logBuffer.writeln('No items in $firstCpuDir');
       logger.info(logBuffer.toString());
       return;
     }
 
     // 3. copy all files to universal path, not include lib/**
-    for (final item in items) {
+    for (final item in firstCpuChildList) {
       final name = basename(item.path);
       if (name == 'lib') {
+        continue;
+      } else if (name == 'bin') {
         continue;
       } else {
         shell.runSync('cp -r ${item.absolute.path} $universalPath');
@@ -171,7 +173,7 @@ abstract class BaseCompiler {
       lipoLib(srcFiles, dstPath);
     }
 
-    final exampleLibPath = join(example.absolute.path, 'lib');
+    final exampleLibPath = join(firstCpuDir.absolute.path, 'lib');
     final exampleLibDir = Directory(exampleLibPath);
     for (final exampleFile in exampleLibDir.listSync()) {
       final name = basename(exampleFile.path);

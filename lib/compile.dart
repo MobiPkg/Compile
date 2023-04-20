@@ -19,6 +19,7 @@ export 'src/commander.dart';
 export 'src/compiler/autotools.dart';
 export 'src/compiler/base_compiler.dart';
 export 'src/compiler/cmake.dart';
+export 'src/compiler/makefile_compiler.dart';
 export 'src/compiler/meson.dart';
 export 'src/consts/consts.dart';
 export 'src/develop/report.dart';

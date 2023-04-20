@@ -20,12 +20,14 @@ enum LibType with ConfigType {
     'cmake',
     aliases: ['cm'],
   ),
-  cMeson('meson', hide: true),
+  cMeson('meson'),
+  cMakefile('makefile', hide: true),
   ;
 
   const LibType(
     this.value, {
     this.defaultOptions = const [],
+    // ignore: unused_element
     this.hide = false,
     this.aliases = const [],
   });
@@ -121,7 +123,17 @@ mixin LibTypeMixin {
       }
     }
 
+    // guest for makefile
+    for (final name in pathList) {
+      if (name == 'makefile') {
+        logBuffer.writeln('Found $name, will use makefile');
+        logger.info(logBuffer.toString().trim());
+        _type = LibType.cMakefile;
+        return _type!;
+      }
+    }
+
     logger.warning(logBuffer.toString().trim());
-    throw Exception('Not found type, guest failed.');
+    throw Exception('Not found type, guest failed in $workingPath .');
   }
 }
