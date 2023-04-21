@@ -4,6 +4,7 @@
 
 - Add `rust` compiler.
 - Refactored `flags`.
+- Fix meson build error with flag.
 
 ## 0.0.6
 

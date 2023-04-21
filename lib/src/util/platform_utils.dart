@@ -91,7 +91,7 @@ mixin CpuType {
 
     cflags.addAll(getIncludeFlags(lib));
     cflags.addAll(getLibFlags(lib));
-    cflags.add(lib.cFlags);
+    cflags.addFlags(lib.cFlags);
 
     return cflags;
   }
@@ -100,7 +100,7 @@ mixin CpuType {
     final ldflags = <String>[];
 
     ldflags.addAll(getLibFlags(lib));
-    ldflags.add(lib.ldFlags);
+    ldflags.addFlags(lib.ldFlags);
 
     return ldflags;
   }
@@ -110,7 +110,7 @@ mixin CpuType {
 
     cxxflags.addAll(getIncludeFlags(lib));
     cxxflags.addAll(getLibFlags(lib));
-    cxxflags.add(lib.cxxFlags);
+    cxxflags.addFlags(lib.cxxFlags);
 
     return cxxflags;
   }
@@ -120,7 +120,7 @@ mixin CpuType {
 
     cppflags.addAll(getIncludeFlags(lib));
     cppflags.addAll(getLibFlags(lib));
-    cppflags.add(lib.cppFlags);
+    cppflags.addFlags(lib.cppFlags);
 
     return cppflags;
   }

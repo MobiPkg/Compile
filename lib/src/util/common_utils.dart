@@ -76,6 +76,10 @@ extension CCStringListExt on List<String> {
       return join(' ');
     }
   }
+
+  void addFlags(String flags) {
+    addAll(flags.toList());
+  }
 }
 
 extension CCDirectoryExt on Directory {

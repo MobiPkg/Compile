@@ -148,12 +148,77 @@ class MesonCompiler extends BaseCompiler {
       environment: env,
     );
 
+    removeOldBeforeInstall(installCmd);
+
     // install
     await shell.run(
       installCmd,
       workingDirectory: lib.workingPath,
       environment: env,
     );
+  }
+
+  void removeOldBeforeInstall(String installCmd) {
+    // before install, rerun and get dist file, remove old files.
+    try {
+      shell.runSync('$installCmd --dry-run');
+    } on ShellException catch (e) {
+      logger.warning('Dry run install failed by $e');
+      final result = e.processResult.stdout as String;
+
+// Installing libspng.0.dylib to /Users/jinglongcai/code/MobiPkg/compile/example-libs/success-libs/li/libspng/v0.7.3/install/ios/x86_64/lib
+// Installing libspng.a to /Users/jinglongcai/code/MobiPkg/compile/example-libs/success-libs/li/libspng/v0.7.3/install/ios/x86_64/lib
+// Installing /Users/jinglongcai/code/MobiPkg/compile/example-libs/success-libs/li/libspng/v0.7.3/source/libspng/spng/spng.h to /Users/jinglongcai/code/MobiPkg/compile/example-libs/success-libs/li/libspng/v0.7.3/install/ios/x86_64/include
+// Installing /Users/jinglongcai/code/MobiPkg/compile/example-libs/success-libs/li/libspng/v0.7.3/build/ios/x86_64/meson-private/spng.pc to /Users/jinglongcai/code/MobiPkg/compile/example-libs/success-libs/li/libspng/v0.7.3/install/ios/x86_64/lib/pkgconfig
+// ERROR: Destination '/Users/jinglongcai/code/MobiPkg/compile/example-libs/success-libs/li/libspng/v0.7.3/install/ios/x86_64/lib/libspng.dylib' already exists and is not a symlink
+
+      final oldFile = <String>[];
+      final errorDestRegex = RegExp("ERROR: Destination '(.*)' already exists");
+
+      final matchErrorFile = errorDestRegex.firstMatch(result);
+      if (matchErrorFile != null) {
+        final errorFile = matchErrorFile.group(1)!;
+        final errorFileObj = errorFile.file();
+        if (errorFileObj.existsSync()) {
+          errorFileObj.deleteSync(recursive: true);
+          oldFile.add(errorFile);
+        }
+      }
+
+      final lines = result
+          .split('\n')
+          .where((element) => element.trim().isNotEmpty)
+          .where((element) {
+        return element.startsWith('Installing');
+      });
+
+      for (final line in lines) {
+        try {
+          final regex = RegExp('Installing (.*) to (.*)');
+          final match = regex.firstMatch(line)!;
+          var srcFilePath = match.group(1)!;
+          final destDirPath = match.group(2)!;
+
+          if (isAbsolute(srcFilePath)) {
+            srcFilePath = basename(srcFilePath);
+          }
+
+          final destFile = join(destDirPath, srcFilePath).file();
+          if (destFile.existsSync()) {
+            oldFile.add(destFile.absolute.path);
+            destFile.deleteSync(recursive: true);
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+
+      if (oldFile.isNotEmpty) {
+        logger.info(
+          'remove old files:\n ${oldFile.map((e) => '  $e').join('\n')}',
+        );
+      }
+    }
   }
 
   String makeAndroidCrossFileContent(Lib lib, AndroidCpuType cpuType) {
@@ -184,7 +249,7 @@ endian = 'little'
 c_ld = 'gold'
 cpp_ld = 'gold'
 needs_exe_wrapper = false
-sys_root = '${androidUtils.sysroot()}'
+; sys_root = '${androidUtils.sysroot()}'
 ; pkg_config_libdir = '${cpuType.depPrefix()}/lib/pkgconfig'
 
 [binaries]
@@ -241,7 +306,7 @@ endian = 'little'
 c_ld = 'gold'
 cpp_ld = 'gold'
 needs_exe_wrapper = true
-sys_root = '${iosUtils.sysroot()}'
+; sys_root = '${iosUtils.sysroot()}'
 
 [binaries]
 ; c =     '${iosUtils.cc()}'
