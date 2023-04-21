@@ -86,9 +86,15 @@ rustup target add $(rustup target list | grep 'ios')
 cargo install cbindgen
 ```
 
-### Use rustup in China
+<details>
 
-See [rsproxy](https://rsproxy.cn/)
+<summary>Use rust in China</summary>
+
+### Use rust in China
+
+See [rsproxy](https://rsproxy.cn/).
+
+Or quickly:
 
 ```sh
 vi ~/.cargo/config
@@ -122,3 +128,5 @@ export CARGO_UNSTABLE_SPARSE_REGISTRY=true
 # Change the default toolchain to nightly
 rustup default nightly
 ```
+
+</details>
