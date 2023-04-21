@@ -24,7 +24,9 @@ extension CCMapEntryExt on MapEntry<String, String?> {
 
 extension CCListExt on List<String> {
   String toMesonIniValue() {
-    final valueContent = map((e) => "'$e'").join(',');
+    final valueContent = where((element) => element.trim().isNotEmpty)
+        .map((e) => "'$e'")
+        .join(',');
     final value = '[$valueContent]';
     return value;
   }

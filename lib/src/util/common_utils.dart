@@ -63,8 +63,22 @@ extension CCMapExt on Map {
 }
 
 extension CCStringListExt on List<String> {
-  String joinWithSpace() {
-    return join(' ');
+  String toFlagString({bool removeDupElements = true}) {
+    if (removeDupElements) {
+      final result = <String>[];
+      for (final e in this) {
+        if (!result.contains(e)) {
+          result.add(e);
+        }
+      }
+      return result.join(' ');
+    } else {
+      return join(' ');
+    }
+  }
+
+  void addFlags(String flags) {
+    addAll(flags.toList());
   }
 }
 

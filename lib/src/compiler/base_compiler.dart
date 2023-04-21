@@ -5,7 +5,7 @@ abstract class BaseCompiler {
   /// Check env or command
   ///
   /// If not found, throw [Exception]
-  void doCheckEnvAndCommand();
+  void doCheckEnvAndCommand(Lib lib);
 
   late int cpuCount = envs.cpuCount;
 
@@ -251,38 +251,65 @@ abstract class BaseCompiler {
 
   /// Main method
   FutureOr<void> compile(Lib lib) async {
-    doCheckEnvAndCommand();
+    try {
+      doCheckEnvAndCommand(lib);
 
-    // apply before pre compile patch
-    lib.applyLibPath(
-      beforePrecompile: true,
-    );
+      // apply before pre compile patch
+      lib.applyLibPath(
+        beforePrecompile: true,
+      );
 
-    // pre compile
-    await _precompile(lib);
+      // pre compile
+      await _precompile(lib);
 
-    // apply after pre compile patch
-    lib.applyLibPath(
-      beforePrecompile: false,
-    );
+      // apply after pre compile patch
+      lib.applyLibPath(
+        beforePrecompile: false,
+      );
 
-    final matrix = lib.matrixList;
+      final matrix = lib.matrixList;
 
-    if (matrix.isEmpty) {
-      await _compile(lib);
-    } else {
-      for (final martixItem in matrix) {
-        lib.matrixItem = martixItem;
+      if (matrix.isEmpty) {
         await _compile(lib);
+      } else {
+        for (final martixItem in matrix) {
+          lib.matrixItem = martixItem;
+          await _compile(lib);
+        }
       }
+    } catch (e, st) {
+      onCompileError(lib, e, st);
+      rethrow;
+    } finally {
+      await doCompileDone(lib);
     }
 
     logger.info('Compile done, see ${lib.installPath}');
   }
+
+  FutureOr<void> doCompileDone(Lib lib) {}
+
+  Future<void> onCompileError(Lib lib, Object err, StackTrace st) async {}
 }
 
 void _printEnv(Map<String, String> env) {
   if (globalOptions.verbose) {
     logger.v('Env:\n${env.debugString()}');
+  }
+}
+
+BaseCompiler createCompiler(Lib lib) {
+  final type = lib.type;
+  switch (type) {
+    case LibType.cAutotools:
+      return AutoToolsCompiler();
+    case LibType.cCmake:
+      return CMakeCompiler();
+    case LibType.cMeson:
+      return MesonCompiler();
+    case LibType.cMakefile:
+      return MakefileCompiler();
+    case LibType.rust:
+      return RustCompiler();
   }
 }

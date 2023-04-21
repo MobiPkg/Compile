@@ -180,7 +180,7 @@ class Shell with LogMixin {
         reporter.addLog(errorLog);
       }
       if (throwOnError) {
-        throw Exception(r.stderr);
+        throw ShellException(r);
       } else {
         logger.e(r.stderr);
       }
@@ -250,5 +250,23 @@ extension StringExtForCmd on String {
 
   String formatCommandDefault() {
     return formatCommand([RegExp('--')]);
+  }
+}
+
+class ShellException with Exception {
+  final ProcessResult processResult;
+
+  ShellException(this.processResult);
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+
+    buffer.writeln('ShellException:');
+    buffer.writeln('exitCode: ${processResult.exitCode}');
+    buffer.writeln('stdout: ${processResult.stdout}');
+    buffer.writeln('stderr: ${processResult.stderr}');
+
+    return buffer.toString();
   }
 }

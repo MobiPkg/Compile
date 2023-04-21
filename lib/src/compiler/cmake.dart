@@ -6,7 +6,7 @@ class CMakeCompiler extends BaseCompiler {
   bool get buildMultiiOSArch => false;
 
   @override
-  void doCheckEnvAndCommand() {
+  void doCheckEnvAndCommand(Lib lib) {
     checkWhich('autoreconf');
     checkWhich('make');
   }
@@ -135,6 +135,17 @@ set(CMAKE_SYSTEM_NAME iOS)
     params['CMAKE_INSTALL_RPATH'] = libPath; // For find library when run.
   }
 
+  void injectFlagsToEnv(
+    Lib lib,
+    Map<String, String> env,
+    CpuType cpuType,
+  ) {
+    env['CFLAGS'] = cpuType.cFlags(lib).toFlagString();
+    env['CPPFLAGS'] = cpuType.cppFlags(lib).toFlagString();
+    env['CXXFLAGS'] = cpuType.cxxFlags(lib).toFlagString();
+    env['LDFLAGS'] = cpuType.ldFlags(lib).toFlagString();
+  }
+
   Future<void> _compile(
     Lib lib,
     Map<String, String> env,
@@ -144,14 +155,7 @@ set(CMAKE_SYSTEM_NAME iOS)
     Map<String, String> params,
     CpuType cpuType,
   ) async {
-    lib.injectEnv(env);
-    lib.injectPrefix(env, depPrefix, cpuType);
-
-    if (depPrefix.isEmpty) {
-      // ignore: parameter_assignments
-      depPrefix = installPrefix;
-    }
-
+    injectFlagsToEnv(lib, env, cpuType);
     _setLibrarayPath(env, params, cpuType);
 
     final sourceDir = lib.workingPath;
@@ -181,9 +185,12 @@ set(CMAKE_SYSTEM_NAME iOS)
       'CMAKE_BUILD_TYPE': 'Release',
     };
 
-    // add LIBRARY_PATH to env for link library
+    paramMap['CMAKE_C_FLAGS_RELEASE'] = cpuType.cFlags(lib).toFlagString();
+    paramMap['CMAKE_CXX_FLAGS_RELEASE'] = cpuType.cxxFlags(lib).toFlagString();
+    paramMap['CMAKE_EXE_LINKER_FLAGS_RELEASE'] =
+        cpuType.ldFlags(lib).toFlagString();
 
-    lib.addFlagsToCmakeArgs(paramMap);
+    // add LIBRARY_PATH to env for link library
 
     final argsBuffer = StringBuffer();
 

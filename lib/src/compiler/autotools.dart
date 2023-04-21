@@ -6,7 +6,7 @@ class AutoToolsCompiler extends BaseCompiler {
   bool get buildMultiiOSArch => false;
 
   @override
-  void doCheckEnvAndCommand() {
+  void doCheckEnvAndCommand(Lib lib) {
     checkWhich('autoreconf');
     checkWhich('make');
   }
@@ -70,23 +70,15 @@ class AutoToolsCompiler extends BaseCompiler {
     }
   }
 
-  void _setLibrarayPath(
+  void injectFlagsToEnv(
+    Lib lib,
     Map<String, String> env,
     CpuType cpuType,
   ) {
-    final prefix = envs.prefix;
-    if (prefix == null) {
-      return;
-    }
-
-    final libPath = join(
-      prefix,
-      cpuType.platformName(),
-      cpuType.cpuName(),
-      'lib',
-    );
-
-    env['LIBRARY_PATH'] = libPath;
+    env['CFLAGS'] = cpuType.cFlags(lib).toFlagString();
+    env['CPPFLAGS'] = cpuType.cppFlags(lib).toFlagString();
+    env['CXXFLAGS'] = cpuType.cxxFlags(lib).toFlagString();
+    env['LDFLAGS'] = cpuType.ldFlags(lib).toFlagString();
   }
 
   Future<void> _compile(
@@ -96,10 +88,6 @@ class AutoToolsCompiler extends BaseCompiler {
     String installPrefix,
     CpuType cpuType,
   ) async {
-    lib.injectEnv(env);
-    lib.injectPrefix(env, depPrefix, cpuType);
-    _setLibrarayPath(env, cpuType);
-
     final sourceDir = lib.workingPath;
 
     final host = env['HOST'];
@@ -122,7 +110,7 @@ class AutoToolsCompiler extends BaseCompiler {
     }
     // cpu number
     final cpuNumber = envs.cpuCount;
-    final opt = lib.options.joinWithSpace();
+    final opt = lib.options.toFlagString();
 
     if (depPrefix.isEmpty) {
       // ignore: parameter_assignments
@@ -178,5 +166,11 @@ class AutoToolsCompiler extends BaseCompiler {
       workingDirectory: sourceDir,
       environment: env,
     );
+  }
+
+  @override
+  Future<void> onCompileError(Lib lib, Object err, StackTrace st) async {
+    final usageCommand = join(lib.workingPath, 'configure --help');
+    await shell.run(usageCommand, workingDirectory: lib.workingPath);
   }
 }

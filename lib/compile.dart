@@ -21,6 +21,7 @@ export 'src/compiler/base_compiler.dart';
 export 'src/compiler/cmake.dart';
 export 'src/compiler/makefile_compiler.dart';
 export 'src/compiler/meson.dart';
+export 'src/compiler/rust_compiler.dart';
 export 'src/consts/consts.dart';
 export 'src/develop/report.dart';
 export 'src/option/compile.dart';

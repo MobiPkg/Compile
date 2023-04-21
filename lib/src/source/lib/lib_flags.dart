@@ -16,53 +16,6 @@ mixin LibFlagsMixin {
   String get cxxFlags => flags.cxx;
   String get ldFlags => flags.ld;
 
-  void _addFlagsToEnv(Map<String, String> env, String key, String value) {
-    if (value.isNotEmpty) {
-      final oldValue = env[key];
-      env[key] = oldValue == null ? value : '$oldValue $value';
-    }
-  }
-
-  void injectEnv(Map<String, String> env) {
-    _addFlagsToEnv(env, 'CFLAGS', cFlags);
-    _addFlagsToEnv(env, 'CPPFLAGS', cppFlags);
-    _addFlagsToEnv(env, 'CXXFLAGS', cxxFlags);
-    _addFlagsToEnv(env, 'LDFLAGS', ldFlags);
-  }
-
-  void injectPrefix(
-    Map<String, String> env,
-    String depPrefix,
-    CpuType cpuType,
-  ) {
-    String? prefix;
-
-    if (depPrefix.trim().isNotEmpty) {
-      prefix = depPrefix;
-    } else {
-      prefix = envs.prefix;
-    }
-
-    if (prefix != null) {
-      _addFlagsToEnv(env, 'CFLAGS', '-I$prefix/include');
-      _addFlagsToEnv(env, 'CXXFLAGS', '-I$prefix/include');
-      _addFlagsToEnv(env, 'LDFLAGS', '-L$prefix/lib');
-    }
-  }
-
-  void addFlagsToCmakeArgs(Map<String, String> args) {
-    void add(String key, String value) {
-      if (value.isNotEmpty) {
-        final src = args[key];
-        args[key] = src == null ? value : '$src $value';
-      }
-    }
-
-    add('CMAKE_C_FLAGS_RELEASE', cFlags);
-    add('CMAKE_CXX_FLAGS_RELEASE', cxxFlags);
-    add('CMAKE_EXE_LINKER_FLAGS_RELEASE', ldFlags);
-  }
-
   List<String> get options {
     final result = <String>[];
     final opt = map['options'] as YamlList?;

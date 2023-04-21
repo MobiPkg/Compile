@@ -5,7 +5,7 @@ class MakefileCompiler extends BaseCompiler {
   bool get buildMultiiOSArch => false;
 
   @override
-  void doCheckEnvAndCommand() {
+  void doCheckEnvAndCommand(Lib lib) {
     checkWhich('make');
     throw Exception('Not support type: makefile, please use other type');
   }

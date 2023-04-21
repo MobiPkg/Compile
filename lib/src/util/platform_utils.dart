@@ -6,9 +6,13 @@ mixin CpuType {
 
   String platformName();
 
+  String rustTripleCpuName();
+
   String get platform => '${platformName()}/${cpuName()}';
 
   String get singleName => '${platformName()}-${cpuName()}';
+
+  PlatformUtils get platformUtils;
 
   /// When compiling or checking, it will look for library files from the subdirectory `depPrefix/lib`
   /// Find header files from `depPrefix/include`
@@ -50,6 +54,75 @@ mixin CpuType {
       ...AndroidCpuType.values,
       ...IOSCpuType.values,
     ];
+  }
+
+  List<Directory> getIncludeDirList(Lib lib);
+
+  List<Directory> getLibDirList(Lib lib);
+
+  List<String> getIncludeFlags(Lib lib) {
+    final includeFlags = <String>[];
+
+    final includeDirs = getIncludeDirList(lib);
+    for (final dir in includeDirs) {
+      if (dir.existsSync()) {
+        includeFlags.add('-I${dir.absolute.path}');
+      }
+    }
+
+    return includeFlags;
+  }
+
+  List<String> getLibFlags(Lib lib) {
+    final libFlags = <String>[];
+
+    final libDirs = getLibDirList(lib);
+    for (final dir in libDirs) {
+      if (dir.existsSync()) {
+        libFlags.add('-L${dir.absolute.path}');
+      }
+    }
+
+    return libFlags;
+  }
+
+  List<String> cFlags(Lib lib) {
+    final cflags = <String>[];
+
+    cflags.addAll(getIncludeFlags(lib));
+    cflags.addAll(getLibFlags(lib));
+    cflags.addFlags(lib.cFlags);
+
+    return cflags;
+  }
+
+  List<String> ldFlags(Lib lib) {
+    final ldflags = <String>[];
+
+    ldflags.addAll(getLibFlags(lib));
+    ldflags.addFlags(lib.ldFlags);
+
+    return ldflags;
+  }
+
+  List<String> cxxFlags(Lib lib) {
+    final cxxflags = <String>[];
+
+    cxxflags.addAll(getIncludeFlags(lib));
+    cxxflags.addAll(getLibFlags(lib));
+    cxxflags.addFlags(lib.cxxFlags);
+
+    return cxxflags;
+  }
+
+  List<String> cppFlags(Lib lib) {
+    final cppflags = <String>[];
+
+    cppflags.addAll(getIncludeFlags(lib));
+    cppflags.addAll(getLibFlags(lib));
+    cppflags.addFlags(lib.cppFlags);
+
+    return cppflags;
   }
 }
 
@@ -183,6 +256,58 @@ enum AndroidCpuType with CpuType {
       case AndroidCpuType.x86_64:
         return 'x86_64';
     }
+  }
+
+  @override
+  PlatformUtils get platformUtils {
+    return AndroidUtils(targetCpuType: this);
+  }
+
+  @override
+  String rustTripleCpuName() {
+    switch (this) {
+      case AndroidCpuType.arm:
+        return 'armv7-linux-androideabi';
+      case AndroidCpuType.arm64:
+        return 'aarch64-linux-android';
+      case AndroidCpuType.x86:
+        return 'i686-linux-android';
+      case AndroidCpuType.x86_64:
+        return 'x86_64-linux-android';
+    }
+  }
+
+  @override
+  List<Directory> getIncludeDirList(Lib lib) {
+    final result = <Directory>[];
+
+    final depPrefix = this.depPrefix();
+    if (depPrefix.isNotEmpty) {
+      result.add(Directory('$depPrefix/include'));
+    }
+
+    // Add NDK include
+    final sysRoot = platformUtils.sysroot();
+    result.addJoin(sysRoot, 'usr', 'include');
+    result.addJoin(sysRoot, 'usr', 'include', host());
+
+    return result;
+  }
+
+  @override
+  List<Directory> getLibDirList(Lib lib) {
+    final result = <Directory>[];
+
+    final depPrefix = this.depPrefix();
+    if (depPrefix.isNotEmpty) {
+      result.add(Directory('$depPrefix/lib'));
+    }
+
+    // Add NDK lib
+    final sysRoot = platformUtils.sysroot();
+    result.addJoin(sysRoot, 'usr', 'lib', host(), '21');
+
+    return result;
   }
 
   static List<String> args() {
@@ -333,6 +458,16 @@ enum IOSCpuType with CpuType {
     return 'ios';
   }
 
+  @override
+  String rustTripleCpuName() {
+    switch (this) {
+      case IOSCpuType.arm64:
+        return 'aarch64-apple-ios';
+      case IOSCpuType.x86_64:
+        return 'x86_64-apple-ios';
+    }
+  }
+
   String arch() {
     switch (this) {
       case IOSCpuType.arm64:
@@ -340,6 +475,38 @@ enum IOSCpuType with CpuType {
       case IOSCpuType.x86_64:
         return 'x86_64';
     }
+  }
+
+  @override
+  List<Directory> getIncludeDirList(Lib lib) {
+    final result = <Directory>[];
+
+    final depPrefix = this.depPrefix();
+    if (depPrefix.isNotEmpty) {
+      result.add(Directory('$depPrefix/include'));
+    }
+
+    // Add SDK include
+    final sdk = platformUtils.sysroot();
+    result.addJoin(sdk, 'usr', 'include');
+
+    return result;
+  }
+
+  @override
+  List<Directory> getLibDirList(Lib lib) {
+    final result = <Directory>[];
+
+    final depPrefix = this.depPrefix();
+    if (depPrefix.isNotEmpty) {
+      result.add(Directory('$depPrefix/lib'));
+    }
+
+    // Add SDK lib
+    final sdk = platformUtils.sysroot();
+    result.addJoin(sdk, 'usr', 'lib');
+
+    return result;
   }
 
   String sdkName() {
@@ -382,6 +549,11 @@ enum IOSCpuType with CpuType {
     }
     throw Exception('Not found $name');
   }
+
+  @override
+  PlatformUtils get platformUtils {
+    return IOSUtils(cpuType: this);
+  }
 }
 
 class _IOSUniversal with CpuType {
@@ -400,6 +572,32 @@ class _IOSUniversal with CpuType {
   @override
   String cmakeCpuName() {
     return IOSCpuType.values.map((e) => e.cmakeCpuName()).join(';');
+  }
+
+  @override
+  String rustTripleCpuName() {
+    throw UnimplementedError(
+      'The iOS universal architecture is not supported by rust',
+    );
+  }
+
+  @override
+  PlatformUtils get platformUtils {
+    throw UnimplementedError(
+      'The iOS universal architecture is not supported by rust',
+    );
+  }
+
+  @override
+  List<Directory> getIncludeDirList(Lib lib) {
+    // TODO: implement getIncludeDirList
+    throw UnimplementedError();
+  }
+
+  @override
+  List<Directory> getLibDirList(Lib lib) {
+    // TODO: implement getLibDirList
+    throw UnimplementedError();
   }
 }
 
