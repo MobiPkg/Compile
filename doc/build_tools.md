@@ -97,6 +97,9 @@ vi ~/.cargo/config
 ```toml
 [source.crates-io]
 replace-with = 'rsproxy'
+
+# if you want to use sparse index
+# replace-with = 'rsproxy-sparse'
 [source.rsproxy]
 registry = "https://rsproxy.cn/crates.io-index"
 [source.rsproxy-sparse]
@@ -110,8 +113,12 @@ git-fetch-with-cli = true
 ```bash
 export RUSTUP_DIST_SERVER="https://rsproxy.cn"
 export RUSTUP_UPDATE_ROOT="https://rsproxy.cn/rustup"
+
+# use sparse index
+export CARGO_UNSTABLE_SPARSE_REGISTRY=true
 ```
 
 ```sh
+# Change the default toolchain to nightly
 rustup default nightly
 ```
