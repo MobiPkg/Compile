@@ -55,6 +55,75 @@ mixin CpuType {
       ...IOSCpuType.values,
     ];
   }
+
+  List<Directory> getIncludeDirList(Lib lib);
+
+  List<Directory> getLibDirList(Lib lib);
+
+  List<String> getIncludeFlags(Lib lib) {
+    final includeFlags = <String>[];
+
+    final includeDirs = getIncludeDirList(lib);
+    for (final dir in includeDirs) {
+      if (dir.existsSync()) {
+        includeFlags.add('-I${dir.absolute.path}');
+      }
+    }
+
+    return includeFlags;
+  }
+
+  List<String> getLibFlags(Lib lib) {
+    final libFlags = <String>[];
+
+    final libDirs = getLibDirList(lib);
+    for (final dir in libDirs) {
+      if (dir.existsSync()) {
+        libFlags.add('-L${dir.absolute.path}');
+      }
+    }
+
+    return libFlags;
+  }
+
+  List<String> cFlags(Lib lib) {
+    final cflags = <String>[];
+
+    cflags.addAll(getIncludeFlags(lib));
+    cflags.addAll(getLibFlags(lib));
+    cflags.add(lib.cFlags);
+
+    return cflags;
+  }
+
+  List<String> ldFlags(Lib lib) {
+    final ldflags = <String>[];
+
+    ldflags.addAll(getLibFlags(lib));
+    ldflags.add(lib.ldFlags);
+
+    return ldflags;
+  }
+
+  List<String> cxxFlags(Lib lib) {
+    final cxxflags = <String>[];
+
+    cxxflags.addAll(getIncludeFlags(lib));
+    cxxflags.addAll(getLibFlags(lib));
+    cxxflags.add(lib.cxxFlags);
+
+    return cxxflags;
+  }
+
+  List<String> cppFlags(Lib lib) {
+    final cppflags = <String>[];
+
+    cppflags.addAll(getIncludeFlags(lib));
+    cppflags.addAll(getLibFlags(lib));
+    cppflags.add(lib.cppFlags);
+
+    return cppflags;
+  }
 }
 
 mixin PlatformUtils {
@@ -206,6 +275,39 @@ enum AndroidCpuType with CpuType {
       case AndroidCpuType.x86_64:
         return 'x86_64-linux-android';
     }
+  }
+
+  @override
+  List<Directory> getIncludeDirList(Lib lib) {
+    final result = <Directory>[];
+
+    final depPrefix = this.depPrefix();
+    if (depPrefix.isNotEmpty) {
+      result.add(Directory('$depPrefix/include'));
+    }
+
+    // Add NDK include
+    final sysRoot = platformUtils.sysroot();
+    result.addJoin(sysRoot, 'usr', 'include');
+    result.addJoin(sysRoot, 'usr', 'include', host());
+
+    return result;
+  }
+
+  @override
+  List<Directory> getLibDirList(Lib lib) {
+    final result = <Directory>[];
+
+    final depPrefix = this.depPrefix();
+    if (depPrefix.isNotEmpty) {
+      result.add(Directory('$depPrefix/lib'));
+    }
+
+    // Add NDK lib
+    final sysRoot = platformUtils.sysroot();
+    result.addPath(join(sysRoot, 'usr', 'lib', host()));
+
+    return result;
   }
 
   static List<String> args() {
@@ -375,6 +477,38 @@ enum IOSCpuType with CpuType {
     }
   }
 
+  @override
+  List<Directory> getIncludeDirList(Lib lib) {
+    final result = <Directory>[];
+
+    final depPrefix = this.depPrefix();
+    if (depPrefix.isNotEmpty) {
+      result.add(Directory('$depPrefix/include'));
+    }
+
+    // Add SDK include
+    final sdk = platformUtils.sysroot();
+    result.addJoin(sdk, 'usr', 'include');
+
+    return result;
+  }
+
+  @override
+  List<Directory> getLibDirList(Lib lib) {
+    final result = <Directory>[];
+
+    final depPrefix = this.depPrefix();
+    if (depPrefix.isNotEmpty) {
+      result.add(Directory('$depPrefix/lib'));
+    }
+
+    // Add SDK lib
+    final sdk = platformUtils.sysroot();
+    result.addJoin(sdk, 'usr', 'lib');
+
+    return result;
+  }
+
   String sdkName() {
     switch (this) {
       case IOSCpuType.arm64:
@@ -452,6 +586,18 @@ class _IOSUniversal with CpuType {
     throw UnimplementedError(
       'The iOS universal architecture is not supported by rust',
     );
+  }
+
+  @override
+  List<Directory> getIncludeDirList(Lib lib) {
+    // TODO: implement getIncludeDirList
+    throw UnimplementedError();
+  }
+
+  @override
+  List<Directory> getLibDirList(Lib lib) {
+    // TODO: implement getLibDirList
+    throw UnimplementedError();
   }
 }
 

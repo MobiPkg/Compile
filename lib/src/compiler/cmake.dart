@@ -135,6 +135,17 @@ set(CMAKE_SYSTEM_NAME iOS)
     params['CMAKE_INSTALL_RPATH'] = libPath; // For find library when run.
   }
 
+  void injectFlagsToEnv(
+    Lib lib,
+    Map<String, String> env,
+    CpuType cpuType,
+  ) {
+    env['CFLAGS'] = cpuType.cFlags(lib).joinWithSpace();
+    env['CPPFLAGS'] = cpuType.cppFlags(lib).joinWithSpace();
+    env['CXXFLAGS'] = cpuType.cxxFlags(lib).joinWithSpace();
+    env['LDFLAGS'] = cpuType.ldFlags(lib).joinWithSpace();
+  }
+
   Future<void> _compile(
     Lib lib,
     Map<String, String> env,
@@ -144,14 +155,7 @@ set(CMAKE_SYSTEM_NAME iOS)
     Map<String, String> params,
     CpuType cpuType,
   ) async {
-    lib.injectEnv(env);
-    lib.injectPrefix(env, depPrefix, cpuType);
-
-    if (depPrefix.isEmpty) {
-      // ignore: parameter_assignments
-      depPrefix = installPrefix;
-    }
-
+    injectFlagsToEnv(lib, env, cpuType);
     _setLibrarayPath(env, params, cpuType);
 
     final sourceDir = lib.workingPath;

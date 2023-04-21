@@ -204,23 +204,11 @@ ${_makeBuiltInOptions(lib, cpuType)}
   }
 
   String _makeBuiltInOptions(Lib lib, CpuType cpuType) {
-    final cArgs = lib.cFlags.toList();
-    final cxxArgs = lib.cxxFlags.toList();
-    final ldArgs = lib.ldFlags.toList();
-    final cppArgs = lib.cppFlags.toList();
-
-    var depPrefix = cpuType.depPrefix();
-
-    if (depPrefix.isEmpty) {
-      depPrefix = cpuType.installPrefix(lib);
-    }
-
-    if (depPrefix.isNotEmpty) {
-      cArgs.add('-I$depPrefix/include');
-      cxxArgs.add('-I$depPrefix/include');
-      ldArgs.add('-L$depPrefix/lib');
-    }
-
+    final cArgs = cpuType.cFlags(lib);
+    final cxxArgs = cpuType.cxxFlags(lib);
+    final ldArgs = cpuType.ldFlags(lib);
+    final cppArgs = cpuType.cppFlags(lib);
+    
     final flags = '''
 c_args = ${[...cppArgs, ...cArgs].toMesonIniValue()}
 cpp_args = ${[...cppArgs, ...cxxArgs].toMesonIniValue()}

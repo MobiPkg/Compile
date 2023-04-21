@@ -106,6 +106,19 @@ class RustCompiler extends BaseCompiler {
   @override
   FutureOr<void> doCompileDone(Lib lib) async {}
 
+
+  void injectFlagsToEnv(
+    Lib lib,
+    Map<String, String> env,
+    CpuType cpuType,
+  ) {
+    env['CFLAGS'] = cpuType.cFlags(lib).joinWithSpace();
+    env['CPPFLAGS'] = cpuType.cppFlags(lib).joinWithSpace();
+    env['CXXFLAGS'] = cpuType.cxxFlags(lib).joinWithSpace();
+    env['LDFLAGS'] = cpuType.ldFlags(lib).joinWithSpace();
+  }
+
+
   @override
   FutureOr<void> doCompileAndroid(
     Lib lib,

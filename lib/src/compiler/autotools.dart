@@ -70,23 +70,15 @@ class AutoToolsCompiler extends BaseCompiler {
     }
   }
 
-  void _setLibrarayPath(
+  void injectFlagsToEnv(
+    Lib lib,
     Map<String, String> env,
     CpuType cpuType,
   ) {
-    final prefix = envs.prefix;
-    if (prefix == null) {
-      return;
-    }
-
-    final libPath = join(
-      prefix,
-      cpuType.platformName(),
-      cpuType.cpuName(),
-      'lib',
-    );
-
-    env['LIBRARY_PATH'] = libPath;
+    env['CFLAGS'] = cpuType.cFlags(lib).joinWithSpace();
+    env['CPPFLAGS'] = cpuType.cppFlags(lib).joinWithSpace();
+    env['CXXFLAGS'] = cpuType.cxxFlags(lib).joinWithSpace();
+    env['LDFLAGS'] = cpuType.ldFlags(lib).joinWithSpace();
   }
 
   Future<void> _compile(
@@ -96,10 +88,6 @@ class AutoToolsCompiler extends BaseCompiler {
     String installPrefix,
     CpuType cpuType,
   ) async {
-    lib.injectEnv(env);
-    lib.injectPrefix(env, depPrefix, cpuType);
-    _setLibrarayPath(env, cpuType);
-
     final sourceDir = lib.workingPath;
 
     final host = env['HOST'];
