@@ -86,8 +86,6 @@ class MesonCompiler extends BaseCompiler {
     File crossFile,
     CpuType cpuType,
   ) async {
-    lib.injectEnv(env);
-
     // setup meson
     final buildPath = join(
       lib.buildPath,
@@ -208,7 +206,7 @@ ${_makeBuiltInOptions(lib, cpuType)}
     final cxxArgs = cpuType.cxxFlags(lib);
     final ldArgs = cpuType.ldFlags(lib);
     final cppArgs = cpuType.cppFlags(lib);
-    
+
     final flags = '''
 c_args = ${[...cppArgs, ...cArgs].toMesonIniValue()}
 cpp_args = ${[...cppArgs, ...cxxArgs].toMesonIniValue()}

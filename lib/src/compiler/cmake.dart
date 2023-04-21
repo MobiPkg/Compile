@@ -140,10 +140,10 @@ set(CMAKE_SYSTEM_NAME iOS)
     Map<String, String> env,
     CpuType cpuType,
   ) {
-    env['CFLAGS'] = cpuType.cFlags(lib).joinWithSpace();
-    env['CPPFLAGS'] = cpuType.cppFlags(lib).joinWithSpace();
-    env['CXXFLAGS'] = cpuType.cxxFlags(lib).joinWithSpace();
-    env['LDFLAGS'] = cpuType.ldFlags(lib).joinWithSpace();
+    env['CFLAGS'] = cpuType.cFlags(lib).toFlagString();
+    env['CPPFLAGS'] = cpuType.cppFlags(lib).toFlagString();
+    env['CXXFLAGS'] = cpuType.cxxFlags(lib).toFlagString();
+    env['LDFLAGS'] = cpuType.ldFlags(lib).toFlagString();
   }
 
   Future<void> _compile(
@@ -185,9 +185,12 @@ set(CMAKE_SYSTEM_NAME iOS)
       'CMAKE_BUILD_TYPE': 'Release',
     };
 
-    // add LIBRARY_PATH to env for link library
+    paramMap['CMAKE_C_FLAGS_RELEASE'] = cpuType.cFlags(lib).toFlagString();
+    paramMap['CMAKE_CXX_FLAGS_RELEASE'] = cpuType.cxxFlags(lib).toFlagString();
+    paramMap['CMAKE_EXE_LINKER_FLAGS_RELEASE'] =
+        cpuType.ldFlags(lib).toFlagString();
 
-    lib.addFlagsToCmakeArgs(paramMap);
+    // add LIBRARY_PATH to env for link library
 
     final argsBuffer = StringBuffer();
 

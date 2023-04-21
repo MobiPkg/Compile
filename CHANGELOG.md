@@ -2,6 +2,9 @@
 
 ## UnRelease
 
+- Add `rust` compiler.
+- Refactored `flags`.
+
 ## 0.0.6
 
 - Rename `compile` command to `lib`.

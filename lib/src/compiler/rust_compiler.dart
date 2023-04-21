@@ -6,6 +6,8 @@ class RustCompiler extends BaseCompiler {
   @override
   bool get buildMultiiOSArch => false;
 
+  bool haveCbindgen = false;
+
   @override
   void doCheckEnvAndCommand(Lib lib) {
     checkWhich('cargo');
@@ -20,9 +22,7 @@ class RustCompiler extends BaseCompiler {
       throw Exception('Cannot found Cargo.toml in $path');
     }
 
-    if (!File(cbingenTomlPath).existsSync()) {
-      throw Exception('Cannot found cbindgen.toml in $path');
-    }
+    haveCbindgen = File(cbingenTomlPath).existsSync();
 
     const cmd = 'rustup target list --installed ';
     final tripleCpuNames = shell
@@ -69,12 +69,8 @@ class RustCompiler extends BaseCompiler {
       // final parent = dirname(cc);
       // final clang = join(parent, 'clang');
       targetMap[tripleCpuName] = {
-        // 'linker': '$clang --target=x86_64-linux-android21',
-        // 'linker': utils.cc(),
-        'linker':
-            '/Users/jinglongcai/code/MobiPkg/compile/logs/NDK/x86_64/bin/clang',
-        // 'ar': utils.ar(),
-        'ar': utils.cc(),
+        'linker': utils.cc(),
+        'ar': utils.ar(),
       };
     }
 
@@ -106,18 +102,16 @@ class RustCompiler extends BaseCompiler {
   @override
   FutureOr<void> doCompileDone(Lib lib) async {}
 
-
   void injectFlagsToEnv(
     Lib lib,
     Map<String, String> env,
     CpuType cpuType,
   ) {
-    env['CFLAGS'] = cpuType.cFlags(lib).joinWithSpace();
-    env['CPPFLAGS'] = cpuType.cppFlags(lib).joinWithSpace();
-    env['CXXFLAGS'] = cpuType.cxxFlags(lib).joinWithSpace();
-    env['LDFLAGS'] = cpuType.ldFlags(lib).joinWithSpace();
+    env['CFLAGS'] = cpuType.cFlags(lib).toFlagString();
+    env['CPPFLAGS'] = cpuType.cppFlags(lib).toFlagString();
+    env['CXXFLAGS'] = cpuType.cxxFlags(lib).toFlagString();
+    env['LDFLAGS'] = cpuType.ldFlags(lib).toFlagString();
   }
-
 
   @override
   FutureOr<void> doCompileAndroid(
@@ -127,39 +121,6 @@ class RustCompiler extends BaseCompiler {
     String installPrefix,
     AndroidCpuType type,
   ) async {
-    final cArgs = lib.cFlags.toList();
-    final cxxArgs = lib.cxxFlags.toList();
-    final ldArgs = lib.ldFlags.toList();
-    final cppArgs = lib.cppFlags.toList();
-
-    var depPrefix = type.depPrefix();
-
-    if (depPrefix.isEmpty) {
-      depPrefix = type.installPrefix(lib);
-    }
-
-    if (depPrefix.isNotEmpty) {
-      cArgs.add('-I$depPrefix/include');
-      cxxArgs.add('-I$depPrefix/include');
-      ldArgs.add('-L$depPrefix/lib');
-    }
-
-    final sysroot = type.platformUtils.sysroot();
-    if (sysroot.isNotEmpty) {
-      final normalInclude = join(sysroot, 'usr', 'include');
-      final platformInclude = join(normalInclude, type.getTargetName());
-      final allInclude = [
-        normalInclude,
-        platformInclude,
-      ].map((e) => '-I$e').join(' ');
-      cArgs.add(allInclude);
-      cxxArgs.add(allInclude);
-      ldArgs.add('-L$sysroot/usr/lib/${type.getTargetName()}/21');
-    }
-
-    env['CFLAGS'] = [...cppArgs, ...ldArgs, ...cArgs].join(' ');
-    env['CXXFLAGS'] = [...cppArgs, ...ldArgs, ...cxxArgs].join(' ');
-
     await _compile(lib, env, depPrefix, installPrefix, type);
   }
 
@@ -174,6 +135,16 @@ class RustCompiler extends BaseCompiler {
     await _compile(lib, env, depPrefix, installPrefix, type);
   }
 
+  void addFlagsToEnv(Lib lib, CpuType type, Map<String, String> env) {
+    final cppArgs = type.cppFlags(lib);
+    final ldArgs = type.ldFlags(lib);
+    final cArgs = type.cFlags(lib);
+    final cxxArgs = type.cxxFlags(lib);
+
+    env['CFLAGS'] = [...cppArgs, ...ldArgs, ...cArgs].toFlagString();
+    env['CXXFLAGS'] = [...cppArgs, ...ldArgs, ...cxxArgs].toFlagString();
+  }
+
   Future<void> _compile(
     Lib lib,
     Map<String, String> env,
@@ -181,6 +152,8 @@ class RustCompiler extends BaseCompiler {
     String installPrefix,
     CpuType type,
   ) async {
+    addFlagsToEnv(lib, type, env);
+
     final tripleCpuName = type.rustTripleCpuName();
     final targetPath = join(lib.workingPath, 'target');
     final cmdList = [
@@ -203,15 +176,17 @@ class RustCompiler extends BaseCompiler {
     await shell.run(cmd, workingDirectory: lib.workingPath, environment: env);
 
     // install
-    // 1. create header file
-    final headerPath = join(installPrefix, 'include', '${lib.name}.h');
-    cmd =
-        'cbindgen --config cbindgen.toml --crate ${lib.name} --output $headerPath';
-    await shell.run(
-      cmd,
-      workingDirectory: lib.workingPath,
-      environment: env,
-    );
+    if (haveCbindgen) {
+      // 1. create header file
+      final headerPath = join(installPrefix, 'include', '${lib.name}.h');
+      cmd =
+          'cbindgen --config cbindgen.toml --crate ${lib.name} --output $headerPath';
+      await shell.run(
+        cmd,
+        workingDirectory: lib.workingPath,
+        environment: env,
+      );
+    }
 
     // 2. copy lib file
     final srcLibDir = join(targetPath, tripleCpuName, 'release').directory();

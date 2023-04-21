@@ -75,10 +75,10 @@ class AutoToolsCompiler extends BaseCompiler {
     Map<String, String> env,
     CpuType cpuType,
   ) {
-    env['CFLAGS'] = cpuType.cFlags(lib).joinWithSpace();
-    env['CPPFLAGS'] = cpuType.cppFlags(lib).joinWithSpace();
-    env['CXXFLAGS'] = cpuType.cxxFlags(lib).joinWithSpace();
-    env['LDFLAGS'] = cpuType.ldFlags(lib).joinWithSpace();
+    env['CFLAGS'] = cpuType.cFlags(lib).toFlagString();
+    env['CPPFLAGS'] = cpuType.cppFlags(lib).toFlagString();
+    env['CXXFLAGS'] = cpuType.cxxFlags(lib).toFlagString();
+    env['LDFLAGS'] = cpuType.ldFlags(lib).toFlagString();
   }
 
   Future<void> _compile(
@@ -110,7 +110,7 @@ class AutoToolsCompiler extends BaseCompiler {
     }
     // cpu number
     final cpuNumber = envs.cpuCount;
-    final opt = lib.options.joinWithSpace();
+    final opt = lib.options.toFlagString();
 
     if (depPrefix.isEmpty) {
       // ignore: parameter_assignments

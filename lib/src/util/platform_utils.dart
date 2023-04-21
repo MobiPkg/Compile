@@ -305,7 +305,7 @@ enum AndroidCpuType with CpuType {
 
     // Add NDK lib
     final sysRoot = platformUtils.sysroot();
-    result.addPath(join(sysRoot, 'usr', 'lib', host()));
+    result.addJoin(sysRoot, 'usr', 'lib', host(), '21');
 
     return result;
   }
