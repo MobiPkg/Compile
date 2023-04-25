@@ -19,7 +19,7 @@ class CMakeCompiler extends BaseCompiler {
     String installPrefix,
     AndroidCpuType type,
   ) async {
-    final ndk = envs.ndk;
+    final ndk = envs.androidNDK;
     final toolchainPath = join(
       ndk,
       'build',

@@ -13,6 +13,10 @@ class CompileOptions {
 
   List<IOSCpuType> iosCpuTypes = IOSCpuType.values;
 
+  bool harmony = false;
+
+  List<HarmonyCpuType> harmonyCpuTypes = HarmonyCpuType.values;
+
   String projectPath = '.';
 
   bool removeOldSource = false;

@@ -11,7 +11,9 @@ class Envs {
 
   String? get prefix => systemEnvs[Consts.prefix];
 
-  String get ndk => systemEnvs[Consts.ndkKey]!;
+  String get androidNDK => systemEnvs[Consts.ndkKey]!;
+
+  String get harmonyNdk => systemEnvs[Consts.hmKey]!;
 
   late Directory originDir;
 

@@ -8,11 +8,17 @@ mixin CpuType {
 
   String rustTripleCpuName();
 
+  PlatformUtils get platformUtils;
+
+  String cmakeCpuName();
+
+  List<Directory> getIncludeDirList(Lib lib);
+
+  List<Directory> getLibDirList(Lib lib);
+
   String get platform => '${platformName()}/${cpuName()}';
 
   String get singleName => '${platformName()}-${cpuName()}';
-
-  PlatformUtils get platformUtils;
 
   /// When compiling or checking, it will look for library files from the subdirectory `depPrefix/lib`
   /// Find header files from `depPrefix/include`
@@ -47,18 +53,12 @@ mixin CpuType {
     return '${lib.installPath}/$platform';
   }
 
-  String cmakeCpuName();
-
   static List<CpuType> values() {
     return [
       ...AndroidCpuType.values,
       ...IOSCpuType.values,
     ];
   }
-
-  List<Directory> getIncludeDirList(Lib lib);
-
-  List<Directory> getLibDirList(Lib lib);
 
   List<String> getIncludeFlags(Lib lib) {
     final includeFlags = <String>[];
@@ -699,4 +699,153 @@ class IOSUtils with PlatformUtils {
         'OBJC': cc(),
         'OBJCXX': cxx(),
       };
+}
+
+enum HarmonyCpuType with CpuType {
+  arm64,
+  arm,
+  x86_64;
+
+  @override
+  String cpuName() {
+    switch (this) {
+      case HarmonyCpuType.arm64:
+        return 'arm64';
+      case HarmonyCpuType.arm:
+        return 'arm';
+      case HarmonyCpuType.x86_64:
+        return 'x86_64';
+    }
+  }
+
+  @override
+  String platformName() {
+    return 'harmony';
+  }
+
+  @override
+  String rustTripleCpuName() {
+    return 'aarch64-unknown-linux-musl';
+  }
+
+  @override
+  PlatformUtils get platformUtils => HarmonyPlatformUtils(this);
+
+  @override
+  String cmakeCpuName() {
+    return cpuName();
+  }
+
+  String platformTriple() {
+    switch (this) {
+      case HarmonyCpuType.arm64:
+        return 'aarch64-linux-ohos';
+      case HarmonyCpuType.arm:
+        return 'arm-linux-ohos';
+      case HarmonyCpuType.x86_64:
+        return 'x86_64-linux-ohos';
+    }
+  }
+
+  @override
+  List<Directory> getIncludeDirList(Lib lib) {
+    final result = <Directory>[];
+
+    final depPrefix = this.depPrefix();
+    if (depPrefix.isNotEmpty) {
+      result.add(Directory('$depPrefix/include'));
+    }
+
+    // Add SDK include
+    final sdk = platformUtils.sysroot();
+    result.addJoin(sdk, 'usr', 'include');
+    result.addJoin(sdk, 'usr', 'include', platformTriple());
+
+    return result;
+  }
+
+  @override
+  List<Directory> getLibDirList(Lib lib) {
+    final result = <Directory>[];
+
+    final depPrefix = this.depPrefix();
+    if (depPrefix.isNotEmpty) {
+      result.add(Directory('$depPrefix/include'));
+    }
+
+    // Add SDK include
+    final sdk = platformUtils.sysroot();
+    result.addJoin(sdk, 'usr', 'lib', platformTriple());
+
+    return result;
+  }
+}
+
+class HarmonyPlatformUtils with PlatformUtils {
+  @override
+  final HarmonyCpuType cpuType;
+
+  HarmonyPlatformUtils(this.cpuType);
+
+  String get bins => join(envs.harmonyNdk, 'llvm', 'bin');
+
+  @override
+  String ar() {
+    return join(bins, 'llvm-ar');
+  }
+
+  @override
+  String as() {
+    return join(bins, 'llvm-as');
+  }
+
+  @override
+  String cc() {
+    return join(bins, 'clang');
+  }
+
+  @override
+  String cxx() {
+    return join(bins, 'clang++');
+  }
+
+  @override
+  String host() {
+    return 'harmony';
+  }
+
+  @override
+  String ld() {
+    return join(bins, 'lld');
+  }
+
+  @override
+  String nm() {
+    return join(bins, 'llvm-nm');
+  }
+
+  @override
+  Map<String, String> get platformEnvs => throw UnimplementedError();
+
+  @override
+  String ranlib() {
+    return join(bins, 'llvm-ranlib');
+  }
+
+  @override
+  String strip() {
+    return join(bins, 'llvm-strip');
+  }
+
+  @override
+  Future<void> stripFile(File file) async {
+    final strip = this.strip();
+    final path = file.absolute.path;
+    await shell.run('$strip -x -S $path');
+  }
+
+  @override
+  String sysroot() {
+    return join(envs.harmonyNdk, 'sysroot');
+  }
 }
