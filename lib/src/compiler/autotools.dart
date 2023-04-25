@@ -46,6 +46,23 @@ class AutoToolsCompiler extends BaseCompiler {
   }
 
   @override
+  FutureOr<void> doCompileHarmony(
+    Lib lib,
+    Map<String, String> env,
+    String depPrefix,
+    String installPrefix,
+    HarmonyCpuType type,
+  ) async {
+    await _compile(
+      lib,
+      env,
+      depPrefix,
+      installPrefix,
+      type,
+    );
+  }
+
+  @override
   FutureOr<void> doPrecompile(Lib lib) async {
     final sourceDir = lib.workingPath;
 

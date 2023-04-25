@@ -34,4 +34,15 @@ class MakefileCompiler extends BaseCompiler {
 
   @override
   FutureOr<void> doPrecompile(Lib lib) {}
+
+  @override
+  FutureOr<void> doCompileHarmony(
+    Lib lib,
+    Map<String, String> env,
+    String depPrefix,
+    String installPrefix,
+    HarmonyCpuType type,
+  ) {
+    throw UnimplementedError();
+  }
 }

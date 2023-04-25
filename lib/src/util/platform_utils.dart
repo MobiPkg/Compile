@@ -57,6 +57,7 @@ mixin CpuType {
     return [
       ...AndroidCpuType.values,
       ...IOSCpuType.values,
+      ...HarmonyCpuType.values,
     ];
   }
 
@@ -710,9 +711,9 @@ enum HarmonyCpuType with CpuType {
   String cpuName() {
     switch (this) {
       case HarmonyCpuType.arm64:
-        return 'arm64';
+        return 'arm64-v8a';
       case HarmonyCpuType.arm:
-        return 'arm';
+        return 'armeabi-v7a';
       case HarmonyCpuType.x86_64:
         return 'x86_64';
     }
@@ -779,6 +780,14 @@ enum HarmonyCpuType with CpuType {
 
     return result;
   }
+
+  static List<String> args() {
+    return values.map((e) => e.cpuName()).toList();
+  }
+
+  static HarmonyCpuType from(String value) {
+    return values.firstWhere((e) => e.cpuName() == value);
+  }
 }
 
 class HarmonyPlatformUtils with PlatformUtils {
@@ -801,17 +810,17 @@ class HarmonyPlatformUtils with PlatformUtils {
 
   @override
   String cc() {
-    return join(bins, 'clang');
+    return join(bins, 'clang --target=${cpuType.platformTriple()}');
   }
 
   @override
   String cxx() {
-    return join(bins, 'clang++');
+    return join(bins, 'clang++ --target=${cpuType.platformTriple()}');
   }
 
   @override
   String host() {
-    return 'harmony';
+    return cpuType.platformTriple();
   }
 
   @override
@@ -825,7 +834,9 @@ class HarmonyPlatformUtils with PlatformUtils {
   }
 
   @override
-  Map<String, String> get platformEnvs => throw UnimplementedError();
+  Map<String, String> get platformEnvs => {
+        'HARMONY_NDK': envs.harmonyNdk,
+      };
 
   @override
   String ranlib() {

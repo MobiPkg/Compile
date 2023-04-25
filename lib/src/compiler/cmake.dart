@@ -41,6 +41,34 @@ class CMakeCompiler extends BaseCompiler {
   }
 
   @override
+  FutureOr<void> doCompileHarmony(
+    Lib lib,
+    Map<String, String> env,
+    String depPrefix,
+    String installPrefix,
+    HarmonyCpuType type,
+  ) async {
+    final ndk = envs.harmonyNdk;
+    final toolchainPath = join(
+      ndk,
+      'build',
+      'cmake',
+      'ohos.toolchain.cmake',
+    );
+    await _compile(
+      lib,
+      env,
+      depPrefix,
+      installPrefix,
+      toolchainPath,
+      {
+        'OHOS_ARCH': type.cpuName(),
+      },
+      type,
+    );
+  }
+
+  @override
   FutureOr<void> doCompileIOS(
     Lib lib,
     Map<String, String> env,

@@ -61,6 +61,29 @@ class MesonCompiler extends BaseCompiler {
     );
   }
 
+  @override
+  FutureOr<void> doCompileHarmony(
+    Lib lib,
+    Map<String, String> env,
+    String depPrefix,
+    String installPrefix,
+    HarmonyCpuType type,
+  ) {
+    final crossFileContent = makeHarmonyCrossFileContent(lib, type);
+    final crossFile =
+        join(lib.buildPath, 'cross-file', 'cross-${type.singleName}.ini')
+            .file(createWhenNotExists: true);
+    crossFile.writeAsStringSync(crossFileContent);
+    return _compile(
+      lib,
+      env,
+      depPrefix,
+      installPrefix,
+      crossFile,
+      type,
+    );
+  }
+
   String? _prefix(
     CpuType cpuType,
   ) {
@@ -323,6 +346,42 @@ b_bitcode = true
     return content;
   }
 
+  String makeHarmonyCrossFileContent(Lib lib, HarmonyCpuType cpuType) {
+    final iosUtils = cpuType.platformUtils;
+
+    final pkgConfigPath = shell.whichSync('pkg-config');
+    if (pkgConfigPath == null) {
+      throw Exception('pkg-config not found');
+    }
+
+    final content = '''
+[host_machine]
+system = 'ios'
+cpu_family = '${cpuType.getMesonCpuFamily()}'
+cpu = '${cpuType.getCpuName()}'
+endian = 'little'
+
+[properties]
+c_ld = 'gold'
+cpp_ld = 'gold'
+needs_exe_wrapper = true
+; sys_root = '${iosUtils.sysroot()}'
+
+[binaries]
+; c =     '${iosUtils.cc()}'
+; cpp =   '${iosUtils.cxx()}'
+; ar =    '${iosUtils.ar()}'
+; strip = '${iosUtils.strip()}'
+; pkgconfig = '$pkgConfigPath'
+
+${_makeBuiltInOptions(lib, cpuType)}
+
+b_bitcode = true
+''';
+
+    return content;
+  }
+
   @override
   bool get buildMultiiOSArch => false;
 }
@@ -370,6 +429,30 @@ extension _IosCpuTypeExt on IOSCpuType {
       case IOSCpuType.arm64:
         return 'aarch64';
       case IOSCpuType.x86_64:
+        return 'x86_64';
+    }
+  }
+}
+
+extension _HarmonyCpuTypeExt on HarmonyCpuType {
+  String getMesonCpuFamily() {
+    switch (this) {
+      case HarmonyCpuType.arm64:
+        return 'aarch64';
+      case HarmonyCpuType.arm:
+        return 'arm';
+      case HarmonyCpuType.x86_64:
+        return 'x86_64';
+    }
+  }
+
+  String getCpuName() {
+    switch (this) {
+      case HarmonyCpuType.arm64:
+        return 'aarch64';
+      case HarmonyCpuType.arm:
+        return 'armv7a';
+      case HarmonyCpuType.x86_64:
         return 'x86_64';
     }
   }

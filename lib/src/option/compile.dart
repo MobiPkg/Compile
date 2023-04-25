@@ -60,7 +60,7 @@ extension CompileOptionsExt on CompileOptions {
       'android',
       abbr: 'a',
       defaultsTo: true,
-      help: 'Print this usage information.',
+      help: 'Whether compile android library.',
     );
     argParser.addMultiOption(
       'android-cpu',
@@ -72,13 +72,24 @@ extension CompileOptionsExt on CompileOptions {
       'ios',
       abbr: 'i',
       defaultsTo: true,
-      help: 'Print this usage information.',
+      help: 'Whether compile ios library.',
     );
     argParser.addMultiOption(
       'ios-cpu',
       help: 'Set ios cpu, support: arm64, armv7, armv7s, x86_64, i386.',
       allowed: IOSCpuType.args(),
       defaultsTo: IOSCpuType.args(),
+    );
+    argParser.addFlag(
+      'harmony',
+      abbr: 'H',
+      help: 'Whether compile harmony library.',
+    );
+    argParser.addMultiOption(
+      'harmony-cpu',
+      help: 'Set harmony cpu, support: arm64, armv7, armv7s, x86_64, i386.',
+      allowed: HarmonyCpuType.args(),
+      defaultsTo: HarmonyCpuType.args(),
     );
     argParser.addOption(
       'project-path',
@@ -151,6 +162,11 @@ extension CompileOptionsExt on CompileOptions {
       iosCpuTypes = (result['ios-cpu'] as List)
           .whereType<String>()
           .map((e) => IOSCpuType.from(e))
+          .toList();
+      harmony = result['harmony'] as bool;
+      harmonyCpuTypes = (result['harmony-cpu'] as List)
+          .whereType<String>()
+          .map((e) => HarmonyCpuType.from(e))
           .toList();
       removeOldSource = result['remove-old-source'] as bool;
       strip = result['strip'] as bool;

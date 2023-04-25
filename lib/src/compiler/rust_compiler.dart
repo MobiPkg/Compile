@@ -206,4 +206,16 @@ class RustCompiler extends BaseCompiler {
       }
     }
   }
+
+  @override
+  FutureOr<void> doCompileHarmony(
+    Lib lib,
+    Map<String, String> env,
+    String depPrefix,
+    String installPrefix,
+    HarmonyCpuType type,
+  ) {
+    // TODO: implement doCompileHarmony
+    throw UnimplementedError();
+  }
 }

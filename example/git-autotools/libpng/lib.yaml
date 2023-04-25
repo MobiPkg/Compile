@@ -1,5 +1,5 @@
 name: libpng
-# type: autotools
+type: autotools
 source:
   git: 
     url: https://github.com/glennrp/libpng.git

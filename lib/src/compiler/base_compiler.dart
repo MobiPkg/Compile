@@ -42,6 +42,10 @@ abstract class BaseCompiler {
         if (!compileOptions.justMakeShell) _lipoLibWithIos(lib);
       }
     }
+    if (compileOptions.harmony) {
+      await compileHarmony(lib);
+      reporter.changeCpuType(null);
+    }
     reporter.changeCpuType(null);
   }
 
@@ -101,6 +105,41 @@ abstract class BaseCompiler {
       _copyLicense(lib, installPrefix);
     }
   }
+
+  FutureOr<void> compileHarmony(Lib lib) async {
+    for (final type in compileOptions.harmonyCpuTypes) {
+      reporter.changeCpuType(type);
+
+      final harmonyUtils = type.platformUtils;
+      final env = harmonyUtils.getEnvMap();
+      _printEnv(env);
+
+      final depPrefix = type.depPrefix();
+      final installPrefix = type.installPrefix(lib);
+
+      await doCompileHarmony(
+        lib,
+        env,
+        depPrefix,
+        installPrefix,
+        type,
+      );
+
+      if (compileOptions.strip) {
+        await harmonyUtils.stripDynamicLib(installPrefix);
+      }
+
+      _copyLicense(lib, installPrefix);
+    }
+  }
+
+  FutureOr<void> doCompileHarmony(
+    Lib lib,
+    Map<String, String> env,
+    String depPrefix,
+    String installPrefix,
+    HarmonyCpuType type,
+  );
 
   FutureOr<void> compileMultiCpuIos(Lib lib) async {}
 

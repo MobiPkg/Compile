@@ -24,6 +24,9 @@ class LibCommand extends BaseVoidCommand {
     if (compileOptions.ios) {
       checkWhich('xcrun', throwMessage: 'Please install xcode first.');
     }
+    if (compileOptions.harmony) {
+      checkEnv(Consts.hmKey, throwMessage: 'Please set harmony path first.');
+    }
   }
 
   @override
@@ -50,5 +53,4 @@ class LibCommand extends BaseVoidCommand {
     final compiler = createCompiler(lib);
     await compiler.compile(lib);
   }
-
 }
