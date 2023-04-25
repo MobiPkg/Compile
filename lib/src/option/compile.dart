@@ -11,6 +11,8 @@ class CompileOptions {
 
   bool ios = true;
 
+  List<IOSCpuType> iosCpuTypes = IOSCpuType.values;
+
   String projectPath = '.';
 
   bool removeOldSource = false;
@@ -67,6 +69,12 @@ extension CompileOptionsExt on CompileOptions {
       abbr: 'i',
       defaultsTo: true,
       help: 'Print this usage information.',
+    );
+    argParser.addMultiOption(
+      'ios-cpu',
+      help: 'Set ios cpu, support: arm64, armv7, armv7s, x86_64, i386.',
+      allowed: IOSCpuType.args(),
+      defaultsTo: IOSCpuType.args(),
     );
     argParser.addOption(
       'project-path',
@@ -135,6 +143,11 @@ extension CompileOptionsExt on CompileOptions {
           .whereType<String>()
           .map((e) => AndroidCpuType.from(e))
           .toList();
+      ios = result['ios'] as bool;
+      iosCpuTypes = (result['ios-cpu'] as List)
+          .whereType<String>()
+          .map((e) => IOSCpuType.from(e))
+          .toList();
       removeOldSource = result['remove-old-source'] as bool;
       strip = result['strip'] as bool;
       gitDepth = int.parse(result['git-depth'] as String);
@@ -198,6 +211,11 @@ extension CompileOptionsExt on CompileOptions {
       final list = value as List;
       androidCpuTypes =
           list.whereType<String>().map((e) => AndroidCpuType.from(e)).toList();
+    });
+    configKeyWhenNotNull('ios-cpu', (value) {
+      final list = value as List;
+      iosCpuTypes =
+          list.whereType<String>().map((e) => IOSCpuType.from(e)).toList();
     });
   }
 }
