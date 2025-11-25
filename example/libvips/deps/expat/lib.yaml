@@ -1,0 +1,21 @@
+name: expat
+type: cmake
+source:
+  git:
+    url: https://github.com/libexpat/libexpat.git
+    ref: R_2_6_4
+  subpath: expat
+license: expat/COPYING
+
+flags:
+  c: -fPIC -O2
+  cxx: -fPIC -O2
+  cpp: ""
+  ld: ""
+
+options:
+  - -DEXPAT_BUILD_DOCS=OFF
+  - -DEXPAT_BUILD_EXAMPLES=OFF
+  - -DEXPAT_BUILD_TESTS=OFF
+  - -DEXPAT_BUILD_TOOLS=OFF
+  - -DEXPAT_SHARED_LIBS=OFF

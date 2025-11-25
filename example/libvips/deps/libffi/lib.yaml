@@ -1,0 +1,20 @@
+name: libffi
+type: autotools
+source:
+  git:
+    url: https://github.com/libffi/libffi.git
+    ref: v3.5.2
+license: LICENSE
+
+flags:
+  c: -fPIC -O2
+  cxx: -fPIC -O2
+  cpp: ""
+  ld: ""
+
+precompile:
+  - ./autogen.sh
+
+options:
+  - --disable-docs
+  - --disable-multi-os-directory

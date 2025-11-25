@@ -435,22 +435,31 @@ class AndroidUtils with PlatformUtils {
 
 enum IOSCpuType with CpuType {
   arm64,
+  arm64Simulator,
   x86_64;
 
   static CpuType universal = const _IOSUniversal();
+
+  /// 是否是模拟器
+  bool get isSimulator => this == arm64Simulator || this == x86_64;
 
   String xcrunTarget() {
     switch (this) {
       case IOSCpuType.arm64:
         return 'arm64-apple-ios';
+      case IOSCpuType.arm64Simulator:
+        return 'arm64-apple-ios-simulator';
       case IOSCpuType.x86_64:
-        return 'x86_64-apple-ios';
-      // return 'x86-64';
+        return 'x86_64-apple-ios-simulator';
     }
   }
 
   @override
   String cpuName() {
+    // arm64Simulator 需要返回 'arm64-simulator' 以区分真机和模拟器
+    if (this == IOSCpuType.arm64Simulator) {
+      return 'arm64-simulator';
+    }
     return arch();
   }
 
@@ -464,6 +473,8 @@ enum IOSCpuType with CpuType {
     switch (this) {
       case IOSCpuType.arm64:
         return 'aarch64-apple-ios';
+      case IOSCpuType.arm64Simulator:
+        return 'aarch64-apple-ios-sim';
       case IOSCpuType.x86_64:
         return 'x86_64-apple-ios';
     }
@@ -472,6 +483,7 @@ enum IOSCpuType with CpuType {
   String arch() {
     switch (this) {
       case IOSCpuType.arm64:
+      case IOSCpuType.arm64Simulator:
         return 'arm64';
       case IOSCpuType.x86_64:
         return 'x86_64';
@@ -514,6 +526,7 @@ enum IOSCpuType with CpuType {
     switch (this) {
       case IOSCpuType.arm64:
         return 'iphoneos';
+      case IOSCpuType.arm64Simulator:
       case IOSCpuType.x86_64:
         return 'iphonesimulator';
     }
@@ -523,8 +536,10 @@ enum IOSCpuType with CpuType {
     switch (this) {
       case IOSCpuType.arm64:
         return 'arm64-apple-ios';
+      case IOSCpuType.arm64Simulator:
+        return 'arm64-apple-ios-simulator';
       case IOSCpuType.x86_64:
-        return '';
+        return 'x86_64-apple-ios-simulator';
     }
   }
 
@@ -543,12 +558,15 @@ enum IOSCpuType with CpuType {
   }
 
   static IOSCpuType from(String name) {
+    // 支持多种格式: arm64-simulator, arm64Simulator, arm64_simulator
+    final normalized = name.toLowerCase().replaceAll('-', '').replaceAll('_', '');
     for (final value in values) {
-      if (value.cpuName() == name) {
+      final valueName = value.cpuName().toLowerCase().replaceAll('-', '');
+      if (valueName == normalized) {
         return value;
       }
     }
-    throw Exception('Not found $name');
+    throw Exception('Not found $name, available: ${args().join(", ")}');
   }
 
   @override
@@ -677,6 +695,7 @@ class IOSUtils with PlatformUtils {
   String host() {
     switch (cpuType) {
       case IOSCpuType.arm64:
+      case IOSCpuType.arm64Simulator:
         return 'aarch64-apple-darwin';
       case IOSCpuType.x86_64:
         return 'x86_64-apple-darwin';

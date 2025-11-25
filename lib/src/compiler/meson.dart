@@ -311,8 +311,6 @@ $flags
   }
 
   String makeIOSCrossFileContent(Lib lib, IOSCpuType cpuType) {
-    final iosUtils = IOSUtils(cpuType: cpuType);
-
     final pkgConfigPath = shell.whichSync('pkg-config');
     if (pkgConfigPath == null) {
       throw Exception('pkg-config not found');
@@ -326,17 +324,14 @@ cpu = '${cpuType.getCpuName()}'
 endian = 'little'
 
 [properties]
-c_ld = 'gold'
-cpp_ld = 'gold'
 needs_exe_wrapper = true
-; sys_root = '${iosUtils.sysroot()}'
 
 [binaries]
-; c =     '${iosUtils.cc()}'
-; cpp =   '${iosUtils.cxx()}'
-; ar =    '${iosUtils.ar()}'
-; strip = '${iosUtils.strip()}'
-; pkgconfig = '$pkgConfigPath'
+c = ['xcrun', '-sdk', '${cpuType.sdkName()}', 'clang', '-target', '${cpuType.xcrunTarget()}']
+cpp = ['xcrun', '-sdk', '${cpuType.sdkName()}', 'clang++', '-target', '${cpuType.xcrunTarget()}']
+ar = ['xcrun', '-sdk', '${cpuType.sdkName()}', 'ar']
+strip = ['xcrun', '-sdk', '${cpuType.sdkName()}', 'strip']
+pkg-config = '$pkgConfigPath'
 
 ${_makeBuiltInOptions(lib, cpuType)}
 
@@ -418,6 +413,7 @@ extension _IosCpuTypeExt on IOSCpuType {
   String getMesonCpuFamily() {
     switch (this) {
       case IOSCpuType.arm64:
+      case IOSCpuType.arm64Simulator:
         return 'aarch64';
       case IOSCpuType.x86_64:
         return 'x86_64';
@@ -427,6 +423,7 @@ extension _IosCpuTypeExt on IOSCpuType {
   String getCpuName() {
     switch (this) {
       case IOSCpuType.arm64:
+      case IOSCpuType.arm64Simulator:
         return 'aarch64';
       case IOSCpuType.x86_64:
         return 'x86_64';

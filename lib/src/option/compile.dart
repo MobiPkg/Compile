@@ -76,9 +76,9 @@ extension CompileOptionsExt on CompileOptions {
     );
     argParser.addMultiOption(
       'ios-cpu',
-      help: 'Set ios cpu, support: arm64, armv7, armv7s, x86_64, i386.',
+      help: 'Set ios cpu, support: ${IOSCpuType.args().join(", ")}. '
+          'If not specified, all architectures will be compiled.',
       allowed: IOSCpuType.args(),
-      defaultsTo: IOSCpuType.args(),
     );
     argParser.addFlag(
       'harmony',
@@ -159,10 +159,11 @@ extension CompileOptionsExt on CompileOptions {
           .map((e) => AndroidCpuType.from(e))
           .toList();
       ios = result['ios'] as bool;
-      iosCpuTypes = (result['ios-cpu'] as List)
-          .whereType<String>()
-          .map((e) => IOSCpuType.from(e))
-          .toList();
+      final iosCpuList = (result['ios-cpu'] as List).whereType<String>().toList();
+      // 如果用户没有指定 ios-cpu，使用所有架构
+      iosCpuTypes = iosCpuList.isEmpty
+          ? IOSCpuType.values
+          : iosCpuList.map((e) => IOSCpuType.from(e)).toList();
       harmony = result['harmony'] as bool;
       harmonyCpuTypes = (result['harmony-cpu'] as List)
           .whereType<String>()

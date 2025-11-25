@@ -1,0 +1,17 @@
+# 编译过程中生成的文件
+source/
+build/
+install/
+output/
+
+# 依赖库的源码和构建目录
+deps/*/source/
+deps/*/build/
+
+# libvips 源码和构建目录
+libvips/source/
+libvips/build/
+
+# 临时文件
+*.log
+*.tmp

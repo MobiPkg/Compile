@@ -80,7 +80,7 @@ abstract class BaseCompiler {
   }
 
   FutureOr<void> compileIOS(Lib lib) async {
-    for (final type in IOSCpuType.values) {
+    for (final type in compileOptions.iosCpuTypes) {
       reporter.changeCpuType(type);
       final iosUtils = IOSUtils(cpuType: type);
       final env = iosUtils.getEnvMap();
@@ -197,7 +197,21 @@ abstract class BaseCompiler {
 
     void lipoSameNameLib(String name) {
       final srcFiles = <File>[];
-      for (final type in IOSCpuType.values) {
+      // 只合并不同架构的文件，跳过 arm64Simulator（因为它和 arm64 是相同架构）
+      // arm64 和 arm64Simulator 不能同时合并到 universal，因为它们都是 arm64 架构
+      // 应该使用 XCFramework 来处理这种情况
+      final typesToMerge = IOSCpuType.values.where((type) {
+        // 如果同时存在 arm64 和 arm64Simulator，只使用 arm64
+        if (type == IOSCpuType.arm64Simulator) {
+          final arm64Path = join(iOSPath, IOSCpuType.arm64.cpuName(), 'lib', name);
+          if (File(arm64Path).existsSync()) {
+            return false; // 跳过 arm64Simulator
+          }
+        }
+        return true;
+      });
+      
+      for (final type in typesToMerge) {
         final cpuPath = join(iOSPath, type.cpuName());
         final cpuLibPath = join(cpuPath, 'lib');
         final cpuLibFile = File(join(cpuLibPath, name));
@@ -206,6 +220,13 @@ abstract class BaseCompiler {
         }
       }
       if (srcFiles.isEmpty) {
+        return;
+      }
+      // 如果只有一个文件，直接复制而不是 lipo
+      if (srcFiles.length == 1) {
+        final dstPath = join(targetLibPath, name);
+        shell.runSync('cp ${srcFiles.first.absolute.path} $dstPath');
+        logBuffer.writeln('Copy single arch lib: ${srcFiles.first.path} to $dstPath');
         return;
       }
       final dstPath = join(targetLibPath, name);

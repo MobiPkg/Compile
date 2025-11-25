@@ -1,0 +1,52 @@
+name: libvips
+type: meson
+source:
+  git:
+    url: https://github.com/libvips/libvips.git
+    ref: v8.16.0
+license: LICENSE
+
+flags:
+  c: -fPIC -O2
+  cxx: -fPIC -O2
+  cpp: ""
+  ld: ""
+
+options:
+  # 禁用不需要的功能以减少依赖
+  - -Dgtk_doc=false
+  - -Dintrospection=disabled
+  - -Dvapi=false
+  - -Dmodules=disabled
+  - -Dexamples=false
+  - -Dcplusplus=false
+  # 禁用可选的图像格式支持 (可根据需要启用)
+  - -Dcfitsio=disabled
+  - -Dcgif=disabled
+  - -Dexif=disabled
+  - -Dfftw=disabled
+  - -Dfontconfig=disabled
+  - -Dheif=disabled
+  - -Dhighway=disabled
+  - -Dimagequant=disabled
+  - -Djpeg=disabled
+  - -Djpeg-xl=disabled
+  - -Dlcms=disabled
+  - -Dmagick=disabled
+  - -Dmatio=disabled
+  - -Dnifti=disabled
+  - -Dopenexr=disabled
+  - -Dopenjpeg=disabled
+  - -Dopenslide=disabled
+  - -Dorc=disabled
+  - -Dpangocairo=disabled
+  - -Dpdfium=disabled
+  - -Dpng=disabled
+  - -Dpoppler=disabled
+  - -Dquantizr=disabled
+  - -Drsvg=disabled
+  - -Dspng=disabled
+  - -Dtiff=disabled
+  - -Dwebp=disabled
+  - -Dzlib=disabled
+  - -Darchive=disabled

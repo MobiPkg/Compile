@@ -1,0 +1,30 @@
+name: glib
+type: meson
+source:
+  git:
+    url: https://github.com/GNOME/glib.git
+    ref: 2.82.4
+license: COPYING
+
+flags:
+  c: -fPIC -O2
+  cxx: -fPIC -O2
+  cpp: ""
+  ld: ""
+
+options:
+  - -Dtests=false
+  - -Dglib_debug=disabled
+  - -Dintrospection=disabled
+  - -Dnls=disabled
+  - -Dlibmount=disabled
+  - -Dselinux=disabled
+  - -Dxattr=false
+  - -Dlibelf=disabled
+  - -Dglib_assert=false
+  - -Dglib_checks=false
+  # 允许 fallback 但只用于特定的 subprojects
+  - --wrap-mode=nofallback
+  # 强制使用特定的 subprojects (proxy-libintl, gvdb 是 glib 内置的，pcre2 需要下载)
+  # 不包含 libffi，使用我们已编译的版本
+  - --force-fallback-for=proxy-libintl,gvdb,pcre2
