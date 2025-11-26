@@ -86,12 +86,22 @@ if [ "$HAS_SIMULATOR" = true ]; then
     # 复制真机库和头文件
     cp "$MERGED_ARM64" "$XCFRAMEWORK_DIR/ios-arm64/libvips.a"
     mkdir -p "$XCFRAMEWORK_DIR/ios-arm64/Headers"
-    cp -r "$INSTALL_DIR/ios/arm64/include/vips" "$XCFRAMEWORK_DIR/ios-arm64/Headers/"
+    # 复制所有头文件（vips, glib, gio, gobject, ffi 等）
+    cp -r "$INSTALL_DIR/ios/arm64/include/"* "$XCFRAMEWORK_DIR/ios-arm64/Headers/"
+    # 复制 glibconfig.h（位于 lib/glib-2.0/include/）
+    if [ -d "$INSTALL_DIR/ios/arm64/lib/glib-2.0/include" ]; then
+        cp -r "$INSTALL_DIR/ios/arm64/lib/glib-2.0/include/"* "$XCFRAMEWORK_DIR/ios-arm64/Headers/glib-2.0/"
+    fi
     
     # 复制模拟器库和头文件
     cp "$MERGED_SIM" "$XCFRAMEWORK_DIR/ios-arm64-simulator/libvips.a"
     mkdir -p "$XCFRAMEWORK_DIR/ios-arm64-simulator/Headers"
-    cp -r "$INSTALL_DIR/ios/arm64-simulator/include/vips" "$XCFRAMEWORK_DIR/ios-arm64-simulator/Headers/"
+    # 复制所有头文件
+    cp -r "$INSTALL_DIR/ios/arm64-simulator/include/"* "$XCFRAMEWORK_DIR/ios-arm64-simulator/Headers/"
+    # 复制 glibconfig.h
+    if [ -d "$INSTALL_DIR/ios/arm64-simulator/lib/glib-2.0/include" ]; then
+        cp -r "$INSTALL_DIR/ios/arm64-simulator/lib/glib-2.0/include/"* "$XCFRAMEWORK_DIR/ios-arm64-simulator/Headers/glib-2.0/"
+    fi
     
     # 创建 Info.plist (包含真机和模拟器)
     cat > "$XCFRAMEWORK_DIR/Info.plist" << 'EOF'
@@ -146,7 +156,12 @@ else
     mkdir -p "$XCFRAMEWORK_DIR/ios-arm64"
     cp "$MERGED_ARM64" "$XCFRAMEWORK_DIR/ios-arm64/libvips.a"
     mkdir -p "$XCFRAMEWORK_DIR/ios-arm64/Headers"
-    cp -r "$INSTALL_DIR/ios/arm64/include/vips" "$XCFRAMEWORK_DIR/ios-arm64/Headers/"
+    # 复制所有头文件
+    cp -r "$INSTALL_DIR/ios/arm64/include/"* "$XCFRAMEWORK_DIR/ios-arm64/Headers/"
+    # 复制 glibconfig.h
+    if [ -d "$INSTALL_DIR/ios/arm64/lib/glib-2.0/include" ]; then
+        cp -r "$INSTALL_DIR/ios/arm64/lib/glib-2.0/include/"* "$XCFRAMEWORK_DIR/ios-arm64/Headers/glib-2.0/"
+    fi
     
     # 创建 Info.plist (仅真机)
     cat > "$XCFRAMEWORK_DIR/Info.plist" << 'EOF'
@@ -193,8 +208,9 @@ fi
 echo ""
 echo "使用方法:"
 echo "1. 将 libvips.xcframework 拖入 Xcode 项目"
-echo "2. 在 Build Settings 中添加 Header Search Paths"
-echo "3. 链接系统框架: Foundation, CoreFoundation"
+echo "2. 在 Build Settings 中添加 Header Search Paths (递归)"
+echo "3. 链接系统库: libiconv.tbd, libresolv.tbd"
+echo "4. 链接系统框架: Foundation, CoreFoundation"
 echo "=========================================="
 
 # 显示大小信息

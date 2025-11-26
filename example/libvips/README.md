@@ -20,20 +20,26 @@ brew install meson ninja automake autoconf libtool pkg-config
 
 ### 输出位置
 
-```
+```text
 output/libvips.xcframework/
 ├── Info.plist
-├── ios-arm64/                    # 真机 (24 MB)
-│   ├── Headers/vips/
-│   └── libvips.a
-└── ios-arm64-simulator/          # Apple Silicon 模拟器 (9.5 MB)
-    ├── Headers/vips/
+├── ios-arm64/                    # 真机 (23 MB)
+│   ├── Headers/
+│   │   ├── vips/                 # libvips 头文件
+│   │   ├── glib-2.0/             # GLib 头文件
+│   │   ├── gio-unix-2.0/         # GIO 头文件
+│   │   ├── ffi.h                 # libffi 头文件
+│   │   ├── zlib.h                # zlib 头文件
+│   │   └── ...
+│   └── libvips.a                 # 合并的静态库
+└── ios-arm64-simulator/          # Apple Silicon 模拟器 (24 MB)
+    ├── Headers/
     └── libvips.a
 ```
 
 ### 包含的库
 
-XCFramework 已合并所有必需的依赖，可直接在 Xcode 项目中使用：
+XCFramework 已合并所有必需的依赖为单个 `libvips.a`：
 
 | 库 | 说明 |
 |---|---|
@@ -52,9 +58,89 @@ XCFramework 已合并所有必需的依赖，可直接在 Xcode 项目中使用�
 ### 在 Xcode 中使用
 
 1. 将 `output/libvips.xcframework` 拖入 Xcode 项目
-2. 在 **Build Settings** 中添加 Header Search Paths:
-   - `$(SRCROOT)/path/to/libvips.xcframework/$(PLATFORM_NAME)-$(CURRENT_ARCH)/Headers`
-3. 链接系统框架: `Foundation`, `CoreFoundation`
+2. 在 **Build Settings > Header Search Paths** 中添加（递归）:
+
+```text
+$(SRCROOT)/path/to/libvips.xcframework/ios-$(PLATFORM_NAME)/Headers
+$(SRCROOT)/path/to/libvips.xcframework/ios-$(PLATFORM_NAME)/Headers/glib-2.0
+```
+
+3. 在代码中引用:
+
+```c
+#include <vips/vips.h>
+#include <glib.h>
+```
+
+4. 在 **Build Phases > Link Binary With Libraries** 中添加:
+   - `libiconv.tbd`（字符编码转换）
+   - `libresolv.tbd`（DNS 解析）
+   - `Foundation.framework`
+   - `CoreFoundation.framework`
+
+## 集成到 CocoaPods
+
+创建 `libvips.podspec`:
+
+```ruby
+Pod::Spec.new do |s|
+  s.name         = 'libvips'
+  s.version      = '8.16.0'
+  s.summary      = 'libvips image processing library for iOS'
+  s.homepage     = 'https://github.com/libvips/libvips'
+  s.license      = { :type => 'LGPL-2.1' }
+  s.author       = { 'libvips' => 'vipsip@jiscmail.ac.uk' }
+  s.platform     = :ios, '12.0'
+  s.source       = { :http => 'URL_TO_YOUR_XCFRAMEWORK.zip' }
+  
+  s.vendored_frameworks = 'libvips.xcframework'
+  s.libraries = 'iconv', 'resolv'
+  s.frameworks = 'Foundation', 'CoreFoundation'
+  
+  s.pod_target_xcconfig = {
+    'HEADER_SEARCH_PATHS' => '$(PODS_ROOT)/libvips/libvips.xcframework/ios-$(PLATFORM_NAME)/Headers $(PODS_ROOT)/libvips/libvips.xcframework/ios-$(PLATFORM_NAME)/Headers/glib-2.0'
+  }
+end
+```
+
+使用:
+
+```ruby
+# Podfile
+pod 'libvips', :path => './path/to/libvips.podspec'
+```
+
+## 集成到 Swift Package Manager
+
+创建 `Package.swift`:
+
+```swift
+// swift-tools-version:5.3
+import PackageDescription
+
+let package = Package(
+    name: "libvips",
+    platforms: [.iOS(.v12)],
+    products: [
+        .library(name: "libvips", targets: ["libvips"])
+    ],
+    targets: [
+        .binaryTarget(
+            name: "libvips",
+            path: "libvips.xcframework"
+        )
+    ]
+)
+```
+
+在项目中添加:
+
+```swift
+// Package.swift 依赖
+.package(path: "./path/to/libvips-package")
+```
+
+**注意**: Swift Package 需要手动在 Xcode 中添加 `libiconv.tbd` 和 `libresolv.tbd`。
 
 ## 编译选项
 
@@ -231,3 +317,170 @@ options:
 2. 编译 libpng（依赖 zlib）
 3. 修改 `libvips/lib.yaml`，将 `-Dpng=disabled` 改为 `-Dpng=enabled`
 4. 修改 `create-xcframework.sh`，在 LIBS 数组中添加 `"libpng16"`
+
+## 使用 Dart Compile 工具构建 XCFramework
+
+完整的编译和打包流程：
+
+```bash
+# 进入项目根目录
+cd /path/to/mobipkg/Compile
+
+# 设置参数
+LIBVIPS_DIR="example/libvips"
+INSTALL_PREFIX="$LIBVIPS_DIR/install"
+COMMON="--no-android --no-harmony --install-prefix $INSTALL_PREFIX --dependency-prefix $INSTALL_PREFIX"
+
+# 1. 编译 libffi（需要专用脚本）
+$LIBVIPS_DIR/deps/libffi/build-ios.sh $(pwd)/$INSTALL_PREFIX
+
+# 2. 编译所有依赖（真机 + 模拟器）
+for lib in zlib pcre2 expat glib; do
+  dart run bin/compile.dart lib -C $LIBVIPS_DIR/deps/$lib \
+    --ios --ios-cpu arm64 --ios-cpu arm64-simulator $COMMON
+done
+
+# 3. 编译 libvips
+dart run bin/compile.dart lib -C $LIBVIPS_DIR/libvips \
+  --ios --ios-cpu arm64 --ios-cpu arm64-simulator $COMMON
+
+# 4. 创建 XCFramework
+cd $LIBVIPS_DIR && ./create-xcframework.sh
+```
+
+### 仅编译特定架构
+
+```bash
+# 仅编译真机
+dart run bin/compile.dart lib -C example/libvips/libvips \
+  --no-android --no-harmony --ios --ios-cpu arm64 \
+  --install-prefix example/libvips/install \
+  --dependency-prefix example/libvips/install
+
+# 仅编译模拟器
+dart run bin/compile.dart lib -C example/libvips/libvips \
+  --no-android --no-harmony --ios --ios-cpu arm64-simulator \
+  --install-prefix example/libvips/install \
+  --dependency-prefix example/libvips/install
+```
+
+### 支持的 iOS CPU 类型
+
+| 类型 | 说明 |
+|------|------|
+| `arm64` | iPhone/iPad 真机 |
+| `arm64-simulator` | Apple Silicon Mac 模拟器 |
+| `x86_64` | Intel Mac 模拟器（不推荐） |
+
+## 自定义 libvips XCFramework
+
+### 添加新的依赖库
+
+1. 在 `deps/` 目录下创建库配置:
+
+```bash
+mkdir -p deps/mylib
+```
+
+2. 创建 `deps/mylib/lib.yaml`:
+
+```yaml
+name: mylib
+type: cmake  # 或 meson, autotools
+source:
+  git:
+    url: https://github.com/example/mylib.git
+    ref: v1.0.0
+license: LICENSE
+
+options:
+  - -DBUILD_SHARED_LIBS=OFF
+  - -DBUILD_TESTING=OFF
+```
+
+3. 编译新库:
+
+```bash
+dart run bin/compile.dart lib -C example/libvips/deps/mylib \
+  --no-android --no-harmony --ios \
+  --ios-cpu arm64 --ios-cpu arm64-simulator \
+  --install-prefix example/libvips/install \
+  --dependency-prefix example/libvips/install
+```
+
+4. 修改 `libvips/lib.yaml` 启用对应功能
+
+5. 修改 `create-xcframework.sh`，在 `LIBS` 数组中添加新库名
+
+### 修改 libvips 编译选项
+
+编辑 `libvips/lib.yaml` 中的 `options` 部分:
+
+```yaml
+options:
+  # 启用/禁用图像格式
+  - -Djpeg=enabled      # 需要 libjpeg-turbo
+  - -Dpng=enabled       # 需要 libpng
+  - -Dwebp=enabled      # 需要 libwebp
+  - -Dheif=enabled      # 需要 libheif
+  - -Dtiff=disabled
+  
+  # 其他功能
+  - -Dcgif=disabled     # GIF 支持
+  - -Dexif=disabled     # EXIF 元数据
+  - -Dlcms=disabled     # 色彩管理
+```
+
+### 自定义 XCFramework 包含的库
+
+编辑 `create-xcframework.sh` 中的 `LIBS` 数组:
+
+```bash
+LIBS=(
+    "libvips"
+    "libglib-2.0"
+    "libgio-2.0"
+    "libgobject-2.0"
+    "libgmodule-2.0"
+    "libgthread-2.0"
+    "libffi"
+    "libpcre2-8"
+    "libintl"
+    "libexpat"
+    "libz"
+    # 添加自定义库
+    "libjpeg"
+    "libpng16"
+    "libwebp"
+)
+```
+
+### 完整自定义示例：添加 JPEG + PNG 支持
+
+```bash
+# 1. 编译 libjpeg-turbo
+dart run bin/compile.dart lib -C example/libvips/deps/libjpeg-turbo \
+  --no-android --no-harmony --ios \
+  --ios-cpu arm64 --ios-cpu arm64-simulator \
+  --install-prefix example/libvips/install \
+  --dependency-prefix example/libvips/install
+
+# 2. 编译 libpng
+dart run bin/compile.dart lib -C example/libvips/deps/libpng \
+  --no-android --no-harmony --ios \
+  --ios-cpu arm64 --ios-cpu arm64-simulator \
+  --install-prefix example/libvips/install \
+  --dependency-prefix example/libvips/install
+
+# 3. 修改 libvips/lib.yaml 启用 jpeg 和 png
+# 4. 重新编译 libvips
+dart run bin/compile.dart lib -C example/libvips/libvips \
+  --no-android --no-harmony --ios \
+  --ios-cpu arm64 --ios-cpu arm64-simulator \
+  --install-prefix example/libvips/install \
+  --dependency-prefix example/libvips/install
+
+# 5. 修改 create-xcframework.sh 添加新库
+# 6. 重新创建 XCFramework
+cd example/libvips && ./create-xcframework.sh
+```
