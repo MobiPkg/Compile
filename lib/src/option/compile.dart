@@ -52,6 +52,19 @@ class CompileOptions {
       _dependencyPrefix = value;
     }
   }
+
+  String? _logDir;
+
+  String? get logDir => _logDir;
+
+  set logDir(String? value) {
+    if (value != null) {
+      final dir = Directory(value).absolute.path;
+      _logDir = normalize(dir);
+    } else {
+      _logDir = value;
+    }
+  }
 }
 
 extension CompileOptionsExt on CompileOptions {
@@ -140,6 +153,12 @@ extension CompileOptionsExt on CompileOptions {
       help: 'Set option file, if config option, '
           'other common options will be ignore.',
     );
+    argParser.addOption(
+      'log-dir',
+      abbr: 'L',
+      help: 'Set compile log directory. '
+          'If not specified, logs will be saved to <lib>/build/logs/',
+    );
   }
 
   void configArgResults(ArgResults? result) {
@@ -174,6 +193,7 @@ extension CompileOptionsExt on CompileOptions {
       gitDepth = int.parse(result['git-depth'] as String);
       installPrefix = result['install-prefix'] as String?;
       dependencyPrefix = result['dependency-prefix'] as String?;
+      logDir = result['log-dir'] as String?;
     }
   }
 

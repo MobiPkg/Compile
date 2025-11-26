@@ -307,18 +307,94 @@ set(CMAKE_SYSTEM_NAME iOS)
       return;
     }
 
-    final cmd = 'cmake $args -S $sourceDir -B $buildPath -G Ninja';
-    await shell.run(cmd, environment: env, workingDirectory: sourceDir);
-    await shell.run(
-      'ninja -j$cpuCount',
+    final configureCmd = 'cmake $args -S $sourceDir -B $buildPath -G Ninja';
+    final buildCmd = 'ninja -j$cpuCount';
+    final installCmd = 'ninja install';
+    
+    final cmakeErrorLog = join(buildPath, 'CMakeFiles', 'CMakeError.log');
+    
+    // CMake configure
+    compileLogger.phase('CMake Configure');
+    compileLogger.command(
+      command: configureCmd,
+      workingDirectory: sourceDir,
       environment: env,
-      workingDirectory: buildPath,
     );
-    await shell.run(
-      'ninja install',
+    
+    try {
+      await shell.run(configureCmd, environment: env, workingDirectory: sourceDir);
+    } catch (e) {
+      compileLogger.error(
+        message: 'CMake configure failed',
+        command: configureCmd,
+        workingDirectory: sourceDir,
+        environment: env,
+        buildSystem: 'cmake',
+        logFilePath: cmakeErrorLog,
+      );
+      rethrow;
+    }
+    
+    // Ninja build
+    compileLogger.phase('Ninja Build');
+    compileLogger.command(
+      command: buildCmd,
+      workingDirectory: buildPath,
       environment: env,
-      workingDirectory: buildPath,
     );
+    
+    try {
+      await shell.run(
+        buildCmd,
+        environment: env,
+        workingDirectory: buildPath,
+      );
+    } catch (e) {
+      compileLogger.error(
+        message: 'Ninja build failed',
+        command: buildCmd,
+        workingDirectory: buildPath,
+        environment: env,
+        buildSystem: 'cmake',
+      );
+      rethrow;
+    }
+    
+    // Ninja install
+    compileLogger.phase('Ninja Install');
+    compileLogger.command(
+      command: installCmd,
+      workingDirectory: buildPath,
+      environment: env,
+    );
+    
+    try {
+      await shell.run(
+        installCmd,
+        environment: env,
+        workingDirectory: buildPath,
+      );
+    } catch (e) {
+      compileLogger.error(
+        message: 'Ninja install failed',
+        command: installCmd,
+        workingDirectory: buildPath,
+        environment: env,
+        buildSystem: 'cmake',
+      );
+      rethrow;
+    }
+    
+    compileLogger.info('CMake compilation completed successfully');
+    
+    // 生成 lib.yaml 中配置的 pkg-config 文件
+    if (lib.hasPkgConfig) {
+      final installPrefix = cpuType.installPrefix(lib);
+      await lib.generatePkgConfigFiles(installPrefix);
+      for (final item in lib.pkgConfigItems) {
+        compileLogger.info('Generated ${item.name}.pc');
+      }
+    }
   }
 
   @override

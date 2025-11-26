@@ -1,0 +1,11 @@
+name: cgif
+type: meson
+source:
+  git:
+    url: https://github.com/dloebl/cgif.git
+    ref: v0.4.1
+license: LICENSE
+
+options:
+  - -Ddefault_library=static
+  - -Dtests=false

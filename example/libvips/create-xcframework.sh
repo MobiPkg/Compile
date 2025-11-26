@@ -11,8 +11,8 @@ OUTPUT_DIR="$SCRIPT_DIR/output"
 # 创建输出目录
 mkdir -p "$OUTPUT_DIR"
 
-# 需要打包的库列表
-LIBS=(
+# 核心库列表（始终包含）
+CORE_LIBS=(
     "libvips"
     "libglib-2.0"
     "libgio-2.0"
@@ -25,6 +25,50 @@ LIBS=(
     "libexpat"
     "libz"
 )
+
+# 可选库列表（根据编译配置自动检测）
+OPTIONAL_LIBS=(
+    # 常用图像格式
+    "libjpeg"
+    "libpng16"
+    "libwebp"
+    "libsharpyuv"
+    # 其他图像格式
+    "libtiff"
+    "libheif"
+    "libde265"
+    "libx265"
+    "libavif"
+    "libaom"
+    "libjxl"
+    "libopenjp2"
+    "libOpenEXR"
+    "libcfitsio"
+    "libnifti"
+    "libmatio"
+    "libopenslide"
+    "libcgif"
+    "libnsgif"
+    # 功能模块
+    "libexif"
+    "liblcms2"
+    "libfftw3"
+    "liborc"
+    "libhwy"
+    "libimagequant"
+    "libarchive"
+)
+
+# 构建最终库列表
+LIBS=("${CORE_LIBS[@]}")
+for lib in "${OPTIONAL_LIBS[@]}"; do
+    # 检查库是否存在于 arm64 或 arm64-simulator 目录
+    if [ -f "$INSTALL_DIR/ios/arm64/lib/${lib}.a" ] || \
+       [ -f "$INSTALL_DIR/ios/arm64-simulator/lib/${lib}.a" ]; then
+        LIBS+=("$lib")
+        echo "检测到可选库: $lib"
+    fi
+done
 
 echo "=========================================="
 echo "创建 libvips XCFramework"

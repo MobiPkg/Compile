@@ -1,0 +1,14 @@
+name: libjpeg-turbo
+type: cmake
+source:
+  git:
+    url: https://github.com/libjpeg-turbo/libjpeg-turbo.git
+    ref: 3.0.4
+license: LICENSE.md
+
+options:
+  - -DENABLE_SHARED=OFF
+  - -DENABLE_STATIC=ON
+  - -DWITH_TURBOJPEG=OFF
+  - -DWITH_JAVA=OFF
+  - -DWITH_SIMD=ON

@@ -7,10 +7,12 @@ source:
 license: LICENSE
 
 flags:
-  c: -fPIC -O2
-  cxx: -fPIC -O2
+  # iOS 支持 posix_memalign，但 meson 交叉编译检测失败，需要手动定义
+  c: -fPIC -O2 -DHAVE_POSIX_MEMALIGN=1
+  cxx: -fPIC -O2 -DHAVE_POSIX_MEMALIGN=1
   cpp: ""
-  ld: ""
+  # 链接 libsharpyuv (libwebp 的私有依赖) 和 zlib (libpng 的依赖)
+  ld: -lsharpyuv -lz
 
 options:
   # 禁用不需要的功能以减少依赖
@@ -20,33 +22,44 @@ options:
   - -Dmodules=disabled
   - -Dexamples=false
   - -Dcplusplus=false
-  # 禁用可选的图像格式支持 (可根据需要启用)
-  - -Dcfitsio=disabled
+  
+  # 常用图像格式
+  - -Djpeg=enabled
+  - -Dpng=enabled
+  - -Dwebp=enabled
+  
+  # 其他图像格式
   - -Dcgif=disabled
-  - -Dexif=disabled
-  - -Dfftw=disabled
-  - -Dfontconfig=disabled
+  - -Dnsgif=false
+  - -Dtiff=disabled
   - -Dheif=disabled
+  - -Djpeg-xl=disabled
+  - -Dopenjpeg=disabled
+  - -Dopenexr=disabled
+  - -Dcfitsio=disabled
+  - -Dnifti=disabled
+  - -Dmatio=disabled
+  - -Dopenslide=disabled
+  
+  # 功能模块
+  - -Dexif=disabled
+  - -Dlcms=disabled
+  - -Dfftw=disabled
+  - -Dorc=disabled
   - -Dhighway=disabled
   - -Dimagequant=disabled
-  - -Djpeg=disabled
-  - -Djpeg-xl=disabled
-  - -Dlcms=disabled
-  - -Dmagick=disabled
-  - -Dmatio=disabled
-  - -Dnifti=disabled
-  - -Dopenexr=disabled
-  - -Dopenjpeg=disabled
-  - -Dopenslide=disabled
-  - -Dorc=disabled
-  - -Dpangocairo=disabled
-  - -Dpdfium=disabled
-  - -Dpng=disabled
-  - -Dpoppler=disabled
   - -Dquantizr=disabled
-  - -Drsvg=disabled
-  - -Dspng=disabled
-  - -Dtiff=disabled
-  - -Dwebp=disabled
-  - -Dzlib=disabled
   - -Darchive=disabled
+  
+  # 文本/矢量（iOS 不推荐）
+  - -Dfontconfig=disabled
+  - -Dpangocairo=disabled
+  - -Drsvg=disabled
+  - -Dpoppler=disabled
+  - -Dpdfium=disabled
+  - -Dmagick=disabled
+  
+  # 始终禁用
+  - -Dspng=disabled
+  # zlib 被 libpng 需要，启用它
+  - -Dzlib=enabled

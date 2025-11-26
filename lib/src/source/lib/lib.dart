@@ -10,7 +10,8 @@ class Lib
         LibDownloadMixin,
         LibFlagsMixin,
         LibTypeMixin,
-        LibPatchMixin {
+        LibPatchMixin,
+        LibPkgConfigMixin {
   @override
   final Map map;
 

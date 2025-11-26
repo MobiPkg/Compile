@@ -3,6 +3,7 @@ source/
 build/
 install/
 output/
+logs/
 
 # 依赖库的源码和构建目录
 deps/*/source/

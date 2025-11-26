@@ -82,13 +82,20 @@ abstract class BaseCompiler {
   FutureOr<void> compileIOS(Lib lib) async {
     for (final type in compileOptions.iosCpuTypes) {
       reporter.changeCpuType(type);
+      compileLogger.setCpuType(type);
+      compileLogger.phase('Compile iOS ${type.cpuName()}');
+      
       final iosUtils = IOSUtils(cpuType: type);
       final env = iosUtils.getEnvMap();
 
       _printEnv(env);
+      compileLogger.info('Environment configured for ${type.cpuName()}');
 
       final depPrefix = type.depPrefix();
       final installPrefix = type.installPrefix(lib);
+      
+      compileLogger.info('Dependency prefix: $depPrefix');
+      compileLogger.info('Install prefix: $installPrefix');
 
       await doCompileIOS(
         lib,
@@ -99,10 +106,12 @@ abstract class BaseCompiler {
       );
 
       if (compileOptions.strip) {
+        compileLogger.info('Stripping dynamic libraries');
         await iosUtils.stripDynamicLib(installPrefix);
       }
 
       _copyLicense(lib, installPrefix);
+      compileLogger.info('iOS ${type.cpuName()} compilation completed');
     }
   }
 
@@ -311,24 +320,37 @@ abstract class BaseCompiler {
 
   /// Main method
   FutureOr<void> compile(Lib lib) async {
+    // 初始化编译日志
+    final logDir = compileOptions.logDir ?? join(lib.buildPath, 'logs');
+    compileLogger.init(logDir: logDir, libName: lib.name);
+    compileLogger.info('Starting compilation for ${lib.name}');
+    compileLogger.info('Build type: ${lib.type.name}');
+    compileLogger.info('Source path: ${lib.workingPath}');
+    compileLogger.info('Install path: ${lib.installPath}');
+
     try {
+      compileLogger.phase('Check Environment');
       doCheckEnvAndCommand(lib);
 
       // apply before pre compile patch
+      compileLogger.phase('Apply Pre-compile Patches');
       lib.applyLibPath(
         beforePrecompile: true,
       );
 
       // pre compile
+      compileLogger.phase('Pre-compile');
       await _precompile(lib);
 
       // apply after pre compile patch
+      compileLogger.phase('Apply Post Pre-compile Patches');
       lib.applyLibPath(
         beforePrecompile: false,
       );
 
       final matrix = lib.matrixList;
 
+      compileLogger.phase('Compile');
       if (matrix.isEmpty) {
         await _compile(lib);
       } else {
@@ -337,11 +359,18 @@ abstract class BaseCompiler {
           await _compile(lib);
         }
       }
+      compileLogger.complete(success: true);
     } catch (e, st) {
+      compileLogger.error(
+        message: 'Compilation failed: $e',
+        buildSystem: lib.type.name,
+      );
+      compileLogger.complete(success: false);
       onCompileError(lib, e, st);
       rethrow;
     } finally {
       await doCompileDone(lib);
+      compileLogger.printLogLocations();
     }
 
     logger.info('Compile done, see ${lib.installPath}');

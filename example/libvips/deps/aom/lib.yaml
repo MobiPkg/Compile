@@ -1,0 +1,19 @@
+name: aom
+type: cmake
+source:
+  git:
+    url: https://aomedia.googlesource.com/aom
+    ref: v3.10.0
+license: LICENSE
+
+options:
+  - -DBUILD_SHARED_LIBS=OFF
+  - -DENABLE_DOCS=OFF
+  - -DENABLE_EXAMPLES=OFF
+  - -DENABLE_TESTDATA=OFF
+  - -DENABLE_TESTS=OFF
+  - -DENABLE_TOOLS=OFF
+  - -DCONFIG_AV1_ENCODER=0
+  - -DCONFIG_AV1_DECODER=1
+  - -DCONFIG_MULTITHREAD=1
+  - -DCONFIG_RUNTIME_CPU_DETECT=1

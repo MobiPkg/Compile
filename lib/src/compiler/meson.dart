@@ -124,6 +124,9 @@ class MesonCompiler extends BaseCompiler {
     final crossFilePath = crossFile.absolute.path;
 
     logger.info('meson install path: $installPrefix');
+    compileLogger.info('Meson build path: $buildPath');
+    compileLogger.info('Meson install path: $installPrefix');
+    compileLogger.info('Cross file: $crossFilePath');
 
     final params = <String, String>{
       'prefix': installPrefix,
@@ -139,6 +142,7 @@ class MesonCompiler extends BaseCompiler {
 
     if (lib.options.isNotEmpty) {
       opt = '$opt ${lib.options.join(' ')}';
+      compileLogger.info('Meson options: ${lib.options.join(' ')}');
     }
 
     final setupCmd = 'meson setup $buildPath $opt';
@@ -158,27 +162,89 @@ class MesonCompiler extends BaseCompiler {
       return;
     }
 
-    await shell.run(
-      setupCmd,
+    // Meson setup
+    compileLogger.phase('Meson Setup');
+    compileLogger.command(
+      command: setupCmd,
       workingDirectory: lib.workingPath,
       environment: env,
     );
+    
+    final mesonLogPath = join(buildPath, 'meson-logs', 'meson-log.txt');
+    
+    try {
+      await shell.run(
+        setupCmd,
+        workingDirectory: lib.workingPath,
+        environment: env,
+      );
+    } catch (e) {
+      compileLogger.error(
+        message: 'Meson setup failed',
+        command: setupCmd,
+        workingDirectory: lib.workingPath,
+        environment: env,
+        buildSystem: 'meson',
+        logFilePath: mesonLogPath,
+      );
+      rethrow;
+    }
 
-    // build
-    await shell.run(
-      buildCmd,
+    // Meson compile
+    compileLogger.phase('Meson Compile');
+    compileLogger.command(
+      command: buildCmd,
       workingDirectory: lib.workingPath,
       environment: env,
     );
+    
+    try {
+      await shell.run(
+        buildCmd,
+        workingDirectory: lib.workingPath,
+        environment: env,
+      );
+    } catch (e) {
+      compileLogger.error(
+        message: 'Meson compile failed',
+        command: buildCmd,
+        workingDirectory: lib.workingPath,
+        environment: env,
+        buildSystem: 'meson',
+        logFilePath: mesonLogPath,
+      );
+      rethrow;
+    }
 
     removeOldBeforeInstall(installCmd);
 
-    // install
-    await shell.run(
-      installCmd,
+    // Meson install
+    compileLogger.phase('Meson Install');
+    compileLogger.command(
+      command: installCmd,
       workingDirectory: lib.workingPath,
       environment: env,
     );
+    
+    try {
+      await shell.run(
+        installCmd,
+        workingDirectory: lib.workingPath,
+        environment: env,
+      );
+    } catch (e) {
+      compileLogger.error(
+        message: 'Meson install failed',
+        command: installCmd,
+        workingDirectory: lib.workingPath,
+        environment: env,
+        buildSystem: 'meson',
+        logFilePath: mesonLogPath,
+      );
+      rethrow;
+    }
+    
+    compileLogger.info('Meson compilation completed successfully');
   }
 
   void removeOldBeforeInstall(String installCmd) {
@@ -316,6 +382,10 @@ $flags
       throw Exception('pkg-config not found');
     }
 
+    // 获取依赖库的 pkgconfig 路径
+    final depPrefix = cpuType.depPrefix();
+    final pkgConfigLibDir = depPrefix.isNotEmpty ? '$depPrefix/lib/pkgconfig' : '';
+
     final content = '''
 [host_machine]
 system = 'ios'
@@ -325,6 +395,7 @@ endian = 'little'
 
 [properties]
 needs_exe_wrapper = true
+${pkgConfigLibDir.isNotEmpty ? "pkg_config_libdir = '$pkgConfigLibDir'" : ''}
 
 [binaries]
 c = ['xcrun', '-sdk', '${cpuType.sdkName()}', 'clang', '-target', '${cpuType.xcrunTarget()}']
