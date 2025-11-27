@@ -100,11 +100,53 @@ source/
 install/
 ```
 
+### Workspace (Dependency Management / 依赖管理)
+
+Workspace allows you to define multiple libraries with dependencies.
+The compiler will automatically resolve and compile them in topological order.
+
+Workspace 允许你定义多个库及其依赖关系，编译时会自动按拓扑顺序编译。
+
+**workspace.yaml**
+
+```yaml
+name: my-workspace
+libs:
+  - name: zlib
+    path: deps/zlib
+  - name: libpng
+    path: deps/libpng
+  - name: mylib
+    path: mylib
+```
+
+**lib.yaml (add deps field / 添加 deps 字段)**
+
+```yaml
+name: mylib
+type: meson
+deps:
+  - zlib
+  - libpng
+# ... other config / 其他配置
+```
+
+**Commands / 编译命令**
+
+```bash
+# Compile entire workspace / 编译整个 workspace
+compile workspace -C path/to/workspace -i
+
+# Compile specific lib with its dependencies / 只编译指定库及其依赖
+compile workspace -C path/to/workspace -i --target mylib
+```
+
 ### Other documents
 
 - [Config lib](doc/lib.md)
 - [Config option](doc/options.md)
 - [Config project yaml](doc/project-yaml.md)
+- [Config workspace](doc/workspace.md)
 - [Example list](doc/example-list.md)
 - [Develop](doc/Develop.md)
 - [Why](doc/WAY%26HOW.md)

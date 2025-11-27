@@ -32,6 +32,8 @@ OPTIONAL_LIBS=(
     "libjpeg"
     "libpng16"
     "libwebp"
+    "libwebpmux"
+    "libwebpdemux"
     "libsharpyuv"
     # 其他图像格式
     "libtiff"

@@ -6,6 +6,9 @@ source:
     ref: v1.6.44
 license: LICENSE
 
+deps:
+  - zlib
+
 options:
   - -DPNG_SHARED=OFF
   - -DPNG_STATIC=ON

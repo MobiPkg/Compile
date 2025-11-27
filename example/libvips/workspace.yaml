@@ -1,0 +1,26 @@
+name: libvips-workspace
+
+libs:
+  # 核心依赖
+  - name: zlib
+    path: deps/zlib
+  - name: libffi
+    path: deps/libffi
+  - name: pcre2
+    path: deps/pcre2
+  - name: expat
+    path: deps/expat
+  - name: glib
+    path: deps/glib
+  
+  # 图像格式库
+  - name: libjpeg-turbo
+    path: deps/libjpeg-turbo
+  - name: libpng
+    path: deps/libpng
+  - name: libwebp
+    path: deps/libwebp
+  
+  # 主库
+  - name: libvips
+    path: libvips

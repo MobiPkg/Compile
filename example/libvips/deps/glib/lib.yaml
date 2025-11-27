@@ -6,6 +6,11 @@ source:
     ref: 2.82.4
 license: COPYING
 
+deps:
+  - libffi
+  - pcre2
+  - zlib
+
 flags:
   c: -fPIC -O2
   cxx: -fPIC -O2

@@ -11,7 +11,8 @@ class Lib
         LibFlagsMixin,
         LibTypeMixin,
         LibPatchMixin,
-        LibPkgConfigMixin {
+        LibPkgConfigMixin,
+        LibDepsMixin {
   @override
   final Map map;
 

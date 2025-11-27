@@ -265,13 +265,21 @@ source:
     ref: v8.16.0
 license: LICENSE
 
+deps:
+  - glib
+  - expat
+  - zlib
+  - libjpeg-turbo
+  - libpng
+  - libwebp
+
 flags:
   # iOS 支持 posix_memalign，但 meson 交叉编译检测失败，需要手动定义
   c: -fPIC -O2 -DHAVE_POSIX_MEMALIGN=1
   cxx: -fPIC -O2 -DHAVE_POSIX_MEMALIGN=1
   cpp: ""
-  # 链接 libsharpyuv (libwebp 的私有依赖) 和 zlib (libpng 的依赖)
-  ld: -lsharpyuv -lz
+  # 链接 libwebpmux/libwebpdemux (WebP 动画支持), libsharpyuv (libwebp 的私有依赖) 和 zlib (libpng 的依赖)
+  ld: -lwebpmux -lwebpdemux -lsharpyuv -lz
 
 options:
   # 禁用不需要的功能以减少依赖
