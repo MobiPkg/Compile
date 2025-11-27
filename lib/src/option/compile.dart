@@ -5,14 +5,18 @@ import 'package:yaml/yaml.dart';
 final compileOptions = CompileOptions();
 
 class CompileOptions {
+  /// Android 默认开启
   bool android = true;
 
   List<AndroidCpuType> androidCpuTypes = AndroidCpuType.values;
 
-  bool ios = true;
+  /// iOS 仅在 macOS 上默认开启
+  bool ios = Platform.isMacOS;
 
-  List<IOSCpuType> iosCpuTypes = IOSCpuType.values;
+  /// 默认编译 arm64 和 arm64-simulator，不包含 x86_64
+  List<IOSCpuType> iosCpuTypes = const [IOSCpuType.arm64, IOSCpuType.arm64Simulator];
 
+  /// 鸿蒙默认不开启，需要显式开启
   bool harmony = false;
 
   List<HarmonyCpuType> harmonyCpuTypes = HarmonyCpuType.values;
@@ -84,14 +88,14 @@ extension CompileOptionsExt on CompileOptions {
     argParser.addFlag(
       'ios',
       abbr: 'i',
-      defaultsTo: true,
-      help: 'Whether compile ios library.',
+      defaultsTo: Platform.isMacOS,
+      help: 'Whether compile ios library (default: true on macOS only).',
     );
     argParser.addMultiOption(
       'ios-cpu',
-      help: 'Set ios cpu, support: ${IOSCpuType.args().join(", ")}. '
-          'If not specified, all architectures will be compiled.',
-      allowed: IOSCpuType.args(),
+      help: 'Set ios cpu, support: ${IOSCpuType.args().join(", ")}, all. '
+          'Default: arm64, arm64-simulator. Use "all" to include x86_64.',
+      allowed: [...IOSCpuType.args(), 'all'],
     );
     argParser.addFlag(
       'harmony',
@@ -179,10 +183,15 @@ extension CompileOptionsExt on CompileOptions {
           .toList();
       ios = result['ios'] as bool;
       final iosCpuList = (result['ios-cpu'] as List).whereType<String>().toList();
-      // 如果用户没有指定 ios-cpu，使用所有架构
-      iosCpuTypes = iosCpuList.isEmpty
-          ? IOSCpuType.values
-          : iosCpuList.map((e) => IOSCpuType.from(e)).toList();
+      // 如果用户没有指定 ios-cpu，使用默认架构 (arm64, arm64-simulator)
+      // 如果指定 'all'，使用所有架构
+      if (iosCpuList.isEmpty) {
+        iosCpuTypes = const [IOSCpuType.arm64, IOSCpuType.arm64Simulator];
+      } else if (iosCpuList.contains('all')) {
+        iosCpuTypes = IOSCpuType.values;
+      } else {
+        iosCpuTypes = iosCpuList.map((e) => IOSCpuType.from(e)).toList();
+      }
       harmony = result['harmony'] as bool;
       harmonyCpuTypes = (result['harmony-cpu'] as List)
           .whereType<String>()

@@ -170,9 +170,22 @@ abstract class BaseCompiler {
 
     logBuffer.writeln('Create universal path: $universalPath');
 
-    // 2. find first cpu type
-    final firstCpuName = IOSCpuType.values.first;
+    // 2. find first cpu type from compiled types
+    final compiledCpuTypes = compileOptions.iosCpuTypes;
+    if (compiledCpuTypes.isEmpty) {
+      logBuffer.writeln('No iOS CPU types configured');
+      logger.info(logBuffer.toString());
+      return;
+    }
+    final firstCpuName = compiledCpuTypes.first;
     final firstCpuDir = Directory(join(iOSPath, firstCpuName.cpuName()));
+    
+    if (!firstCpuDir.existsSync()) {
+      logBuffer.writeln('First CPU directory does not exist: ${firstCpuDir.path}');
+      logger.info(logBuffer.toString());
+      return;
+    }
+    
     final firstCpuChildList = firstCpuDir.listSync();
 
     if (firstCpuChildList.isEmpty) {

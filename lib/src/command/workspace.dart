@@ -102,7 +102,7 @@ class WorkspaceCommand extends BaseVoidCommand {
 
   void _checkEnv() {
     if (compileOptions.android) {
-      checkEnv(Consts.ndkKey, throwMessage: 'Please set NDK path first.');
+      NdkUtils.checkAndSetNdk();
     }
     if (compileOptions.ios) {
       checkWhich('xcrun', throwMessage: 'Please install Xcode first.');

@@ -15,6 +15,8 @@ class Commander with LogMixin {
     LibCommand(),
     ProjectCommand(),
     WorkspaceCommand(),
+    PackageCommand(),
+    CleanCommand(),
     SupportCommand(),
     TemplateCommand(),
   ];

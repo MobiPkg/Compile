@@ -2,6 +2,7 @@
 source/
 build/
 install/
+installed/
 output/
 logs/
 

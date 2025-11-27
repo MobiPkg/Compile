@@ -4,6 +4,8 @@
 
 ## 快速开始
 
+### 方式一：使用 Shell 脚本
+
 ```bash
 # 1. 安装依赖
 brew install meson ninja automake autoconf libtool pkg-config
@@ -14,6 +16,34 @@ brew install meson ninja automake autoconf libtool pkg-config
 
 # 3. 创建 XCFramework
 ./create-xcframework.sh
+```
+
+### 方式二：使用 Workspace 命令（推荐）
+
+```bash
+# 1. 安装依赖
+brew install meson ninja automake autoconf libtool pkg-config
+
+# 2. 使用 workspace 命令编译所有库
+cd /path/to/mobipkg/Compile
+dart run bin/compile.dart workspace -C example/libvips \
+  --ios --ios-cpu arm64 --ios-cpu arm64-simulator
+
+# 3. 使用 package 命令创建 XCFramework
+dart run bin/compile.dart package xcframework -C example/libvips \
+  --target libvips --output libvips
+```
+
+### 方式三：使用配置化构建脚本
+
+```bash
+# 使用 build.sh 可以灵活配置启用的模块
+./build.sh
+
+# 或指定架构
+./build.sh arm64           # 仅真机
+./build.sh arm64-simulator # 仅模拟器
+./build.sh all             # 全部（默认）
 ```
 
 ## XCFramework
@@ -266,6 +296,68 @@ libvips 当前配置禁用了大部分可选功能以简化编译：
 
 1. 编译对应的依赖库（如 libjpeg-turbo, libpng 等）
 2. 修改 `libvips/lib.yaml` 中的 options
+
+## lib.yaml 扩展配置
+
+### extra_libs - 额外产物库
+
+某些库编译后会产生多个静态库文件，使用 `extra_libs` 配置：
+
+```yaml
+# deps/libwebp/lib.yaml
+name: libwebp
+type: cmake
+# ...
+
+extra_libs:
+  - libwebpmux      # WebP mux 库（动画编码）
+  - libwebpdemux    # WebP demux 库（动画解码）
+  - libsharpyuv     # libwebp 的私有依赖
+```
+
+这些额外库会在使用 `package xcframework` 命令时自动包含。
+
+### hooks - 构建钩子
+
+支持在构建的不同阶段执行自定义脚本，可以按平台/架构过滤：
+
+```yaml
+# deps/libffi/lib.yaml
+name: libffi
+type: autotools
+# ...
+
+hooks:
+  post_configure:
+    # 只在 iOS 平台执行
+    - platform: ios
+      script: |
+        echo "iOS specific post-configure hook"
+    
+    # 只在 iOS arm64 真机执行
+    - platform: ios
+      arch: arm64
+      script: |
+        echo "iOS arm64 device only"
+```
+
+详细文档参见 `doc/lib-yaml-extensions.md`。
+
+## 使用 Compile 命令构建 libffi
+
+libffi 现在可以直接使用 compile 命令构建，不再需要单独的 shell 脚本：
+
+```bash
+cd /path/to/mobipkg/Compile
+
+# 编译 libffi（真机 + 模拟器）
+dart run bin/compile.dart lib -C example/libvips/deps/libffi \
+  --ios --ios-cpu arm64 --ios-cpu arm64-simulator \
+  --install-prefix example/libvips/install \
+  --dependency-prefix example/libvips/install
+```
+
+libffi 的 `lib.yaml` 配置了 `hooks.post_configure` 钩子，会在 iOS 交叉编译时自动生成必要的 `fficonfig.h` 文件。
 
 ## 已知限制
 

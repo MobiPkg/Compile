@@ -340,9 +340,9 @@ class AndroidUtils with PlatformUtils {
   });
 
   String get toolchainPath {
-    var ndk = Platform.environment[Consts.ndkKey];
-    if (ndk == null) {
-      throw Exception('Not found $ndk');
+    var ndk = envs.systemEnvs[Consts.ndkKey];
+    if (ndk == null || ndk.isEmpty) {
+      throw Exception('ANDROID_NDK_HOME not set');
     }
 
     if (useEnvExport) {
@@ -429,7 +429,7 @@ class AndroidUtils with PlatformUtils {
 
   @override
   Map<String, String> get platformEnvs => {
-        Consts.ndkKey: Platform.environment[Consts.ndkKey]!,
+        Consts.ndkKey: envs.androidNDK,
       };
 }
 

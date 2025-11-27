@@ -31,7 +31,7 @@ class RustCompiler extends BaseCompiler {
         .where((element) => element.trim().isNotEmpty);
 
     if (compileOptions.android) {
-      checkEnv(Consts.ndkKey, throwMessage: 'Please set ndk path first.');
+      NdkUtils.checkAndSetNdk();
 
       for (final cpuType in compileOptions.androidCpuTypes) {
         final tripleCpuName = cpuType.rustTripleCpuName();

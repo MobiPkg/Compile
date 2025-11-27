@@ -6,6 +6,15 @@ source:
     ref: v1.4.0
 license: COPYING
 
+# 额外产物库（会被合并到最终 XCFramework）
+# libwebpmux: WebP mux 库（动画编码）
+# libwebpdemux: WebP demux 库（动画解码）
+# libsharpyuv: libwebp 的私有依赖
+extra_libs:
+  - libwebpmux
+  - libwebpdemux
+  - libsharpyuv
+
 options:
   - -DBUILD_SHARED_LIBS=OFF
   - -DWEBP_BUILD_ANIM_UTILS=OFF
