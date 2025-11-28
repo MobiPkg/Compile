@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:compile/compile.dart';
 import 'package:yaml/yaml.dart';
 
 void main() {
@@ -8,13 +8,13 @@ void main() {
   if (hooks != null) {
     final postConfigure = hooks['post_configure'] as YamlList?;
     if (postConfigure != null) {
-      print('Found ${postConfigure.length} post_configure hooks:');
+      logger.info('Found ${postConfigure.length} post_configure hooks:');
       for (var i = 0; i < postConfigure.length; i++) {
         final item = postConfigure[i];
-        print('  Hook $i: ${item.runtimeType}');
+        logger.info('  Hook $i: ${item.runtimeType}');
         if (item is Map) {
-          print('    platform: ${item['platform']}');
-          print('    script length: ${(item['script'] as String?)?.length ?? 0}');
+          logger.info('    platform: ${item['platform']}');
+          logger.info('    script length: ${(item['script'] as String?)?.length ?? 0}');
         }
       }
     }

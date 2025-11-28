@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:compile/compile.dart';
 import 'package:path/path.dart' as p;
 
@@ -280,15 +278,15 @@ Autotools 错误排查提示:
   void printLogLocations() {
     if (_logDir == null) return;
     
-    print('');
-    print('=' * 60);
-    print('Compile logs saved to:');
-    print('  $_logDir');
-    print('');
-    print('Log files:');
+    logger.info('');
+    logger.info('=' * 60);
+    logger.info('Compile logs saved to:');
+    logger.info('  $_logDir');
+    logger.info('');
+    logger.info('Log files:');
     for (final entry in _logFiles.entries) {
-      print('  - ${entry.value.path}');
+      logger.info('  - ${entry.value.path}');
     }
-    print('=' * 60);
+    logger.info('=' * 60);
   }
 }

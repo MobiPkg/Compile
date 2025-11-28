@@ -375,7 +375,7 @@ abstract class BaseCompiler {
           await _compile(lib);
         }
       }
-      compileLogger.complete(success: true);
+      compileLogger.complete();
     } catch (e, st) {
       compileLogger.error(
         message: 'Compilation failed: $e',

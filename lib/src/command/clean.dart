@@ -27,13 +27,11 @@ class CleanCommand extends BaseVoidCommand {
       'install',
       abbr: 'i',
       help: 'Clean install directories.',
-      defaultsTo: false,
     );
     argParser.addFlag(
       'logs',
       abbr: 'l',
       help: 'Clean logs directories.',
-      defaultsTo: false,
     );
     argParser.addFlag(
       'deps',
@@ -44,7 +42,6 @@ class CleanCommand extends BaseVoidCommand {
     argParser.addFlag(
       'dry-run',
       help: 'Show what would be deleted without actually deleting.',
-      defaultsTo: false,
     );
   }
 
@@ -194,7 +191,8 @@ class CleanCommand extends BaseVoidCommand {
   Future<int> _getDirectorySize(Directory dir) async {
     int size = 0;
     try {
-      await for (final entity in dir.list(recursive: true, followLinks: false)) {
+      await for (final entity
+          in dir.list(recursive: true, followLinks: false)) {
         if (entity is File) {
           size += await entity.length();
         }

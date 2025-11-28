@@ -74,7 +74,6 @@ class MergeAndroidCommand extends BaseVoidCommand {
     argParser.addFlag(
       'allow-multiple-definition',
       help: 'Allow multiple symbol definitions (use first definition)',
-      defaultsTo: false,
     );
   }
 
@@ -294,21 +293,12 @@ class AndroidLibMerger with LogMixin {
     }
   }
 
-  /// Merge multiple static libraries into one
-  Future<void> _mergeStaticLibs(List<String> inputs, String output) async {
-    // Use thin archive for merging
-    final args = ['rcsT', output, ...inputs];
-    final result = await Process.run(arPath, args);
-
-    if (result.exitCode != 0) {
-      throw StateError(
-          'Failed to merge static libraries: ${result.stderr}',);
-    }
-  }
-
   /// Convert static library to shared library
   Future<void> _convertToShared(
-      String abi, List<String> inputs, String output) async {
+    String abi,
+    List<String> inputs,
+    String output,
+  ) async {
     final clang = getClangPath(abi);
 
     final args = <String>[
@@ -326,7 +316,8 @@ class AndroidLibMerger with LogMixin {
 
     if (result.exitCode != 0) {
       throw StateError(
-          'Failed to create shared library: ${result.stderr}',);
+        'Failed to create shared library: ${result.stderr}',
+      );
     }
 
     // Strip if requested

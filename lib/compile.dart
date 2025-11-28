@@ -5,6 +5,7 @@
 export 'dart:async';
 export 'dart:collection';
 export 'dart:io';
+
 export 'package:args/args.dart';
 export 'package:process_run/process_run.dart';
 
@@ -45,10 +46,10 @@ export 'src/source/workspace/workspace.dart';
 export 'src/template/base_template.dart';
 export 'src/util/android_cmake_generator.dart';
 export 'src/util/brew_utils.dart';
-export 'src/util/ios_cmake_generator.dart';
 export 'src/util/common_utils.dart';
 export 'src/util/compile_logger.dart';
 export 'src/util/file_utils.dart';
+export 'src/util/ios_cmake_generator.dart';
 export 'src/util/log.dart';
 export 'src/util/map_utils.dart';
 export 'src/util/ndk_utils.dart';

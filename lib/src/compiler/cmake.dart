@@ -312,7 +312,7 @@ set(CMAKE_SYSTEM_NAME iOS)
 
     final configureCmd = 'cmake $args -S $sourceDir -B $buildPath -G Ninja';
     final buildCmd = 'ninja -j$cpuCount';
-    final installCmd = 'ninja install';
+    const installCmd = 'ninja install';
     
     final cmakeErrorLog = join(buildPath, 'CMakeFiles', 'CMakeError.log');
     
