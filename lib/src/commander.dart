@@ -19,6 +19,7 @@ class Commander with LogMixin {
     CleanCommand(),
     SupportCommand(),
     TemplateCommand(),
+    MergeCommand(),
   ];
 
   CommandRunner<void> get runner => _runner;

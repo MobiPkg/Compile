@@ -97,6 +97,27 @@ class WorkspaceCommand extends BaseVoidCommand {
       logger.info('Shell files generated in $shellPath');
     }
 
+    // Generate CMake configuration
+    if (!compileOptions.justMakeShell) {
+      final installDir = compileOptions.installPrefix ?? 
+          join(workspaceDir, 'installed');
+      final targetLibName = targetLib ?? workspace.name;
+      
+      if (compileOptions.android) {
+        logger.info('Generating Android CMake configuration...');
+        final generator = AndroidCmakeGenerator.fromInstallDir(installDir, targetLibName);
+        generator.generate();
+        logger.info('CMake files generated in $installDir/android/');
+      }
+      
+      if (compileOptions.ios) {
+        logger.info('Generating iOS CMake configuration...');
+        final generator = IosCmakeGenerator.fromInstallDir(installDir, targetLibName);
+        generator.generate();
+        logger.info('CMake files generated in $installDir/ios/');
+      }
+    }
+
     logger.info('Workspace compilation completed!');
   }
 

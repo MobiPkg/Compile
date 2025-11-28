@@ -2,8 +2,6 @@
 // Use of this source code is governed by a Apache 2.0 license that can be
 // found in the LICENSE file.
 
-library compile;
-
 export 'dart:async';
 export 'dart:collection';
 export 'dart:io';
@@ -13,6 +11,7 @@ export 'package:process_run/process_run.dart';
 export 'src/command/base.dart';
 export 'src/command/clean.dart';
 export 'src/command/lib.dart';
+export 'src/command/merge.dart';
 export 'src/command/package.dart';
 export 'src/command/project.dart';
 export 'src/command/support.dart';
@@ -44,7 +43,9 @@ export 'src/source/lib/lib_type.dart';
 export 'src/source/project/project.dart';
 export 'src/source/workspace/workspace.dart';
 export 'src/template/base_template.dart';
+export 'src/util/android_cmake_generator.dart';
 export 'src/util/brew_utils.dart';
+export 'src/util/ios_cmake_generator.dart';
 export 'src/util/common_utils.dart';
 export 'src/util/compile_logger.dart';
 export 'src/util/file_utils.dart';

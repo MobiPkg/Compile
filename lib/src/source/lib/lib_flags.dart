@@ -29,35 +29,44 @@ mixin LibFlagsMixin {
     return result;
   }
 
-  /// 获取 Android 特定的 options
+  /// 获取 Android 特定的 options (从 android.options 读取)
   List<String> get androidOptions {
     final result = <String>[];
-    final opt = map['android_options'] as YamlList?;
-    if (opt != null) {
+    final config = androidConfig;
+    final opt = config['options'];
+    if (opt is YamlList) {
       opt.whereType<String>().forEach(result.add);
     }
     return result;
   }
 
-  /// 获取 iOS 特定的 options
+  /// 获取 iOS 特定的 options (从 ios.options 读取)
   List<String> get iosOptions {
     final result = <String>[];
-    final opt = map['ios_options'] as YamlList?;
-    if (opt != null) {
+    final config = iosConfig;
+    final opt = config['options'];
+    if (opt is YamlList) {
       opt.whereType<String>().forEach(result.add);
     }
     return result;
   }
 
-  /// 获取 Harmony 特定的 options
+  /// 获取 Harmony 特定的 options (从 harmony.options 读取)
   List<String> get harmonyOptions {
     final result = <String>[];
-    final opt = map['harmony_options'] as YamlList?;
-    if (opt != null) {
+    final config = harmonyConfig;
+    final opt = config['options'];
+    if (opt is YamlList) {
       opt.whereType<String>().forEach(result.add);
     }
     return result;
   }
+
+  /// 获取 iOS 配置
+  Map get iosConfig => map.getMap('ios');
+
+  /// 获取 Harmony 配置
+  Map get harmonyConfig => map.getMap('harmony');
 
   /// 根据平台获取合并后的 options
   List<String> getOptionsForPlatform(String platform) {

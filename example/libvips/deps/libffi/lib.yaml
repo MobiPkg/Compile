@@ -69,17 +69,34 @@ hooks:
     # Android 平台
     - platform: android
       script: |
-        # libffi configure 会创建以 HOST 命名的子目录，但可能带有 -unknown- 前缀
-        # 尝试多种可能的目录名
-        for pattern in "$HOST" "*-unknown-linux-android" "*-linux-android*"; do
-          BUILD_SUBDIR=$(find "$SOURCE_DIR" -maxdepth 1 -type d -name "$pattern" 2>/dev/null | head -1)
-          if [ -n "$BUILD_SUBDIR" ] && [ -d "$BUILD_SUBDIR" ]; then
-            break
-          fi
-        done
+        # libffi configure 会创建以 HOST 命名的子目录
+        # 根据 ARCH 确定正确的子目录前缀
+        case "$ARCH" in
+          arm64-v8a)
+            ARCH_PREFIX="aarch64"
+            ;;
+          armeabi-v7a)
+            ARCH_PREFIX="arm"
+            ;;
+          x86)
+            ARCH_PREFIX="i686"
+            ;;
+          x86_64)
+            ARCH_PREFIX="x86_64"
+            ;;
+          *)
+            ARCH_PREFIX=""
+            ;;
+        esac
+        
+        # 查找匹配当前架构的子目录
+        BUILD_SUBDIR=""
+        if [ -n "$ARCH_PREFIX" ]; then
+          BUILD_SUBDIR=$(find "$SOURCE_DIR" -maxdepth 1 -type d -name "${ARCH_PREFIX}-*-linux-android*" 2>/dev/null | head -1)
+        fi
         
         if [ -z "$BUILD_SUBDIR" ] || [ ! -d "$BUILD_SUBDIR" ]; then
-          echo "Warning: Could not find libffi build subdirectory"
+          echo "Warning: Could not find libffi build subdirectory for $ARCH (prefix: $ARCH_PREFIX)"
           exit 0
         fi
         
@@ -88,13 +105,12 @@ hooks:
         
         if [ ! -f fficonfig.h ] || [ ! -s fficonfig.h ]; then
           echo "Generating fficonfig.h for Android cross-compilation..."
-          # 根据架构设置 SIZE_T 大小
           if [ "$ARCH" = "arm64-v8a" ] || [ "$ARCH" = "x86_64" ]; then
             SIZEOF_SIZE_T=8
           else
             SIZEOF_SIZE_T=4
           fi
-          cat > fficonfig.h << FFICONFIG_EOF
+          cat > fficonfig.h << 'FFICONFIG_EOF'
         /* fficonfig.h - Generated for Android cross-compilation */
         #define STDC_HEADERS 1
         #define HAVE_ALLOCA_H 1
@@ -107,7 +123,6 @@ hooks:
         #define HAVE_SYS_TYPES_H 1
         #define HAVE_UNISTD_H 1
         #define HAVE_DLFCN_H 1
-        #define SIZEOF_SIZE_T $SIZEOF_SIZE_T
         #define SIZEOF_DOUBLE 8
         #define SIZEOF_LONG_DOUBLE 8
         #define HAVE_LONG_DOUBLE 1
@@ -120,5 +135,7 @@ hooks:
         #define FFI_HIDDEN __attribute__ ((visibility ("hidden")))
         #endif
         FFICONFIG_EOF
+          sed -i '' "s/SIZEOF_SIZE_T_PLACEHOLDER/$SIZEOF_SIZE_T/" fficonfig.h 2>/dev/null || sed -i "s/SIZEOF_SIZE_T_PLACEHOLDER/$SIZEOF_SIZE_T/" fficonfig.h
+          echo "#define SIZEOF_SIZE_T $SIZEOF_SIZE_T" >> fficonfig.h
           echo "fficonfig.h generated for $ARCH (SIZEOF_SIZE_T=$SIZEOF_SIZE_T)"
         fi
