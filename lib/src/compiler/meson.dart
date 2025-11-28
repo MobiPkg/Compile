@@ -140,9 +140,12 @@ class MesonCompiler extends BaseCompiler {
         .map((entry) => '--${entry.key}="${entry.value}"')
         .join(' ');
 
-    if (lib.options.isNotEmpty) {
-      opt = '$opt ${lib.options.join(' ')}';
-      compileLogger.info('Meson options: ${lib.options.join(' ')}');
+    // 获取平台特定的 options
+    final platformName = cpuType.platformName();
+    final platformOptions = lib.getOptionsForPlatform(platformName);
+    if (platformOptions.isNotEmpty) {
+      opt = '$opt ${platformOptions.join(' ')}';
+      compileLogger.info('Meson options ($platformName): ${platformOptions.join(' ')}');
     }
 
     final setupCmd = 'meson setup $buildPath $opt';
@@ -311,7 +314,9 @@ class MesonCompiler extends BaseCompiler {
   }
 
   String makeAndroidCrossFileContent(Lib lib, AndroidCpuType cpuType) {
-    final androidUtils = AndroidUtils(targetCpuType: cpuType);
+    // 使用 lib 中配置的 minSdk，如果没有配置则使用默认值
+    final minSdk = lib.androidMinSdk ?? 21;
+    final androidUtils = AndroidUtils(targetCpuType: cpuType, minSdk: minSdk);
 
     final pkgConfigPath = shell.whichSync('pkg-config');
     if (pkgConfigPath == null) {
@@ -337,7 +342,7 @@ endian = 'little'
 [properties]
 c_ld = 'gold'
 cpp_ld = 'gold'
-needs_exe_wrapper = false
+needs_exe_wrapper = true
 ; sys_root = '${androidUtils.sysroot()}'
 ; pkg_config_libdir = '${cpuType.depPrefix()}/lib/pkgconfig'
 
@@ -346,7 +351,7 @@ c =     '${androidUtils.cc()}'
 cpp =   '${androidUtils.cxx()}'
 ar =    '${androidUtils.ar()}'
 strip = '${androidUtils.strip()}'
-; pkgconfig = '$pkgConfigPath'
+pkgconfig = '$pkgConfigPath'
 
 ${_makeBuiltInOptions(lib, cpuType)}
 
@@ -438,7 +443,7 @@ needs_exe_wrapper = true
 ; cpp =   '${iosUtils.cxx()}'
 ; ar =    '${iosUtils.ar()}'
 ; strip = '${iosUtils.strip()}'
-; pkgconfig = '$pkgConfigPath'
+pkgconfig = '$pkgConfigPath'
 
 ${_makeBuiltInOptions(lib, cpuType)}
 

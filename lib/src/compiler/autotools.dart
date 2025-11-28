@@ -127,7 +127,10 @@ class AutoToolsCompiler extends BaseCompiler {
     }
     // cpu number
     final cpuNumber = envs.cpuCount;
-    final opt = lib.options.toFlagString();
+    // 获取平台特定的 options
+    final platformName = cpuType.platformName();
+    final platformOptions = lib.getOptionsForPlatform(platformName);
+    final opt = platformOptions.toFlagString();
 
     if (depPrefix.isEmpty) {
       // ignore: parameter_assignments
@@ -288,6 +291,12 @@ class AutoToolsCompiler extends BaseCompiler {
     hookEnv['INSTALL_PREFIX'] = installPrefix;
     hookEnv['ARCH'] = cpuType.cpuName();
     hookEnv['PLATFORM'] = cpuType.platformName();
+    
+    // HOST is already in baseEnv from platform_utils, ensure it's available
+    // Also add it explicitly for clarity in hook scripts
+    if (baseEnv.containsKey('HOST')) {
+      hookEnv['HOST'] = baseEnv['HOST']!;
+    }
     
     if (cpuType is IOSCpuType) {
       hookEnv['SDK'] = cpuType.sdkName();

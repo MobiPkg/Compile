@@ -11,6 +11,11 @@ deps:
   - pcre2
   - zlib
 
+# Android 平台配置
+# API 28+ 内置 iconv，API 31+ 修复了 frexpl 问题
+android:
+  min_sdk: 28
+
 # glib 会产生多个库文件
 extra_libs:
   - libgio-2.0
@@ -26,6 +31,7 @@ flags:
   cpp: ""
   ld: ""
 
+# 通用 options
 options:
   - -Dtests=false
   - -Dglib_debug=disabled
@@ -37,8 +43,5 @@ options:
   - -Dlibelf=disabled
   - -Dglib_assert=false
   - -Dglib_checks=false
-  # 允许 fallback 但只用于特定的 subprojects
-  - --wrap-mode=nofallback
-  # 强制使用特定的 subprojects (proxy-libintl, gvdb 是 glib 内置的，pcre2 需要下载)
-  # 不包含 libffi，使用我们已编译的版本
+  # 强制使用特定的 subprojects (proxy-libintl, gvdb 是 glib 内置的)
   - --force-fallback-for=proxy-libintl,gvdb,pcre2

@@ -14,6 +14,10 @@ deps:
   - libpng
   - libwebp
 
+# Android 平台配置 - 与 glib 保持一致的 API level
+android:
+  min_sdk: 28
+
 flags:
   # iOS 支持 posix_memalign，但 meson 交叉编译检测失败，需要手动定义
   c: -fPIC -O2 -DHAVE_POSIX_MEMALIGN=1

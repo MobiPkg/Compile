@@ -4,6 +4,7 @@ libs:
   # 核心依赖
   - name: zlib
     path: deps/zlib
+  # libiconv 使用 glib 内置 fallback
   - name: libffi
     path: deps/libffi
   - name: pcre2

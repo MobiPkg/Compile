@@ -53,8 +53,11 @@ abstract class BaseCompiler {
     for (final type in compileOptions.androidCpuTypes) {
       reporter.changeCpuType(type);
 
+      // 使用 lib 中配置的 minSdk，如果没有配置则使用默认值
+      final minSdk = lib.androidMinSdk ?? 21;
       final androidUtils = AndroidUtils(
         targetCpuType: type,
+        minSdk: minSdk,
         useEnvExport: compileOptions.justMakeShell,
       );
       final env = androidUtils.getEnvMap();

@@ -304,9 +304,10 @@ enum AndroidCpuType with CpuType {
       result.add(Directory('$depPrefix/lib'));
     }
 
-    // Add NDK lib
+    // Add NDK lib - 使用 lib 中配置的 minSdk
     final sysRoot = platformUtils.sysroot();
-    result.addJoin(sysRoot, 'usr', 'lib', host(), '21');
+    final minSdk = lib.androidMinSdk ?? 21;
+    result.addJoin(sysRoot, 'usr', 'lib', host(), '$minSdk');
 
     return result;
   }

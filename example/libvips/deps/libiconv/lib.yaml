@@ -1,0 +1,19 @@
+name: libiconv
+type: autotools
+source:
+  http:
+    url: https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz
+    sha256: 8f74213b56238c85a50a5329f77e06198771e70dd9a739779f4c02f65d971313
+    type: tar.gz
+  subpath: libiconv-1.17
+license: COPYING
+
+flags:
+  c: -fPIC -O2 -Wall 
+  cxx: -fPIC -O3 -std=c++17
+  cpp:
+  ld:
+
+options:
+  - --enable-static
+  - --disable-shared

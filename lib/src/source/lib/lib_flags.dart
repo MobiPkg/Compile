@@ -16,6 +16,7 @@ mixin LibFlagsMixin {
   String get cxxFlags => flags.cxx;
   String get ldFlags => flags.ld;
 
+  /// 获取通用 options
   List<String> get options {
     final result = <String>[];
     final opt = map['options'] as YamlList?;
@@ -26,6 +27,66 @@ mixin LibFlagsMixin {
       result.addAll(matrixItem!.options);
     }
     return result;
+  }
+
+  /// 获取 Android 特定的 options
+  List<String> get androidOptions {
+    final result = <String>[];
+    final opt = map['android_options'] as YamlList?;
+    if (opt != null) {
+      opt.whereType<String>().forEach(result.add);
+    }
+    return result;
+  }
+
+  /// 获取 iOS 特定的 options
+  List<String> get iosOptions {
+    final result = <String>[];
+    final opt = map['ios_options'] as YamlList?;
+    if (opt != null) {
+      opt.whereType<String>().forEach(result.add);
+    }
+    return result;
+  }
+
+  /// 获取 Harmony 特定的 options
+  List<String> get harmonyOptions {
+    final result = <String>[];
+    final opt = map['harmony_options'] as YamlList?;
+    if (opt != null) {
+      opt.whereType<String>().forEach(result.add);
+    }
+    return result;
+  }
+
+  /// 根据平台获取合并后的 options
+  List<String> getOptionsForPlatform(String platform) {
+    final result = <String>[...options];
+    switch (platform) {
+      case 'android':
+        result.addAll(androidOptions);
+        break;
+      case 'ios':
+        result.addAll(iosOptions);
+        break;
+      case 'harmony':
+        result.addAll(harmonyOptions);
+        break;
+    }
+    return result;
+  }
+
+  /// 获取 Android 配置
+  Map get androidConfig => map.getMap('android');
+
+  /// 获取 Android minSdk（如果配置了的话）
+  int? get androidMinSdk {
+    final config = androidConfig;
+    final minSdk = config['min_sdk'];
+    if (minSdk is int) {
+      return minSdk;
+    }
+    return null;
   }
 
   MatrixItem? matrixItem;

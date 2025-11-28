@@ -226,7 +226,10 @@ set(CMAKE_SYSTEM_NAME iOS)
       argsBuffer.write(' -D${e.key}="${e.value}"');
     }
 
-    for (final opt in lib.options) {
+    // 获取平台特定的 options
+    final platformName = cpuType.platformName();
+    final platformOptions = lib.getOptionsForPlatform(platformName);
+    for (final opt in platformOptions) {
       argsBuffer.write(' $opt');
     }
 
