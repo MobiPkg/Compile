@@ -1,0 +1,13 @@
+name: libde265
+type: cmake
+source:
+  git:
+    url: https://github.com/strukturag/libde265.git
+    ref: v1.0.15
+license: COPYING
+
+options:
+  - -DBUILD_SHARED_LIBS=OFF
+  - -DENABLE_SDL=OFF
+  - -DENABLE_DECODER=ON
+  - -DENABLE_ENCODER=OFF

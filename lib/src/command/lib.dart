@@ -19,7 +19,7 @@ class LibCommand extends BaseVoidCommand {
 
   void _checkEnv() {
     if (compileOptions.android) {
-      checkEnv(Consts.ndkKey, throwMessage: 'Please set ndk path first.');
+      NdkUtils.checkAndSetNdk();
     }
     if (compileOptions.ios) {
       checkWhich('xcrun', throwMessage: 'Please install xcode first.');
@@ -52,5 +52,24 @@ class LibCommand extends BaseVoidCommand {
 
     final compiler = createCompiler(lib);
     await compiler.compile(lib);
+
+    // Generate CMake configuration
+    if (!compileOptions.justMakeShell) {
+      final installDir = compileOptions.installPrefix ?? lib.installPath;
+      
+      if (compileOptions.android) {
+        logger.info('Generating Android CMake configuration...');
+        final generator = AndroidCmakeGenerator.fromInstallDir(installDir, lib.name);
+        generator.generate();
+        logger.info('CMake files generated in $installDir/android/');
+      }
+      
+      if (compileOptions.ios) {
+        logger.info('Generating iOS CMake configuration...');
+        final generator = IosCmakeGenerator.fromInstallDir(installDir, lib.name);
+        generator.generate();
+        logger.info('CMake files generated in $installDir/ios/');
+      }
+    }
   }
 }

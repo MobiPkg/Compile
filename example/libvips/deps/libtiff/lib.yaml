@@ -1,0 +1,19 @@
+name: libtiff
+type: cmake
+source:
+  git:
+    url: https://gitlab.com/libtiff/libtiff.git
+    ref: v4.6.0
+license: LICENSE.md
+
+options:
+  - -DBUILD_SHARED_LIBS=OFF
+  - -Dtiff-tools=OFF
+  - -Dtiff-tests=OFF
+  - -Dtiff-contrib=OFF
+  - -Dtiff-docs=OFF
+  - -Djbig=OFF
+  - -Dlerc=OFF
+  - -Dlzma=OFF
+  - -Dwebp=OFF
+  - -Dzstd=OFF

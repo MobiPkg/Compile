@@ -127,7 +127,10 @@ class AutoToolsCompiler extends BaseCompiler {
     }
     // cpu number
     final cpuNumber = envs.cpuCount;
-    final opt = lib.options.toFlagString();
+    // 获取平台特定的 options
+    final platformName = cpuType.platformName();
+    final platformOptions = lib.getOptionsForPlatform(platformName);
+    final opt = platformOptions.toFlagString();
 
     if (depPrefix.isEmpty) {
       // ignore: parameter_assignments
@@ -145,9 +148,27 @@ class AutoToolsCompiler extends BaseCompiler {
       shellBuffer.writeln(env.toEnvString(export: true, separator: '\n'));
       shellBuffer.writeln('cd $sourceDir');
       shellBuffer.writeln(configureCmd.formatCommandDefault());
+      // Add post_configure hooks to shell (filtered by platform/arch)
+      final shellPlatform = cpuType.platformName();
+      final shellArch = cpuType.cpuName();
+      final shellPostConfigureHooks = lib.getPostConfigureHooks(
+        platform: shellPlatform,
+        arch: shellArch,
+      );
+      for (final hook in shellPostConfigureHooks) {
+        shellBuffer.writeln(hook);
+      }
       shellBuffer.writeln('cd $sourceDir');
       shellBuffer.writeln(makeCleanCmd);
       shellBuffer.writeln(makeCmd);
+      // Add post_build hooks to shell (filtered by platform/arch)
+      final shellPostBuildHooks = lib.getPostBuildHooks(
+        platform: shellPlatform,
+        arch: shellArch,
+      );
+      for (final hook in shellPostBuildHooks) {
+        shellBuffer.writeln(hook);
+      }
       shellBuffer.writeln(makeInstallCmd);
       makeCompileShell(lib, shellBuffer.toString(), cpuType);
       logger.info('Just make shell, skip compile.');
@@ -159,6 +180,21 @@ class AutoToolsCompiler extends BaseCompiler {
       workingDirectory: sourceDir,
       environment: env,
     );
+
+    // Execute post_configure hooks (filtered by platform/arch)
+    final platform = cpuType.platformName();
+    final arch = cpuType.cpuName();
+    final filteredPostConfigureHooks = lib.getPostConfigureHooks(
+      platform: platform,
+      arch: arch,
+    );
+    if (filteredPostConfigureHooks.isNotEmpty) {
+      simpleLogger.i('Executing post_configure hooks for $platform/$arch...');
+      final hookEnv = _buildHookEnv(env, sourceDir, installPrefix, cpuType);
+      for (final hook in filteredPostConfigureHooks) {
+        await _runHookScript(hook, sourceDir, hookEnv);
+      }
+    }
 
     // make clean (ignore error)
     try {
@@ -177,12 +213,97 @@ class AutoToolsCompiler extends BaseCompiler {
       environment: env,
     );
 
+    // Execute post_build hooks (filtered by platform/arch)
+    final filteredPostBuildHooks = lib.getPostBuildHooks(
+      platform: platform,
+      arch: arch,
+    );
+    if (filteredPostBuildHooks.isNotEmpty) {
+      simpleLogger.i('Executing post_build hooks for $platform/$arch...');
+      final hookEnv = _buildHookEnv(env, sourceDir, installPrefix, cpuType);
+      for (final hook in filteredPostBuildHooks) {
+        await _runHookScript(hook, sourceDir, hookEnv);
+      }
+    }
+
     // make install
     await shell.run(
       makeInstallCmd,
       workingDirectory: sourceDir,
       environment: env,
     );
+  }
+
+  /// Run a hook script, wrapping multi-line scripts in bash -c
+  Future<void> _runHookScript(
+    String script,
+    String workingDirectory,
+    Map<String, String> environment,
+  ) async {
+    // Check if script contains multiple lines or shell constructs
+    final needsBashWrapper = script.contains('\n') ||
+        script.contains('if ') ||
+        script.contains('for ') ||
+        script.contains('while ') ||
+        script.contains('&&') ||
+        script.contains('||') ||
+        script.contains(';');
+
+    if (needsBashWrapper) {
+      // Write script to a temporary file and execute it
+      final tempDir = Directory.systemTemp;
+      final scriptFile = File(
+        '${tempDir.path}/hook_${DateTime.now().millisecondsSinceEpoch}.sh',
+      );
+      scriptFile.writeAsStringSync(script);
+
+      try {
+        await shell.run(
+          'bash ${scriptFile.path}',
+          workingDirectory: workingDirectory,
+          environment: environment,
+        );
+      } finally {
+        if (scriptFile.existsSync()) {
+          scriptFile.deleteSync();
+        }
+      }
+    } else {
+      // Simple single command, run directly
+      await shell.run(
+        script,
+        workingDirectory: workingDirectory,
+        environment: environment,
+      );
+    }
+  }
+
+  /// Build environment variables for hook scripts
+  Map<String, String> _buildHookEnv(
+    Map<String, String> baseEnv,
+    String sourceDir,
+    String installPrefix,
+    CpuType cpuType,
+  ) {
+    final hookEnv = Map<String, String>.from(baseEnv);
+    hookEnv['SOURCE_DIR'] = sourceDir;
+    hookEnv['BUILD_DIR'] = sourceDir; // For autotools, build dir is usually source dir
+    hookEnv['INSTALL_PREFIX'] = installPrefix;
+    hookEnv['ARCH'] = cpuType.cpuName();
+    hookEnv['PLATFORM'] = cpuType.platformName();
+    
+    // HOST is already in baseEnv from platform_utils, ensure it's available
+    // Also add it explicitly for clarity in hook scripts
+    if (baseEnv.containsKey('HOST')) {
+      hookEnv['HOST'] = baseEnv['HOST']!;
+    }
+    
+    if (cpuType is IOSCpuType) {
+      hookEnv['SDK'] = cpuType.sdkName();
+      hookEnv['SDK_PATH'] = cpuType.platformUtils.sysroot();
+    }
+    
+    return hookEnv;
   }
 
   @override

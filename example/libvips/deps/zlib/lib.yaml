@@ -1,0 +1,22 @@
+name: zlib
+type: cmake
+source:
+  git:
+    url: https://github.com/madler/zlib.git
+    ref: v1.3.1
+license: LICENSE
+
+flags:
+  c: -fPIC -O2
+  cxx: -fPIC -O2
+  cpp: ""
+  ld: ""
+
+options: []
+
+# cmake 不会自动生成 pkg-config 文件，需要手动配置
+pkgconfig:
+  - name: zlib
+    description: zlib compression library
+    version: 1.3.1
+    libs: -lz

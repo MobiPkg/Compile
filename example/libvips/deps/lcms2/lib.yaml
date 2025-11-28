@@ -1,0 +1,12 @@
+name: lcms2
+type: meson
+source:
+  git:
+    url: https://github.com/mm2/Little-CMS.git
+    ref: lcms2.16
+license: LICENSE
+
+options:
+  - -Ddefault_library=static
+  - -Dutils=false
+  - -Dsamples=false

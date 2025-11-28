@@ -53,8 +53,11 @@ abstract class BaseCompiler {
     for (final type in compileOptions.androidCpuTypes) {
       reporter.changeCpuType(type);
 
+      // 使用 lib 中配置的 minSdk，如果没有配置则使用默认值
+      final minSdk = lib.androidMinSdk ?? 21;
       final androidUtils = AndroidUtils(
         targetCpuType: type,
+        minSdk: minSdk,
         useEnvExport: compileOptions.justMakeShell,
       );
       final env = androidUtils.getEnvMap();
@@ -80,15 +83,22 @@ abstract class BaseCompiler {
   }
 
   FutureOr<void> compileIOS(Lib lib) async {
-    for (final type in IOSCpuType.values) {
+    for (final type in compileOptions.iosCpuTypes) {
       reporter.changeCpuType(type);
+      compileLogger.setCpuType(type);
+      compileLogger.phase('Compile iOS ${type.cpuName()}');
+      
       final iosUtils = IOSUtils(cpuType: type);
       final env = iosUtils.getEnvMap();
 
       _printEnv(env);
+      compileLogger.info('Environment configured for ${type.cpuName()}');
 
       final depPrefix = type.depPrefix();
       final installPrefix = type.installPrefix(lib);
+      
+      compileLogger.info('Dependency prefix: $depPrefix');
+      compileLogger.info('Install prefix: $installPrefix');
 
       await doCompileIOS(
         lib,
@@ -99,10 +109,12 @@ abstract class BaseCompiler {
       );
 
       if (compileOptions.strip) {
+        compileLogger.info('Stripping dynamic libraries');
         await iosUtils.stripDynamicLib(installPrefix);
       }
 
       _copyLicense(lib, installPrefix);
+      compileLogger.info('iOS ${type.cpuName()} compilation completed');
     }
   }
 
@@ -161,9 +173,22 @@ abstract class BaseCompiler {
 
     logBuffer.writeln('Create universal path: $universalPath');
 
-    // 2. find first cpu type
-    final firstCpuName = IOSCpuType.values.first;
+    // 2. find first cpu type from compiled types
+    final compiledCpuTypes = compileOptions.iosCpuTypes;
+    if (compiledCpuTypes.isEmpty) {
+      logBuffer.writeln('No iOS CPU types configured');
+      logger.info(logBuffer.toString());
+      return;
+    }
+    final firstCpuName = compiledCpuTypes.first;
     final firstCpuDir = Directory(join(iOSPath, firstCpuName.cpuName()));
+    
+    if (!firstCpuDir.existsSync()) {
+      logBuffer.writeln('First CPU directory does not exist: ${firstCpuDir.path}');
+      logger.info(logBuffer.toString());
+      return;
+    }
+    
     final firstCpuChildList = firstCpuDir.listSync();
 
     if (firstCpuChildList.isEmpty) {
@@ -197,7 +222,21 @@ abstract class BaseCompiler {
 
     void lipoSameNameLib(String name) {
       final srcFiles = <File>[];
-      for (final type in IOSCpuType.values) {
+      // 只合并不同架构的文件，跳过 arm64Simulator（因为它和 arm64 是相同架构）
+      // arm64 和 arm64Simulator 不能同时合并到 universal，因为它们都是 arm64 架构
+      // 应该使用 XCFramework 来处理这种情况
+      final typesToMerge = IOSCpuType.values.where((type) {
+        // 如果同时存在 arm64 和 arm64Simulator，只使用 arm64
+        if (type == IOSCpuType.arm64Simulator) {
+          final arm64Path = join(iOSPath, IOSCpuType.arm64.cpuName(), 'lib', name);
+          if (File(arm64Path).existsSync()) {
+            return false; // 跳过 arm64Simulator
+          }
+        }
+        return true;
+      });
+      
+      for (final type in typesToMerge) {
         final cpuPath = join(iOSPath, type.cpuName());
         final cpuLibPath = join(cpuPath, 'lib');
         final cpuLibFile = File(join(cpuLibPath, name));
@@ -206,6 +245,13 @@ abstract class BaseCompiler {
         }
       }
       if (srcFiles.isEmpty) {
+        return;
+      }
+      // 如果只有一个文件，直接复制而不是 lipo
+      if (srcFiles.length == 1) {
+        final dstPath = join(targetLibPath, name);
+        shell.runSync('cp ${srcFiles.first.absolute.path} $dstPath');
+        logBuffer.writeln('Copy single arch lib: ${srcFiles.first.path} to $dstPath');
         return;
       }
       final dstPath = join(targetLibPath, name);
@@ -290,24 +336,37 @@ abstract class BaseCompiler {
 
   /// Main method
   FutureOr<void> compile(Lib lib) async {
+    // 初始化编译日志
+    final logDir = compileOptions.logDir ?? join(lib.buildPath, 'logs');
+    compileLogger.init(logDir: logDir, libName: lib.name);
+    compileLogger.info('Starting compilation for ${lib.name}');
+    compileLogger.info('Build type: ${lib.type.name}');
+    compileLogger.info('Source path: ${lib.workingPath}');
+    compileLogger.info('Install path: ${lib.installPath}');
+
     try {
+      compileLogger.phase('Check Environment');
       doCheckEnvAndCommand(lib);
 
       // apply before pre compile patch
+      compileLogger.phase('Apply Pre-compile Patches');
       lib.applyLibPath(
         beforePrecompile: true,
       );
 
       // pre compile
+      compileLogger.phase('Pre-compile');
       await _precompile(lib);
 
       // apply after pre compile patch
+      compileLogger.phase('Apply Post Pre-compile Patches');
       lib.applyLibPath(
         beforePrecompile: false,
       );
 
       final matrix = lib.matrixList;
 
+      compileLogger.phase('Compile');
       if (matrix.isEmpty) {
         await _compile(lib);
       } else {
@@ -316,11 +375,18 @@ abstract class BaseCompiler {
           await _compile(lib);
         }
       }
+      compileLogger.complete();
     } catch (e, st) {
+      compileLogger.error(
+        message: 'Compilation failed: $e',
+        buildSystem: lib.type.name,
+      );
+      compileLogger.complete(success: false);
       onCompileError(lib, e, st);
       rethrow;
     } finally {
       await doCompileDone(lib);
+      compileLogger.printLogLocations();
     }
 
     logger.info('Compile done, see ${lib.installPath}');

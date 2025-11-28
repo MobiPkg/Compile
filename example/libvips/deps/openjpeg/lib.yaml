@@ -1,0 +1,13 @@
+name: openjpeg
+type: cmake
+source:
+  git:
+    url: https://github.com/uclouvain/openjpeg.git
+    ref: v2.5.2
+license: LICENSE
+
+options:
+  - -DBUILD_SHARED_LIBS=OFF
+  - -DBUILD_CODEC=OFF
+  - -DBUILD_TESTING=OFF
+  - -DBUILD_DOC=OFF

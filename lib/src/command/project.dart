@@ -64,7 +64,7 @@ class ProjectCommand extends BaseVoidCommand {
 
   void _checkEnv() {
     if (compileOptions.android) {
-      checkEnv(Consts.ndkKey, throwMessage: 'Please set ndk path first.');
+      NdkUtils.checkAndSetNdk();
     }
     if (compileOptions.ios) {
       checkWhich('xcrun', throwMessage: 'Please install xcode first.');

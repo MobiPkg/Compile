@@ -1,0 +1,11 @@
+name: libexif
+type: cmake
+source:
+  git:
+    url: https://github.com/libexif/libexif.git
+    ref: v0.6.24
+license: COPYING
+
+options:
+  - -DBUILD_SHARED_LIBS=OFF
+  - -DBUILD_TESTING=OFF

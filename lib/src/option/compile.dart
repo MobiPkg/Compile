@@ -5,14 +5,18 @@ import 'package:yaml/yaml.dart';
 final compileOptions = CompileOptions();
 
 class CompileOptions {
+  /// Android 默认开启
   bool android = true;
 
   List<AndroidCpuType> androidCpuTypes = AndroidCpuType.values;
 
-  bool ios = true;
+  /// iOS 仅在 macOS 上默认开启
+  bool ios = Platform.isMacOS;
 
-  List<IOSCpuType> iosCpuTypes = IOSCpuType.values;
+  /// 默认编译 arm64 和 arm64-simulator，不包含 x86_64
+  List<IOSCpuType> iosCpuTypes = const [IOSCpuType.arm64, IOSCpuType.arm64Simulator];
 
+  /// 鸿蒙默认不开启，需要显式开启
   bool harmony = false;
 
   List<HarmonyCpuType> harmonyCpuTypes = HarmonyCpuType.values;
@@ -52,6 +56,19 @@ class CompileOptions {
       _dependencyPrefix = value;
     }
   }
+
+  String? _logDir;
+
+  String? get logDir => _logDir;
+
+  set logDir(String? value) {
+    if (value != null) {
+      final dir = Directory(value).absolute.path;
+      _logDir = normalize(dir);
+    } else {
+      _logDir = value;
+    }
+  }
 }
 
 extension CompileOptionsExt on CompileOptions {
@@ -71,14 +88,14 @@ extension CompileOptionsExt on CompileOptions {
     argParser.addFlag(
       'ios',
       abbr: 'i',
-      defaultsTo: true,
-      help: 'Whether compile ios library.',
+      defaultsTo: Platform.isMacOS,
+      help: 'Whether compile ios library (default: true on macOS only).',
     );
     argParser.addMultiOption(
       'ios-cpu',
-      help: 'Set ios cpu, support: arm64, armv7, armv7s, x86_64, i386.',
-      allowed: IOSCpuType.args(),
-      defaultsTo: IOSCpuType.args(),
+      help: 'Set ios cpu, support: ${IOSCpuType.args().join(", ")}, all. '
+          'Default: arm64, arm64-simulator. Use "all" to include x86_64.',
+      allowed: [...IOSCpuType.args(), 'all'],
     );
     argParser.addFlag(
       'harmony',
@@ -140,6 +157,12 @@ extension CompileOptionsExt on CompileOptions {
       help: 'Set option file, if config option, '
           'other common options will be ignore.',
     );
+    argParser.addOption(
+      'log-dir',
+      abbr: 'L',
+      help: 'Set compile log directory. '
+          'If not specified, logs will be saved to <lib>/build/logs/',
+    );
   }
 
   void configArgResults(ArgResults? result) {
@@ -159,10 +182,16 @@ extension CompileOptionsExt on CompileOptions {
           .map((e) => AndroidCpuType.from(e))
           .toList();
       ios = result['ios'] as bool;
-      iosCpuTypes = (result['ios-cpu'] as List)
-          .whereType<String>()
-          .map((e) => IOSCpuType.from(e))
-          .toList();
+      final iosCpuList = (result['ios-cpu'] as List).whereType<String>().toList();
+      // 如果用户没有指定 ios-cpu，使用默认架构 (arm64, arm64-simulator)
+      // 如果指定 'all'，使用所有架构
+      if (iosCpuList.isEmpty) {
+        iosCpuTypes = const [IOSCpuType.arm64, IOSCpuType.arm64Simulator];
+      } else if (iosCpuList.contains('all')) {
+        iosCpuTypes = IOSCpuType.values;
+      } else {
+        iosCpuTypes = iosCpuList.map((e) => IOSCpuType.from(e)).toList();
+      }
       harmony = result['harmony'] as bool;
       harmonyCpuTypes = (result['harmony-cpu'] as List)
           .whereType<String>()
@@ -173,6 +202,7 @@ extension CompileOptionsExt on CompileOptions {
       gitDepth = int.parse(result['git-depth'] as String);
       installPrefix = result['install-prefix'] as String?;
       dependencyPrefix = result['dependency-prefix'] as String?;
+      logDir = result['log-dir'] as String?;
     }
   }
 

@@ -1,0 +1,14 @@
+name: highway
+type: cmake
+source:
+  git:
+    url: https://github.com/google/highway.git
+    ref: 1.2.0
+license: LICENSE
+
+options:
+  - -DBUILD_SHARED_LIBS=OFF
+  - -DBUILD_TESTING=OFF
+  - -DHWY_ENABLE_CONTRIB=OFF
+  - -DHWY_ENABLE_EXAMPLES=OFF
+  - -DHWY_ENABLE_TESTS=OFF

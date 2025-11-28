@@ -1,0 +1,16 @@
+name: libpng
+type: cmake
+source:
+  git:
+    url: https://github.com/glennrp/libpng.git
+    ref: v1.6.44
+license: LICENSE
+
+deps:
+  - zlib
+
+options:
+  - -DPNG_SHARED=OFF
+  - -DPNG_STATIC=ON
+  - -DPNG_TESTS=OFF
+  - -DPNG_TOOLS=OFF

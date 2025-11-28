@@ -1,0 +1,11 @@
+name: libimagequant
+type: meson
+source:
+  git:
+    url: https://github.com/ImageOptim/libimagequant.git
+    ref: 4.3.3
+  subpath: imagequant-sys
+license: COPYRIGHT
+
+options:
+  - -Ddefault_library=static

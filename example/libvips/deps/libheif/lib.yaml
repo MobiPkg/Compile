@@ -1,0 +1,28 @@
+name: libheif
+type: cmake
+source:
+  git:
+    url: https://github.com/strukturag/libheif.git
+    ref: v1.18.2
+license: COPYING
+
+options:
+  - -DBUILD_SHARED_LIBS=OFF
+  - -DBUILD_TESTING=OFF
+  - -DWITH_EXAMPLES=OFF
+  - -DWITH_GDK_PIXBUF=OFF
+  - -DWITH_LIBDE265=ON
+  - -DWITH_X265=OFF
+  - -DWITH_AOM_DECODER=OFF
+  - -DWITH_AOM_ENCODER=OFF
+  - -DWITH_RAV1E=OFF
+  - -DWITH_DAV1D=OFF
+  - -DWITH_SvtEnc=OFF
+  - -DWITH_KVAZAAR=OFF
+  - -DWITH_JPEG_DECODER=OFF
+  - -DWITH_JPEG_ENCODER=OFF
+  - -DWITH_OpenJPEG_DECODER=OFF
+  - -DWITH_OpenJPEG_ENCODER=OFF
+
+# 注意: libheif 需要先编译 libde265
+# dart run bin/compile.dart lib -C example/libvips/deps/libde265 ...

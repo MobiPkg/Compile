@@ -124,6 +124,9 @@ class MesonCompiler extends BaseCompiler {
     final crossFilePath = crossFile.absolute.path;
 
     logger.info('meson install path: $installPrefix');
+    compileLogger.info('Meson build path: $buildPath');
+    compileLogger.info('Meson install path: $installPrefix');
+    compileLogger.info('Cross file: $crossFilePath');
 
     final params = <String, String>{
       'prefix': installPrefix,
@@ -137,8 +140,12 @@ class MesonCompiler extends BaseCompiler {
         .map((entry) => '--${entry.key}="${entry.value}"')
         .join(' ');
 
-    if (lib.options.isNotEmpty) {
-      opt = '$opt ${lib.options.join(' ')}';
+    // 获取平台特定的 options
+    final platformName = cpuType.platformName();
+    final platformOptions = lib.getOptionsForPlatform(platformName);
+    if (platformOptions.isNotEmpty) {
+      opt = '$opt ${platformOptions.join(' ')}';
+      compileLogger.info('Meson options ($platformName): ${platformOptions.join(' ')}');
     }
 
     final setupCmd = 'meson setup $buildPath $opt';
@@ -158,27 +165,89 @@ class MesonCompiler extends BaseCompiler {
       return;
     }
 
-    await shell.run(
-      setupCmd,
+    // Meson setup
+    compileLogger.phase('Meson Setup');
+    compileLogger.command(
+      command: setupCmd,
       workingDirectory: lib.workingPath,
       environment: env,
     );
+    
+    final mesonLogPath = join(buildPath, 'meson-logs', 'meson-log.txt');
+    
+    try {
+      await shell.run(
+        setupCmd,
+        workingDirectory: lib.workingPath,
+        environment: env,
+      );
+    } catch (e) {
+      compileLogger.error(
+        message: 'Meson setup failed',
+        command: setupCmd,
+        workingDirectory: lib.workingPath,
+        environment: env,
+        buildSystem: 'meson',
+        logFilePath: mesonLogPath,
+      );
+      rethrow;
+    }
 
-    // build
-    await shell.run(
-      buildCmd,
+    // Meson compile
+    compileLogger.phase('Meson Compile');
+    compileLogger.command(
+      command: buildCmd,
       workingDirectory: lib.workingPath,
       environment: env,
     );
+    
+    try {
+      await shell.run(
+        buildCmd,
+        workingDirectory: lib.workingPath,
+        environment: env,
+      );
+    } catch (e) {
+      compileLogger.error(
+        message: 'Meson compile failed',
+        command: buildCmd,
+        workingDirectory: lib.workingPath,
+        environment: env,
+        buildSystem: 'meson',
+        logFilePath: mesonLogPath,
+      );
+      rethrow;
+    }
 
     removeOldBeforeInstall(installCmd);
 
-    // install
-    await shell.run(
-      installCmd,
+    // Meson install
+    compileLogger.phase('Meson Install');
+    compileLogger.command(
+      command: installCmd,
       workingDirectory: lib.workingPath,
       environment: env,
     );
+    
+    try {
+      await shell.run(
+        installCmd,
+        workingDirectory: lib.workingPath,
+        environment: env,
+      );
+    } catch (e) {
+      compileLogger.error(
+        message: 'Meson install failed',
+        command: installCmd,
+        workingDirectory: lib.workingPath,
+        environment: env,
+        buildSystem: 'meson',
+        logFilePath: mesonLogPath,
+      );
+      rethrow;
+    }
+    
+    compileLogger.info('Meson compilation completed successfully');
   }
 
   void removeOldBeforeInstall(String installCmd) {
@@ -245,7 +314,9 @@ class MesonCompiler extends BaseCompiler {
   }
 
   String makeAndroidCrossFileContent(Lib lib, AndroidCpuType cpuType) {
-    final androidUtils = AndroidUtils(targetCpuType: cpuType);
+    // 使用 lib 中配置的 minSdk，如果没有配置则使用默认值
+    final minSdk = lib.androidMinSdk ?? 21;
+    final androidUtils = AndroidUtils(targetCpuType: cpuType, minSdk: minSdk);
 
     final pkgConfigPath = shell.whichSync('pkg-config');
     if (pkgConfigPath == null) {
@@ -271,7 +342,7 @@ endian = 'little'
 [properties]
 c_ld = 'gold'
 cpp_ld = 'gold'
-needs_exe_wrapper = false
+needs_exe_wrapper = true
 ; sys_root = '${androidUtils.sysroot()}'
 ; pkg_config_libdir = '${cpuType.depPrefix()}/lib/pkgconfig'
 
@@ -280,7 +351,7 @@ c =     '${androidUtils.cc()}'
 cpp =   '${androidUtils.cxx()}'
 ar =    '${androidUtils.ar()}'
 strip = '${androidUtils.strip()}'
-; pkgconfig = '$pkgConfigPath'
+pkgconfig = '$pkgConfigPath'
 
 ${_makeBuiltInOptions(lib, cpuType)}
 
@@ -311,12 +382,14 @@ $flags
   }
 
   String makeIOSCrossFileContent(Lib lib, IOSCpuType cpuType) {
-    final iosUtils = IOSUtils(cpuType: cpuType);
-
     final pkgConfigPath = shell.whichSync('pkg-config');
     if (pkgConfigPath == null) {
       throw Exception('pkg-config not found');
     }
+
+    // 获取依赖库的 pkgconfig 路径
+    final depPrefix = cpuType.depPrefix();
+    final pkgConfigLibDir = depPrefix.isNotEmpty ? '$depPrefix/lib/pkgconfig' : '';
 
     final content = '''
 [host_machine]
@@ -326,17 +399,15 @@ cpu = '${cpuType.getCpuName()}'
 endian = 'little'
 
 [properties]
-c_ld = 'gold'
-cpp_ld = 'gold'
 needs_exe_wrapper = true
-; sys_root = '${iosUtils.sysroot()}'
+${pkgConfigLibDir.isNotEmpty ? "pkg_config_libdir = '$pkgConfigLibDir'" : ''}
 
 [binaries]
-; c =     '${iosUtils.cc()}'
-; cpp =   '${iosUtils.cxx()}'
-; ar =    '${iosUtils.ar()}'
-; strip = '${iosUtils.strip()}'
-; pkgconfig = '$pkgConfigPath'
+c = ['xcrun', '-sdk', '${cpuType.sdkName()}', 'clang', '-target', '${cpuType.xcrunTarget()}']
+cpp = ['xcrun', '-sdk', '${cpuType.sdkName()}', 'clang++', '-target', '${cpuType.xcrunTarget()}']
+ar = ['xcrun', '-sdk', '${cpuType.sdkName()}', 'ar']
+strip = ['xcrun', '-sdk', '${cpuType.sdkName()}', 'strip']
+pkg-config = '$pkgConfigPath'
 
 ${_makeBuiltInOptions(lib, cpuType)}
 
@@ -372,7 +443,7 @@ needs_exe_wrapper = true
 ; cpp =   '${iosUtils.cxx()}'
 ; ar =    '${iosUtils.ar()}'
 ; strip = '${iosUtils.strip()}'
-; pkgconfig = '$pkgConfigPath'
+pkgconfig = '$pkgConfigPath'
 
 ${_makeBuiltInOptions(lib, cpuType)}
 
@@ -418,6 +489,7 @@ extension _IosCpuTypeExt on IOSCpuType {
   String getMesonCpuFamily() {
     switch (this) {
       case IOSCpuType.arm64:
+      case IOSCpuType.arm64Simulator:
         return 'aarch64';
       case IOSCpuType.x86_64:
         return 'x86_64';
@@ -427,6 +499,7 @@ extension _IosCpuTypeExt on IOSCpuType {
   String getCpuName() {
     switch (this) {
       case IOSCpuType.arm64:
+      case IOSCpuType.arm64Simulator:
         return 'aarch64';
       case IOSCpuType.x86_64:
         return 'x86_64';

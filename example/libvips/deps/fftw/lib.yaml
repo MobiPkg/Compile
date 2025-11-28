@@ -1,0 +1,15 @@
+name: fftw
+type: cmake
+source:
+  git:
+    url: https://github.com/FFTW/fftw3.git
+    ref: fftw-3.3.10
+license: COPYING
+
+options:
+  - -DBUILD_SHARED_LIBS=OFF
+  - -DBUILD_TESTS=OFF
+  - -DENABLE_THREADS=ON
+  - -DENABLE_FLOAT=OFF
+  - -DENABLE_LONG_DOUBLE=OFF
+  - -DENABLE_QUAD_PRECISION=OFF

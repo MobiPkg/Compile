@@ -1,0 +1,24 @@
+name: gettext
+type: autotools
+source:
+  git:
+    url: https://github.com/autotools-mirror/gettext.git
+    ref: v0.22.5
+license: COPYING
+
+flags:
+  c: -fPIC -O2
+  cxx: -fPIC -O2
+  cpp: ""
+  ld: ""
+
+precompile:
+  - ./autogen.sh
+
+options:
+  - --disable-java
+  - --disable-csharp
+  - --without-emacs
+  - --without-git
+  - --without-cvs
+  - --without-xz

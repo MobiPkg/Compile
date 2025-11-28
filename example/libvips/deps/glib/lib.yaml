@@ -1,0 +1,47 @@
+name: glib
+type: meson
+source:
+  git:
+    url: https://github.com/GNOME/glib.git
+    ref: 2.82.4
+license: COPYING
+
+deps:
+  - libffi
+  - pcre2
+  - zlib
+
+# Android 平台配置
+# API 28+ 内置 iconv，API 31+ 修复了 frexpl 问题
+android:
+  min_sdk: 28
+
+# glib 会产生多个库文件
+extra_libs:
+  - libgio-2.0
+  - libgobject-2.0
+  - libgmodule-2.0
+  - libgthread-2.0
+  - libpcre2-8
+  - libintl
+
+flags:
+  c: -fPIC -O2
+  cxx: -fPIC -O2
+  cpp: ""
+  ld: ""
+
+# 通用 options
+options:
+  - -Dtests=false
+  - -Dglib_debug=disabled
+  - -Dintrospection=disabled
+  - -Dnls=disabled
+  - -Dlibmount=disabled
+  - -Dselinux=disabled
+  - -Dxattr=false
+  - -Dlibelf=disabled
+  - -Dglib_assert=false
+  - -Dglib_checks=false
+  # 强制使用特定的 subprojects (proxy-libintl, gvdb 是 glib 内置的)
+  - --force-fallback-for=proxy-libintl,gvdb,pcre2

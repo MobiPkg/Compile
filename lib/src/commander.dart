@@ -14,8 +14,12 @@ class Commander with LogMixin {
   final _commanders = <BaseVoidCommand>[
     LibCommand(),
     ProjectCommand(),
+    WorkspaceCommand(),
+    PackageCommand(),
+    CleanCommand(),
     SupportCommand(),
     TemplateCommand(),
+    MergeCommand(),
   ];
 
   CommandRunner<void> get runner => _runner;
