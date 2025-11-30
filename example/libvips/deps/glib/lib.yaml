@@ -15,6 +15,15 @@ deps:
 # API 28+ 内置 iconv，API 31+ 修复了 frexpl 问题
 android:
   min_sdk: 28
+  # Android 不需要 pcre2 fallback，因为我们单独构建了 pcre2
+  options:
+    - --force-fallback-for=proxy-libintl,gvdb
+
+# iOS 平台配置
+ios:
+  # iOS 需要 pcre2 fallback（使用 glib 内置的 pcre2 subproject）
+  options:
+    - --force-fallback-for=proxy-libintl,gvdb,pcre2
 
 # glib 会产生多个库文件
 extra_libs:
@@ -31,7 +40,7 @@ flags:
   cpp: ""
   ld: ""
 
-# 通用 options
+# 通用 options (不包含平台特定的 --force-fallback-for)
 options:
   - -Dtests=false
   - -Dglib_debug=disabled
@@ -43,6 +52,6 @@ options:
   - -Dlibelf=disabled
   - -Dglib_assert=false
   - -Dglib_checks=false
-  # 强制使用特定的 subprojects (proxy-libintl, gvdb 是 glib 内置的)
-  # Note: Do not force pcre2 fallback as we build pcre2 separately
-  - --force-fallback-for=proxy-libintl,gvdb
+  # 注意：--force-fallback-for 选项已移到各平台特定配置中
+  # proxy-libintl, gvdb 是 glib 内置的 subprojects
+  # pcre2 fallback 仅用于 iOS（Android 单独构建 pcre2）
