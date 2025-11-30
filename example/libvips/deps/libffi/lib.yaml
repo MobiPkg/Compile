@@ -12,7 +12,10 @@ flags:
   cpp: ""
   ld: ""
 
+# libffi requires autoreconf but the LT_SYS_SYMBOL_USCORE macro may be missing
+# on some systems. We add it manually before running autoreconf.
 precompile:
+  - bash -c 'printf "dnl LT_SYS_SYMBOL_USCORE - check if symbols have underscore prefix\ndnl For Android/Linux, symbols typically do not have underscore prefix\nAC_DEFUN([LT_SYS_SYMBOL_USCORE],\n[AC_MSG_CHECKING([whether symbols have underscore prefix])\nsys_symbol_underscore=no\nAC_MSG_RESULT([\$sys_symbol_underscore])\n])\n" > m4/lt_symbol_uscore.m4'
   - ./autogen.sh
 
 options:
