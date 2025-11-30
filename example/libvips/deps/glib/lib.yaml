@@ -44,5 +44,5 @@ options:
   - -Dglib_assert=false
   - -Dglib_checks=false
   # 强制使用特定的 subprojects (proxy-libintl, gvdb 是 glib 内置的)
-  # 注意：不要强制 pcre2 fallback，因为我们已经单独构建了 pcre2
+  # Note: Do not force pcre2 fallback as we build pcre2 separately
   - --force-fallback-for=proxy-libintl,gvdb
