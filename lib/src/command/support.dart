@@ -9,6 +9,9 @@ class SupportCommand extends BaseListCommand {
   String get name => 'support';
 
   @override
+  List<String> get aliases => ['s', 'sup'];
+
+  @override
   List<Command<void>> get subCommands => [
         _SupportType(),
       ];

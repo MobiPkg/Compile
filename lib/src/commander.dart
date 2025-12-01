@@ -20,6 +20,7 @@ class Commander with LogMixin {
     SupportCommand(),
     TemplateCommand(),
     MergeCommand(),
+    DoctorCommand(),
   ];
 
   CommandRunner<void> get runner => _runner;

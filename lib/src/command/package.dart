@@ -20,7 +20,7 @@ class PackageCommand extends BaseListCommand {
   String get name => 'package';
 
   @override
-  List<String> get aliases => ['pkg', 'pack'];
+  List<String> get aliases => ['P', 'pkg', 'pack'];
 
   @override
   List<Command<void>> get subCommands => [
