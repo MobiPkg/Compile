@@ -11,6 +11,7 @@ export 'package:process_run/process_run.dart';
 
 export 'src/command/base.dart';
 export 'src/command/clean.dart';
+export 'src/command/doctor.dart';
 export 'src/command/lib.dart';
 export 'src/command/merge.dart';
 export 'src/command/package.dart';
