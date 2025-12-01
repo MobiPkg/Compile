@@ -12,7 +12,11 @@ flags:
   cpp: ""
   ld: ""
 
+# Precompile: 修复 LT_SYS_SYMBOL_USCORE 宏可能缺失的问题 (libtool 2.4.x)
+# 这个宏检查符号是否有下划线前缀，在 Android/Linux 上通常为 "no"
+# 注意：这个修复对所有平台都是安全的（在有该宏的系统上会被忽略）
 precompile:
+  - bash -c 'printf "dnl LT_SYS_SYMBOL_USCORE - check if symbols have underscore prefix\ndnl For Android/Linux, symbols typically do not have underscore prefix\nAC_DEFUN([LT_SYS_SYMBOL_USCORE],\n[AC_MSG_CHECKING([whether symbols have underscore prefix])\nsys_symbol_underscore=no\nAC_MSG_RESULT([\$sys_symbol_underscore])\n])\n" > m4/lt_symbol_uscore.m4'
   - ./autogen.sh
 
 options:
