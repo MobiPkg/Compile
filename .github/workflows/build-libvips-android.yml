@@ -1,0 +1,181 @@
+name: Build libvips for Android
+
+on:
+  push:
+    branches:
+      - copilot/validate-libvips-android-build
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    name: Build libvips Android libraries
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            gettext \
+            libglib2.0-dev \
+            python3-pip \
+            ninja-build
+          pip3 install meson
+      
+      - name: Set up Android NDK
+        uses: android-actions/setup-android@v3
+      
+      - name: Install NDK
+        run: |
+          sdkmanager --install "ndk;27.0.12077973"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.0.12077973" >> $GITHUB_ENV
+      
+      - name: Get Dart dependencies
+        run: dart pub get
+      
+      - name: Build libvips for Android
+        run: |
+          chmod +x example/libvips/build-android-with-workspace.sh
+          ./example/libvips/build-android-with-workspace.sh --clean
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
+      
+      - name: Verify build output
+        id: verify
+        run: |
+          INSTALL_DIR="example/libvips/installed/android"
+          
+          echo "=== Checking build output ==="
+          
+          # Check for expected architectures
+          ARCHS=("arm64-v8a" "armeabi-v7a" "x86" "x86_64")
+          MISSING_ARCHS=""
+          
+          for arch in "${ARCHS[@]}"; do
+            if [ ! -d "$INSTALL_DIR/$arch" ]; then
+              echo "❌ Missing architecture: $arch"
+              MISSING_ARCHS="$MISSING_ARCHS $arch"
+            else
+              echo "✅ Found architecture: $arch"
+            fi
+          done
+          
+          if [ -n "$MISSING_ARCHS" ]; then
+            echo "::error::Missing architectures:$MISSING_ARCHS"
+            exit 1
+          fi
+          
+          # Check for libvips.so in each architecture
+          for arch in "${ARCHS[@]}"; do
+            if [ ! -f "$INSTALL_DIR/$arch/lib/libvips.so" ]; then
+              echo "::error::Missing libvips.so for $arch"
+              exit 1
+            fi
+            echo "✅ Found libvips.so for $arch"
+          done
+          
+          # Check for include files
+          if [ ! -d "$INSTALL_DIR/arm64-v8a/include/vips" ]; then
+            echo "::error::Missing vips include directory"
+            exit 1
+          fi
+          echo "✅ Found vips include directory"
+          
+          # List all .so files
+          echo ""
+          echo "=== Library files ==="
+          for arch in "${ARCHS[@]}"; do
+            echo "--- $arch ---"
+            find "$INSTALL_DIR/$arch/lib" -name "*.so" -o -name "*.a" 2>/dev/null | head -20
+          done
+          
+          echo ""
+          echo "=== Include files ==="
+          ls -la "$INSTALL_DIR/arm64-v8a/include/" | head -20
+      
+      - name: Prepare artifacts
+        run: |
+          INSTALL_DIR="example/libvips/installed/android"
+          ARTIFACT_DIR="libvips-android-artifacts"
+          
+          mkdir -p "$ARTIFACT_DIR"
+          
+          # Copy libraries for each architecture
+          for arch in arm64-v8a armeabi-v7a x86 x86_64; do
+            mkdir -p "$ARTIFACT_DIR/jniLibs/$arch"
+            # Copy all .so files
+            find "$INSTALL_DIR/$arch/lib" -name "*.so" -exec cp {} "$ARTIFACT_DIR/jniLibs/$arch/" \;
+          done
+          
+          # Copy include files (use arm64-v8a as reference, they should be the same)
+          cp -r "$INSTALL_DIR/arm64-v8a/include" "$ARTIFACT_DIR/"
+          
+          # Create a summary file
+          echo "libvips Android Build" > "$ARTIFACT_DIR/BUILD_INFO.txt"
+          echo "=====================" >> "$ARTIFACT_DIR/BUILD_INFO.txt"
+          echo "Build Date: $(date -u)" >> "$ARTIFACT_DIR/BUILD_INFO.txt"
+          echo "Commit: ${{ github.sha }}" >> "$ARTIFACT_DIR/BUILD_INFO.txt"
+          echo "" >> "$ARTIFACT_DIR/BUILD_INFO.txt"
+          echo "Architectures:" >> "$ARTIFACT_DIR/BUILD_INFO.txt"
+          for arch in arm64-v8a armeabi-v7a x86 x86_64; do
+            echo "  - $arch" >> "$ARTIFACT_DIR/BUILD_INFO.txt"
+          done
+          echo "" >> "$ARTIFACT_DIR/BUILD_INFO.txt"
+          echo "Libraries included:" >> "$ARTIFACT_DIR/BUILD_INFO.txt"
+          ls "$ARTIFACT_DIR/jniLibs/arm64-v8a/" >> "$ARTIFACT_DIR/BUILD_INFO.txt"
+          
+          echo "=== Artifact structure ==="
+          find "$ARTIFACT_DIR" -type f | head -50
+      
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: libvips-android
+          path: libvips-android-artifacts/
+          retention-days: 30
+      
+      - name: Verify uploaded artifacts
+        run: |
+          echo "=== Final verification ==="
+          ARTIFACT_DIR="libvips-android-artifacts"
+          
+          # Count .so files per architecture
+          for arch in arm64-v8a armeabi-v7a x86 x86_64; do
+            COUNT=$(find "$ARTIFACT_DIR/jniLibs/$arch" -name "*.so" | wc -l)
+            echo "$arch: $COUNT .so files"
+            if [ "$COUNT" -lt 5 ]; then
+              echo "::warning::Low number of libraries for $arch (expected at least 5)"
+            fi
+          done
+          
+          # Verify key libraries exist
+          KEY_LIBS=("libvips.so" "libglib-2.0.so" "libgobject-2.0.so" "libffi.so")
+          for lib in "${KEY_LIBS[@]}"; do
+            if [ ! -f "$ARTIFACT_DIR/jniLibs/arm64-v8a/$lib" ]; then
+              echo "::warning::Key library missing: $lib"
+            else
+              echo "✅ Found key library: $lib"
+            fi
+          done
+          
+          # Verify include files
+          if [ -f "$ARTIFACT_DIR/include/vips/vips.h" ]; then
+            echo "✅ Found vips.h header"
+          else
+            echo "::warning::vips.h header not found"
+          fi
