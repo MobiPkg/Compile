@@ -125,6 +125,17 @@ jobs:
           # Copy include files (use arm64-v8a as reference, they should be the same)
           cp -r "$INSTALL_DIR/arm64-v8a/include" "$ARTIFACT_DIR/"
           
+          # Copy glibconfig.h from lib/glib-2.0/include/ (architecture-specific glib header)
+          # This file is required for compiling against glib
+          if [ -f "$INSTALL_DIR/arm64-v8a/lib/glib-2.0/include/glibconfig.h" ]; then
+            cp "$INSTALL_DIR/arm64-v8a/lib/glib-2.0/include/glibconfig.h" "$ARTIFACT_DIR/include/glib-2.0/"
+            echo "✅ Copied glibconfig.h"
+          else
+            echo "::warning::glibconfig.h not found in expected location"
+            # Try to find it
+            find "$INSTALL_DIR" -name "glibconfig.h" 2>/dev/null || echo "glibconfig.h not found anywhere"
+          fi
+          
           # Create a summary file
           echo "libvips Android Build" > "$ARTIFACT_DIR/BUILD_INFO.txt"
           echo "=====================" >> "$ARTIFACT_DIR/BUILD_INFO.txt"
@@ -164,7 +175,7 @@ jobs:
           done
           
           # Verify key libraries exist
-          KEY_LIBS=("libvips.so" "libglib-2.0.so" "libgobject-2.0.so" "libffi.so")
+          KEY_LIBS=("libvips.so" "libglib-2.0.so" "libgobject-2.0.so")
           for lib in "${KEY_LIBS[@]}"; do
             if [ ! -f "$ARTIFACT_DIR/jniLibs/arm64-v8a/$lib" ]; then
               echo "::warning::Key library missing: $lib"
@@ -178,4 +189,12 @@ jobs:
             echo "✅ Found vips.h header"
           else
             echo "::warning::vips.h header not found"
+          fi
+          
+          # Verify glibconfig.h
+          if [ -f "$ARTIFACT_DIR/include/glib-2.0/glibconfig.h" ]; then
+            echo "✅ Found glibconfig.h header"
+          else
+            echo "::error::glibconfig.h header not found - required for glib compilation"
+            exit 1
           fi
